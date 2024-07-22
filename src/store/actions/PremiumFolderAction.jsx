@@ -6,11 +6,15 @@ import {
   GENERATE_COUPON_CODE_SUCCESS,
   GENERATE_COUPON_CODE_FAILURE,
   COUPON_CODE_LIST_START,
+  FETCH_MORE_COUPON_CODE_LIST_START,
   COUPON_CODE_LIST_SUCCESS,
   COUPON_CODE_LIST_FAILURE,
   COUPON_CODE_VALIDATION_START,
   COUPON_CODE_VALIDATION_SUCCESS,
   COUPON_CODE_VALIDATION_FAILURE,
+  DELETE_COUPON_CODE_START,
+  DELETE_COUPON_CODE_SUCCESS,
+  DELETE_COUPON_CODE_FAILURE,
   PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_LIST_SUCCESS,
   PREMIUM_FOLDER_LIST_FAILURE,
@@ -77,6 +81,13 @@ export function couponCodeListStart(data) {
   };
 }
 
+export function fetchMoreCouponCodeListStart(data) {
+  return {
+    type: FETCH_MORE_COUPON_CODE_LIST_START,
+    data,
+  };
+}
+
 export function couponCodeListSuccess(data) {
   return {
     type: COUPON_CODE_LIST_SUCCESS,
@@ -108,6 +119,27 @@ export function couponCodeValidationSuccess(data) {
 export function couponCodeValidationFailure(error) {
   return {
     type: COUPON_CODE_VALIDATION_FAILURE,
+    error,
+  };
+}
+
+export function deleteCouponCodeStart(data) {
+  return {
+    type: DELETE_COUPON_CODE_START,
+    data,
+  };
+}
+
+export function deleteCouponCodeSuccess(data) {
+  return {
+    type: DELETE_COUPON_CODE_SUCCESS,
+    data,
+  };
+}
+
+export function deleteCouponCodeFailure(error) {
+  return {
+    type: DELETE_COUPON_CODE_FAILURE,
     error,
   };
 }

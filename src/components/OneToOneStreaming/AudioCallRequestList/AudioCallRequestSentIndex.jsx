@@ -26,6 +26,7 @@ import {
 import { Link } from "react-router-dom";
 import AudioCallMakePaymentModel from "../../helper/AudioCallMakePaymentModel";
 import InfiniteScroll from "react-infinite-scroll-component";
+import CallPaymentModal from "../../Model/PaymentModal/CallPaymentModal";
 
 const AudioCallRequestSentIndex = (props) => {
  
@@ -275,7 +276,14 @@ const AudioCallRequestSentIndex = (props) => {
                   </InfiniteScroll>
                 </div>
               </Col>
-              <AudioCallMakePaymentModel
+              {makePaymentModel ?
+                <CallPaymentModal
+                  paymentsModal={makePaymentModel}
+                  closepaymentsModal={closePaymentModal}
+                  callDetails={makePaymentInput}
+                />
+                : null}
+              {/* <AudioCallMakePaymentModel
                 audio_call_request_id={makePaymentInput.audio_call_request_id}
                 audioCallPayment={makePaymentModel}
                 closePaymentModal={closePaymentModal}
@@ -284,7 +292,7 @@ const AudioCallRequestSentIndex = (props) => {
                 user_unique_id={makePaymentInput.model_unique_id}
                 callDetails={makePaymentInput}
                 username={makePaymentInput.modelname}
-              />
+              /> */}
             </Row>
           ) : (
             <NoDataFound />

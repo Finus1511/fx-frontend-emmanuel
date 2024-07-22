@@ -293,7 +293,7 @@ function* PPVPaymentWalletAPI() {
         response.data.message
       );
       yield put(createNotification(notificationMessage));
-      window.location.assign("/post/" + response.data.data.post.post_unique_id);
+      // window.location.assign("/post/" + response.data.data.post.post_unique_id);
     } else {
       yield put(PPVPaymentWalletFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(

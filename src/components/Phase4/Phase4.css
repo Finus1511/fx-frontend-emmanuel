@@ -265,6 +265,7 @@
   display: inline-block;
   border: none !important;
   cursor: pointer;
+  text-transform: capitalize;
 }
 
 .coupon-disabled {
@@ -277,6 +278,7 @@
   display: inline-block;
   border: none !important;
   cursor: pointer;
+  text-transform: capitalize;
 }
 
 .coupon-name {
@@ -526,9 +528,18 @@
   background: none !important;
 }
 
-.coupon-input a {
+.coupon-input a,
+.coupon-input button {
   font-size: 1.4em;
   font-weight: 600;
+  color: var(--primary-color) !important;
+  background-color: unset !important;
+  border: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.coupon-input button:hover {
   color: var(--primary-color);
 }
 
@@ -1022,4 +1033,76 @@
 .folder-list-card-img-sec {
   border-radius: 12px;
   overflow: hidden;
+}
+
+
+
+.button-below-text {
+  display: block;
+  left: 4em;
+  position: relative;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  border: 1px solid var(--primary-color) !important;
+  font-size: 1.4em !important;
+  color: var(--secondary-color) !important;
+  font-weight: 500 !important;
+  background: var(--primary-color) !important;
+  transition: opacity .15s ease, background-color .15s ease, box-shadow .15s ease;
+  white-space: nowrap;
+  text-align: center;
+  margin-bottom: 1px;
+}
+
+.button-below-text:active,
+.button-below-text:hover,
+.button-below-text:focus {
+  color: var(--secondary-color);
+  background: var(--primary-color) !important;
+}
+
+.coupon-saved {
+  font-size: 1.5em;
+  font-weight: 600;
+  position: relative;
+  bottom: 0.5em;
+}
+
+.coupon-code {
+  font-weight: 600;
+  font-size: 1.7em;
+}
+
+
+.coupon-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.coupon-text {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+}
+
+.coupon-text p {
+  margin-bottom: 0;
+}
+
+.coupon-container .coupon-detail {
+  display: flex;
+  gap: 1em;
+}
+
+.coupon-container .coupon-remove {
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 2em;
+}
+
+.promo-code-text {
+  text-transform: uppercase;
 }

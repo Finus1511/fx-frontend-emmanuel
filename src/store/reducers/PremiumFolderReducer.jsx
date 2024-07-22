@@ -6,11 +6,15 @@ import {
   GENERATE_COUPON_CODE_SUCCESS,
   GENERATE_COUPON_CODE_FAILURE,
   COUPON_CODE_LIST_START,
+  FETCH_MORE_COUPON_CODE_LIST_START,
   COUPON_CODE_LIST_SUCCESS,
   COUPON_CODE_LIST_FAILURE,
   COUPON_CODE_VALIDATION_START,
   COUPON_CODE_VALIDATION_SUCCESS,
   COUPON_CODE_VALIDATION_FAILURE,
+  DELETE_COUPON_CODE_START,
+  DELETE_COUPON_CODE_SUCCESS,
+  DELETE_COUPON_CODE_FAILURE,
   PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_LIST_SUCCESS,
   PREMIUM_FOLDER_LIST_FAILURE,
@@ -40,11 +44,19 @@ const initialState = {
     error: false,
   },
   couponCodeList: {
+    data: {
+      promocode: [],
+      total: 0,
+    },
+    loading: true,
+    error: false,
+  },
+  couponCodeValidation: {
     data: {},
     loading: false,
     error: false,
   },
-  couponCodeValidation: {
+  deleteCouponCode: {
     data: {},
     loading: false,
     error: false,
@@ -143,7 +155,11 @@ const PremiumFolderReducer = (state = initialState, action) => {
       return {
         ...state,
         couponCodeList: {
-          data: {},
+          data: {
+            ...state.couponCodeList.data,
+            promocode: [],
+            total: 0,
+          },
           loading: true,
           error: false,
         },
@@ -153,7 +169,10 @@ const PremiumFolderReducer = (state = initialState, action) => {
       return {
         ...state,
         couponCodeList: {
-          data: action.data,
+          data: {
+            promocode: [...state.couponCodeList.data.promocode, ...action.data.promocode],
+            total: action.data.total,
+          },
           loading: false,
           error: false,
         },
@@ -168,6 +187,8 @@ const PremiumFolderReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+    case FETCH_MORE_COUPON_CODE_LIST_START:
+      return state;
 
     case COUPON_CODE_VALIDATION_START:
       return {
@@ -198,6 +219,36 @@ const PremiumFolderReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+
+      case DELETE_COUPON_CODE_START:
+        return {
+          ...state,
+          deleteCouponCode: {
+            data: {},
+            loading: true,
+            error: false,
+          },
+        };
+  
+      case DELETE_COUPON_CODE_SUCCESS:
+        return {
+          ...state,
+          deleteCouponCode: {
+            data: action.data,
+            loading: false,
+            error: false,
+          },
+        };
+  
+      case DELETE_COUPON_CODE_FAILURE:
+        return {
+          ...state,
+          deleteCouponCode: {
+            data: {},
+            loading: false,
+            error: action.error,
+          },
+        };
 
     case PREMIUM_FOLDER_LIST_START:
       return {

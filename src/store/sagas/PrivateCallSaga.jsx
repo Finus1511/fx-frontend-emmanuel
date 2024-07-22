@@ -756,7 +756,7 @@ function* audioCallPayByWalletApi() {
         response.data.message
       );
       yield put(createNotification(notificationMessage));
-      window.location.assign("/audio-calls-history");
+      // window.location.assign("/audio-calls-history");
     } else {
       yield put(audioCallPayByWalletFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(

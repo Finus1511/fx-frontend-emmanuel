@@ -10,7 +10,14 @@ import {
   Form,
   Button,
 } from "react-bootstrap";
-import { connect } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import ToggleButton from "react-bootstrap/ToggleButton";
+import AddCardModalSec from "../Model/PaymentModal/AddCardModalSec";
+import PaymentMethodCard from "../Model/PaymentModal/PaymentMethodCard";
+import PaymentModelMsgSec from "../Model/PaymentModal/PaymentModelMsgSec";
+import { createNotification } from "react-redux-notify/lib/modules/Notifications";
+import { getErrorNotificationMessage } from "./NotificationMessage";
 import {
   PPVPaymentStripeStart,
   PPVPaymentWalletStart,
@@ -18,99 +25,34 @@ import {
   PPVPaymentCCBillStart,
   PPVPaymentCoinPaymentStart,
 } from "../../store/actions/PostAction";
+import { connect } from "react-redux";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCardDetailsStart } from "../../store/actions/CardsAction";
-import { fetchWalletDetailsStart } from "../../store/actions/WalletAction";
-import PaypalExpressBtn from "react-paypal-express-checkout";
-import { createNotification } from "react-redux-notify";
-import {
-  getSuccessNotificationMessage,
-  getErrorNotificationMessage,
-} from "../../components/helper/NotificationMessage";
-import configuration from "react-global-configuration";
-import { Link } from "react-router-dom";
 import { translate, t } from "react-multi-lang";
+import { fetchWalletDetailsStart } from "../../store/actions/WalletAction";
 import Skeleton from "react-loading-skeleton";
 
 const PPVPaymentModal = (props) => {
-
+  
+  const history = useHistory();
   const dispatch = useDispatch();
-  const [amount, setAmount] = useState(0);
-  const [paymentType, setPaymentType] = useState(localStorage.getItem("default_payment_method"));
-  const wallet = useSelector(state => state.wallet.walletData);
-  const [reloadWallet, setReloadWallet] = useState(true);
+  const nullData = ["", null, undefined, "light"];
+  const [skipRender, setSkipRender] = useState(true);
 
-
-  useEffect(() => {
-    dispatch(fetchWalletDetailsStart());
-  }, [reloadWallet]);
-
-  const [isOnlyWalletPayment, setIsOnlyWalletPayment] = useState(
-    configuration.get("configData.is_only_wallet_payment")
+  const [paymentType, setPaymentType] = useState(
+    localStorage.getItem("default_payment_method")
   );
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const wallet = useSelector((state) => state.wallet.walletData);
+  const [reloadWallet, setReloadWallet] = useState(true)
 
-  const [showPayPal, payPal] = useState(false);
 
-  useEffect(() => {
-    if (props.PPVPayment === true) {
-      props.dispatch(fetchCardDetailsStart());
-      props.dispatch(fetchWalletDetailsStart());
-    }
-  }, [props.PPVPayment]);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (paymentType === "PAYPAL") showPayPal(true);
-
-    if (paymentType === "CARD")
-      props.dispatch(
-        PPVPaymentStripeStart({
-          post_id:
-            props.post_id != undefined || props.post_id != null
-              ? props.post_id
-              : "",
-          amount: amount,
-          user_id: props.user_id,
-        })
-      );
-    if (paymentType === "WALLET")
-      props.dispatch(
-        PPVPaymentWalletStart({
-          post_id:
-            props.post_id != undefined || props.post_id != null
-              ? props.post_id
-              : "",
-          user_id: props.user_id,
-        })
-      );
-    if (paymentType === "CCBILL")
-      props.dispatch(
-        PPVPaymentCCBillStart({
-          post_id:
-            props.post_id != undefined || props.post_id != null
-              ? props.post_id
-              : "",
-          amount: props.amount,
-          user_id: props.user_id,
-        })
-      );
-    if (paymentType === "coinpayment")
-      props.dispatch(
-        PPVPaymentCoinPaymentStart({
-          post_id:
-            props.post_id != undefined || props.post_id != null
-              ? props.post_id
-              : "",
-          amount: props.amount,
-          user_id: props.user_id,
-        })
-      );
-
-    if (paymentType === "PAYPAL") props.closePPVPaymentModal();
+  const paypalOnError = (err) => {
+    const notificationMessage = getErrorNotificationMessage(err);
+    this.props.dispatch(createNotification(notificationMessage));
   };
 
   const paypalOnSuccess = (payment) => {
-    console.log(payment);
     setTimeout(() => {
       props.dispatch(
         PPVPaymentPaypalStart({
@@ -124,11 +66,7 @@ const PPVPaymentModal = (props) => {
         })
       );
     }, 1000);
-  };
-
-  const paypalOnError = (err) => {
-    const notificationMessage = getErrorNotificationMessage(err);
-    this.props.dispatch(createNotification(notificationMessage));
+    props.closePPVPaymentModal();
   };
 
   const paypalOnCancel = (data) => {
@@ -138,394 +76,286 @@ const PPVPaymentModal = (props) => {
     this.props.dispatch(createNotification(notificationMessage));
   };
 
-  const choosePaymentOption = (event) => {
-    console.log(amount);
-    setPaymentType(event);
+  const handleSubmit = () => {
+    if (paymentType === "CARD")
+      props.dispatch(
+        PPVPaymentStripeStart({
+          user_card_id: selectedCard,
+          post_id:
+            props.post_id != undefined || props.post_id != null
+              ? props.post_id
+              : "",
+          amount: props.amount,
+          user_id: props.user_id,
+        })
+      );
+    if (paymentType === "WALLET")
+      props.dispatch(
+        PPVPaymentWalletStart({
+          post_id:
+            props.post_id != undefined || props.post_id != null
+              ? props.post_id
+              : "",
+          user_id: props.user_id,
+        })
+      );
+    // props.closePPVPaymentModal();
   };
 
-  let env = configuration.get("configData.PAYPAL_MODE"); // you can set here to 'production' for production
-  let currency = "USD"; // or you can set this value from your props or state
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !props.ppvPayStripe.loading &&
+      Object.keys(props.ppvPayStripe.data).length > 0
+    ) {
+      props.closePPVPaymentModal();
+    }
+  }, [props.ppvPayStripe]);
 
-  const client = {
-    sandbox: configuration.get("configData.PAYPAL_ID"),
-    production: configuration.get("configData.PAYPAL_ID"),
-  };
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !props.ppvPayWallet.loading &&
+      Object.keys(props.ppvPayWallet.success).length > 0
+    ) {
+      history.push(`/post/${props.ppvPayStripe.data.post.post_unique_id}`);
+      props.closePPVPaymentModal();
+    }
+    setSkipRender(false);
+  }, [props.ppvPayWallet]);
 
-  const nullData = ["", null, undefined, "light"];
-
+  useEffect(() => {
+    dispatch(fetchWalletDetailsStart());
+  }, [reloadWallet]);
   return (
     <>
-      {/* <Modal
-        show={props.PPVPayment}
-        onHide={props.closePPVPaymentModal}
-        centered
-        size="lg"
-        className={`${nullData.includes(localStorage.getItem("theme")) ?
-          "" : "dark-theme-modal"
-        }`}
-      >
-        {props.PPVPayment === true ? (
-          <>
-            <Modal.Header closeButton>
-              <Modal.Title>{t("pay_and_see_the_Post")}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="subscription-tip-ppv-tab">
-              <Tab.Container
-                id="left-tabs-example"
-                defaultActiveKey={paymentType}
-              >
-                <Row>
-                  <Col sm={3}>
-                    <Nav variant="pills" className="flex-column">
-                    {isOnlyWalletPayment == 0 ? 
-                    <Nav.Item>
-                      {configuration.get("configData.is_stripe_enabled") == 1 &&
-                      configuration.get("configData.stripe_publishable_key") !==
-                        "" &&
-                      configuration.get("configData.stripe_secret_key") !==
-                        "" ? (
-                        <Nav.Item>
-                          <Nav.Link
-                            onClick={() => setPaymentType("CARD")}
-                            eventKey="CARD"
-                          >
-                            {t("card_stripe")}
-                          </Nav.Link>
-                        </Nav.Item>
-                      ) : null}
-                      {configuration.get("configData.is_paypal_enabled") == 1 &&
-                      configuration.get("configData.PAYPAL_ID") !== "" ? (
-                        <Nav.Item>
-                          <Nav.Link
-                            onClick={() => setPaymentType("PAYPAL")}
-                            eventKey="PAYPAL"
-                          >
-                            {t("paypal")}
-                          </Nav.Link>
-                        </Nav.Item>
-                      ) : null}
-                      {configuration.get("configData.is_ccbill_enabled") == 1 &&
-                      configuration.get("configData.flex_form_id") !== "" &&
-                      configuration.get("configData.salt_key") !== "" ? (
-                        <Nav.Item>
-                          <Nav.Link
-                            onClick={() => setPaymentType("CCBILL")}
-                            eventKey="CCBILL"
-                          >
-                            {t("ccbill")}
-                          </Nav.Link>
-                        </Nav.Item>
-                      ) : null}
-                      </Nav.Item>
-                      : null}
-                      {configuration.get(
-                        "configData.is_wallet_payment_enabled"
-                      ) == 1 ? (
-                        <Nav.Item>
-                          <Nav.Link
-                            onClick={() => setPaymentType("WALLET")}
-                            eventKey="WALLET"
-                          >
-                            {t("wallet")}
-                          </Nav.Link>
-                        </Nav.Item>
-                      ) : null}
-                    </Nav>
-                  </Col>
-                  <Col sm={9}>
-                    <div className="card-stripe-box">
-                      <Form>
-                        <Form.Group
-                          className="mb-3"
-                          controlId="exampleForm.ControlInput1"
-                        >
-                          <Form.Control
-                            type="text"
-                            placeholder={t("pay_amount")}
-                            value={props.post.amount_formatted}
-                            disabled
-                          />
-                        </Form.Group>
-                        <Tab.Content>
-                          {configuration.get("configData.is_stripe_enabled") ==
-                            1 &&
-                          configuration.get(
-                            "configData.stripe_publishable_key"
-                          ) !== "" &&
-                          configuration.get("configData.stripe_secret_key") !==
-                            "" ? (
-                            <Tab.Pane eventKey="CARD">
-                              <div className="card-stripe-sec">
-                                {props.cards.loading ? (
-                                  ""
-                                ) : props.cards.data.cards.length > 0 ? (
-                                  props.cards.data.cards.map(
-                                    (card) =>
-                                      card.is_default == 1 && (
-                                        <div className="card-stripe-list-box">
-                                          <h5 className="mb-3">
-                                            XXXX XXXX XXXX {card.last_four}
-                                          </h5>
-                                          <h5 className="text-muted">
-                                            {card.card_type}
-                                          </h5>
-                                          <div className="card-stripe-bottom">
-                                            <div className="card-stripe-action-btn">
-                                              <p className="card-link-text text-success">
-                                                {t("default_card")}
-                                              </p>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )
-                                  )
-                                ) : (
-                                  <div className="card-stripe-item">
-                                    <Link to="cards">
-                                      <div className="add-account-item">
-                                        <Image
-                                          className="add-account-icon"
-                                          src={
-                                            window.location.origin +
-                                            "/assets/images/icons/new/add-card.svg"
-                                          }
-                                        />
-                                        <h5 className="text-muted">{t("add_card")}</h5>
-                                      </div>
-                                    </Link>
-                                  </div>
-                                )}
-                              </div>
-                            </Tab.Pane>
-                          ) : null}
-
-                          {configuration.get(
-                            "configData.is_wallet_payment_enabled"
-                          ) == 1 ? (
-                            <Tab.Pane eventKey="WALLET">
-                              {props.wallet.loading ? (
-                                ""
-                              ) : (
-                                <div className="card-stripe-box">
-                                  <div className="wallet-balence-amount">
-                                    <h4>{t("available")}</h4>
-                                    <p>
-                                      {
-                                        props.wallet.data.user_wallet
-                                          .remaining_formatted
-                                      }
-                                    </p>
-                                  </div>
-                                  {props.amount >
-                                  props.wallet.data.user_wallet.remaining ? (
-                                    <div className="">
-                                      <p className="conv-desc desc">
-                                        {t(
-                                          "low_wallet_balance_tips_payment_para"
-                                        )}
-                                      </p>
-                                      <div className="d-flex">
-                                        <Link
-                                          to="/wallet"
-                                          className="withdraw-money-btn"
-                                        >
-                                          {t("add_wallet_amount")}
-                                        </Link>
-                                      </div>
-                                    </div>
-                                  ) : null}
-                                </div>
-                              )}
-                            </Tab.Pane>
-                          ) : null}
-                        </Tab.Content>
-                      </Form>
-                    </div>
-                  </Col>
-                </Row>
-              </Tab.Container>
-            </Modal.Body>
-            <Modal.Footer>
-              {paymentType === "PAYPAL" && props.amount != 0 ? (
-                <PaypalExpressBtn
-                  env={env}
-                  client={client}
-                  currency={currency}
-                  total={props.amount}
-                  onError={paypalOnError}
-                  onSuccess={paypalOnSuccess}
-                  onCancel={paypalOnCancel}
+      <div className="payment-modal-sec">
+        {/* <Modal
+          className={`modal-dialog-center user-list-free-modal payment-modal-res ${
+            nullData.includes(localStorage.getItem("theme"))
+              ? ""
+              : "dark-theme-modal"
+          }`}
+          size="xl"
+          centered
+          show={props.PPVPayment}
+          onHide={props.closePPVPaymentModal}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>User List</Modal.Title> 
+          </Modal.Header>
+          <Modal.Body className="wallet-card-body">
+            <Button
+              className="modal-close"
+              onClick={() => props.closePPVPaymentModal()}
+            >
+              <i className="fa fa-times" />
+            </Button>
+            <div className="payment-modal-body">
+              <Row className="justify-content-between">
+                <PaymentMethodCard
+                  paymentType={paymentType}
+                  setPaymentType={setPaymentType}
+                  selectedCard={selectedCard}
+                  setSelectedCard={setSelectedCard}
+                  setShowAddCard={setShowAddCard}
                 />
-              ) : null}
-              <Button
-                type="button"
-                className="btn btn-danger"
-                data-dismiss="modal"
-                onClick={props.closePPVPaymentModal}
-              >
-                {t("cancel")}
-              </Button>
-              {paymentType !== "PAYPAL" ? (
-                <Button
-                  type="button"
-                  className="btn btn-success"
-                  data-dismiss="modal"
-                  onClick={handleSubmit}
-                  disabled={props.ppvPayStripe.buttonDisable}
-                >
-                  {props.ppvPayStripe.loadingButtonContent !== null
-                    ? props.ppvPayStripe.loadingButtonContent
-                    : t("pay_now")}
-                </Button>
-              ) : null}
-            </Modal.Footer>
-          </>
-        ) : null}
-      </Modal> */}
-      <Modal
-        {...props}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        show={props.PPVPayment}
-        onHide={props.closePPVPaymentModal}
-        centered
-        className="pay-amount-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            {t("select_payment_method")}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="pay-amount-modal-body">
-            <div class="pay-wallet-sec">
-              <div className="pay-amount-head">
-                <h4>{t("payment_method")}</h4>
-              </div>
-              {wallet.loading ? (
-                <Skeleton height={45} borderRadius={10} />
-              ) : Object.keys(wallet.data).length > 0 ? (
-                <div className="services-card-wrapped">
-                  <div className="go-live-select-lable">
-                    <div class="form-check">
-                      <label class="form-check-label" for="1">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          name="stream_type"
-                          checked={paymentType === "WALLET"}
-                          onChange={() => { }}
-                        />
-                        <div className="service-card-custome">
-                          <div className="check-tick">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="25"
-                              height="25"
-                              enableBackground="new 0 0 512 512"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                fill="#9f4298"
-                                d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm-.091 15.419a2.001 2.001 0 01-2.823-.005l-2.782-2.696 1.393-1.437 2.793 2.707 5.809-5.701 1.404 1.425-5.793 5.707z"
-                                data-original="#000000"
-                              ></path>
-                            </svg>
+                <Col md={12} xl={5}>
+                  {showAddCard ? (
+                    <AddCardModalSec setShowAddCard={setShowAddCard} />
+                  ) : (
+                    <PaymentModelMsgSec
+                      title={t("post_payment")}
+                      message={t("post_payment_note")}
+                      paymentType={paymentType}
+                      amount_formatted={props.amount_formatted}
+                      amount={props.amount}
+                      payNowAction={handleSubmit}
+                      paypalOnError={paypalOnError}
+                      paypalOnSuccess={paypalOnSuccess}
+                      paypalOnCancel={paypalOnCancel}
+                      btnDisable={
+                        props.ppvPayWallet.ButtonDisable ||
+                        props.ppvPayStripe.ButtonDisable
+                      }
+                      btnText={
+                        props.ppvPayWallet.loadingButtonContent
+                          ? props.ppvPayWallet.loadingButtonContnet
+                          : props.ppvPayStripe.loadingButtonContent
+                          ? props.ppvPayStripe.loadingButtonContent
+                          : t("pay")
+                      }
+                    />
+                  )}
+                </Col>
+              </Row>
+            </div>
+          </Modal.Body>
+        </Modal> */}
+        <Modal
+          show={props.PPVPayment}
+          onHide={props.closePPVPaymentModal}
+          size="xl"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          className="pay-amount-modal"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              {t("live_streaming_payments")}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="pay-amount-modal-body">
+              <div class="pay-wallet-sec ">
+                <div className="pay-amount-head ">
+                  <h4>{t("payment_method")}</h4>
+                </div>
+                {wallet.loading ? (
+                  <Skeleton height={45} borderRadius={10} />
+                ) : Object.keys(wallet.data).length > 0 ? (
+                  <div className="services-card-wrapped">
+                    <div className="go-live-select-lable">
+                      <div class="form-check">
+                        <label class="form-check-label" for="1">
+                          <div className="service-card-custome">
+                            <div className="check-tick">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="25"
+                                height="25"
+                                enableBackground="new 0 0 512 512"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill="#9f4298"
+                                  d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm-.091 15.419a2.001 2.001 0 01-2.823-.005l-2.782-2.696 1.393-1.437 2.793 2.707 5.809-5.701 1.404 1.425-5.793 5.707z"
+                                  data-original="#000000"
+                                ></path>
+                              </svg>
+                            </div>
+                            <div className="service-card-custome-sec">
+                              <span className="service-card-custome-info">
+                                Wallet:
+                              </span>
+                              <span className="wallet-amount">
+                                <Image
+                                  src="assets/images/phase4/wallet.svg"
+                                  className="wallet-icon"
+                                />
+                                {wallet.data?.user_wallet?.remaining_formatted}
+                              </span>
+                            </div>
                           </div>
-                          <div className="service-card-custome-sec">
-                            <span className="service-card-custome-info">
-                              {t("wallet")}:
-                            </span>
-                            <span className="wallet-amount">
-                              <Image src="assets/images/phase4/wallet.svg" className="wallet-icon" />
-                              {wallet.data.user_wallet.remaining_formatted}
-                            </span>
-                          </div>
-                        </div>
-                      </label>
+                        </label>
+                      </div>
                     </div>
-                  </div>
-                  {props.post.amount >
-                    wallet.data.user_wallet.remaining ? (
-                    <p className="text-danger">
-                      {t("low_wallet_balance_tips_payment_para")}
-                    </p>
-                  ) :
-                    null
-                  }
-                  {props.post.amount >
-                    wallet.data.user_wallet.remaining && (
+                    {wallet.data.user_wallet.remaining < props.amount && (
+                      <p className="text-danger">
+                        {t("low_wallet_balance_tips_payment_para")}
+                      </p>
+                    )}
+                    {wallet.data.user_wallet.remaining < props.amount && (
                       <div className="add-wallet-btn-sec">
-                        <Link to="/wallet"
-                          className="default-btn">
+                        <Button
+                          className="default-btn"
+                          onClick={() => history.push("/wallet")}
+                        >
                           {t("add_wallet_amount")}
-                        </Link>
+                        </Button>
                       </div>
                     )}
+                  </div>
+                ) : (
+                  <div className="d-flex justify-content-center">
+                    <div>
+                      <h5>{t("something_went_wrong")}</h5>
+                      <Button
+                        className="button-below-text"
+                        onClick={() => setReloadWallet(!reloadWallet)}
+                      >
+                        {t("reload_wallet")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div class="pay-amount-sec">
+                <div className="pay-amount-head">
+                  <h4>{t("payment_details")}</h4>
+                  {/* <p>Lorem ipsum dolor sit amet.</p> */}
                 </div>
-              ) : (
-                <div className="d-flex justify-content-center">
-                  <div>
-                    <h5>{t("something_went_wrong")}</h5>
-                    <Button
-                      className="button-below-text"
-                      onClick={() => setReloadWallet(!reloadWallet)}
-                    >
-                      {t("reload_wallet")}
-                    </Button>
+                <div className="coupon-input">
+                  {/* <Form.Group controlId="formBasicEmail">
+                    <InputGroup>
+                      <Form.Control
+                        type="text"
+                        aria-label="text"
+                        value="5BDFKHT6K98Q"
+                      />
+                      <InputGroup.Text>
+                        <Link to="#">Apply</Link>
+                      </InputGroup.Text>
+                    </InputGroup>
+                  </Form.Group> */}
+                  <div className="coupon-container">
+                    <div className="coupon-detail">
+                      <Image
+                        className="coupon-image"
+                        src={
+                          window.location.origin + "/assets/images/Coupon.svg"
+                        }
+                      />
+
+                      <div className="coupon-text">
+                        <p className="text-dark coupon-code">5BDFKHT6K98Q</p>
+                        <p className="text-success coupon-saved">
+                          {t("saved")} 20.00 tokens
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link className="coupon-remove" to="#">
+                      {t("remove")}
+                    </Link>
                   </div>
                 </div>
-              )}
-            </div>
-            <div class="pay-amount-sec">
-              <div className="pay-amount-head">
-                <h4>{t("payment_details")}</h4>
-                <p>Lorem ipsum dolor sit amet.</p>
-              </div>
-              <div className="coupon-input">
-                <Form.Group controlId="formBasicEmail">
-                  <InputGroup >
-                    <Form.Control type="text" aria-label="text" value="5BDFKHT6K98Q" />
-                    <InputGroup.Text><Link to="#">{t("apply")}</Link></InputGroup.Text>
-                  </InputGroup>
-                </Form.Group>
-              </div>
-              <div className="pay-modal-token-sec">
-                <div className="pay-modal-token">
-                  <p>{t("tokens")}</p>
-                  <p>{props.post.amount_formatted}</p>
+                <div className="pay-modal-token-sec">
+                  <div className="pay-modal-token">
+                    <p>{t("tokens")}</p>
+                    <p>{props.amount_formatted}</p>
+                  </div>
+                  <div className="pay-modal-token">
+                    <h5>{t("total_token")}</h5>
+                    <h4>{props.amount}</h4>
+                  </div>
                 </div>
-                <div className="pay-modal-token">
-                  <h5>{t("total_token")}</h5>
-                  <h4>{props.post.amount}</h4>
-                </div>
+                <Button
+                  className="default-btn"
+                  onClick={() => handleSubmit()}
+                  disabled={
+                    props.ppvPayWallet.buttonDisable ||
+                    wallet.buttonDisable ||
+                    wallet.data?.user_wallet?.remaining < props.amount
+                  }
+                >
+                  {props.ppvPayWallet.loadingButtonContent
+                    ? props.ppvPayWallet.loadingButtonContent
+                    : t("pay")}
+                </Button>
               </div>
-              <Button
-                className="default-btn"
-                onClick={handleSubmit}
-                buttonDisable={
-                  props.ppvPayWallet.buttonDisable ||
-                  wallet.buttonDisable ||
-                  wallet.data?.user_wallet?.remaining <
-                  props.post.amount
-                }
-              >{props.ppvPayWallet.loadingButtonContent ?
-                props.ppvPayWallet.loadingButtonContent :
-                t("pay")}
-              </Button>
             </div>
-          </div>
-        </Modal.Body>
-      </Modal>
+          </Modal.Body>
+        </Modal>
+      </div>
     </>
   );
 };
 
 const mapStateToPros = (state) => ({
-  ppvPayStripe: state.post.ppvPayStripe,
-  wallet: state.wallet.walletData,
-  cards: state.cards.cardDetails,
+  liveVideoDetails: state.liveVideo.singleLiveVideo,
   ppvPayWallet: state.post.ppvPayWallet,
+  ppvPayStripe: state.post.ppvPayStripe,
 });
 
 function mapDispatchToProps(dispatch) {

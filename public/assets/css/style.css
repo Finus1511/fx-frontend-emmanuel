@@ -12701,18 +12701,31 @@ img.img.live-stream-product-img {
   font-size: 0.9em;
   font-weight: 600;
 }
+
 a.g-users-realname__wrapper {
-    color: #fff !important;
-    font-size: 15px !important;
+  color: #fff !important;
+  font-size: 15px !important;
 }
-span.favorites-list
-{
+
+span.favorites-list {
   cursor: pointer;
 }
+
 .spinner-loader {
   width: 24px;
   height: 24px;
   border: 3px solid var(--tertiary-color);
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.coupon-input .spinner-loader {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--primary-color);
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;

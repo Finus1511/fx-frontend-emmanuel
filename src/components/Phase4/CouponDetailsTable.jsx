@@ -18,9 +18,13 @@ import { Field, Form as FORM, Formik } from "formik";
 import CouponTableFilterModal from "./CouponTableFilterModal";
 import Skeleton from "react-loading-skeleton";
 import { useDispatch, useSelector } from "react-redux";
-import { couponCodeListStart } from "../../store/actions/PremiumFolderAction";
+import {
+  couponCodeListStart,
+  fetchMoreCouponCodeListStart
+} from "../../store/actions/PremiumFolderAction";
 import { translate, t } from "react-multi-lang";
 import NoDataFound from "../NoDataFound/NoDataFound";
+import TableDetails from "./TableDetails";
 
 const CouponDetailsTable = () => {
   const history = useHistory();
@@ -30,18 +34,42 @@ const CouponDetailsTable = () => {
   const dispatch = useDispatch();
   const couponCodeList = useSelector((state) => state.folder.couponCodeList);
 
+  const [activeSec, setActiveSec] = useState("all");
+  const [searchKey, setSearchKey] = useState("");
+
   useEffect(() => {
-    dispatch(couponCodeListStart());
-  }, [filter, key]);
+    dispatch(couponCodeListStart({
+      skip: 0,
+      take: 12
+    }));
+  }, [activeSec]);
+
+  const fetchMoreData = () => {
+    dispatch(fetchMoreCouponCodeListStart({
+      skip: couponCodeList.data.promocode.length,
+      take: 12
+    }));
+  };
+
+  const handleSearch = () => {
+    dispatch(couponCodeListStart({
+      search_key: searchKey
+    }));
+  }
 
   return (
-    <>
       <div className="new-home-page-sec">
         <Container fluid>
-          {couponCodeList.loading ? (
             <div className="personalized-request-box">
               <Row className="align-items-center">
                 <Col md={12}>
+                  {couponCodeList.loading ?
+                    "loading"
+                    :
+                    Object.keys(couponCodeList.data).length > 0 &&
+                      couponCodeList.data.promocode.length > 0
+                      ?
+                      <>
                   <div className="personalized-table-head">
                     <div className="personalized-table-back">
                       <Link to="#" onClick={() => history.goBack()}>
@@ -70,124 +98,7 @@ const CouponDetailsTable = () => {
                     <div className="coupon-table-action">
                       <div className="personalized-table-search">
                         <Formik>
-                          <FORM className="form">
-                            <div className="efi-transation-search">
-                              <Skeleton
-                                height={50}
-                                width={250}
-                                borderRadius={10}
-                              />
-                            </div>
-                          </FORM>
-                        </Formik>
-                      </div>
-                      <div className="coupon-table-filter">
-                        <Skeleton height={50} width={100} borderRadius={10} />
-                      </div>
-                      <div className="coupon-table-head-btn">
-                        <Skeleton height={50} width={250} borderRadius={10} />
-                      </div>
-                    </div>
-                  </div>
-                  <Tabs
-                    id="controlled-tab-example"
-                    activeKey={key}
-                    onSelect={(k) => setKey(k)}
-                    className="mb-3 coupon-table-tabs"
-                  >
-                    <Tab eventKey="all" title="All Coupons (30)">
-                      {[...Array(4)].map(() => (
-                        <Skeleton height={60} borderRadius={10} />
-                      ))}
-                    </Tab>
-                    <Tab eventKey="active" title="Active Coupons (5)">
-                      {[...Array(4)].map(() => (
-                        <Skeleton height={60} borderRadius={10} />
-                      ))}
-                    </Tab>
-                    <Tab eventKey="scheduled" title="Scheduled Coupons (6)">
-                      {[...Array(4)].map(() => (
-                        <Skeleton height={60} borderRadius={10} />
-                      ))}
-                    </Tab>
-                    <Tab eventKey="expired" title="Expired Coupons (7)">
-                      {[...Array(4)].map(() => (
-                        <Skeleton height={60} borderRadius={10} />
-                      ))}
-                    </Tab>
-                  </Tabs>
-                </Col>
-              </Row>
-            </div>
-          ) : Object.keys(couponCodeList.data).length >= 0 && key == "all" ? (
-            <div className="create-coupon-main">
-              <div className="create-coupon-img-sec">
-                <Image
-                  src="assets/images/phase4/create-coupon.png"
-                  className="create-coupon-img"
-                />
-              </div>
-              <div className="create-coupon-info">
-                <h4>{t("manage_coupon_codes")}</h4>
-                <p>
-                  {t("create_coupon_codes_and_automatic_discounts_that")} <br />
-                  {t("apply_at_checkout")}
-                </p>
-                <Button
-                  className="default-btn profile-sidebar-broadcast-btn"
-                  type="button"
-                  onClick={() => history.push("/create-coupon")}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    viewBox="0 0 15 15"
-                  >
-                    <path
-                      fill="#fff"
-                      d="M14.5 8.95h-6v6h-2v-6h-6v-2h6v-6h2v6h6v2z"
-                    ></path>
-                  </svg>
-                  {t("create_coupon")}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="personalized-request-box">
-              <Row className="align-items-center">
-                <Col md={12}>
-                  <div className="personalized-table-head">
-                    <div className="personalized-table-back">
-                      <Link to="#" onClick={() => history.goBack()}>
-                        <span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            enableBackground="new 0 0 512 512"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fill="#9f4298"
-                              d="M4.943 5.606L1.024 9.525a3.585 3.585 0 000 4.95l3.919 3.919a1.5 1.5 0 102.121-2.121l-2.779-2.781 18.25-.023a1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5L4.3 10.492l2.764-2.765a1.5 1.5 0 00-2.121-2.121z"
-                            ></path>
-                          </svg>
-                        </span>
-                        <span className="personalized-request-back-info">
-                          {t("back")}
-                        </span>
-                      </Link>
-                      <div className="table-heading">
-                        <h4>{t("coupons")}</h4>
-                      </div>
-                    </div>
-                    <div className="coupon-table-action">
-                      {Object.keys(couponCodeList.data).length > 0 && (
-                        <>
-                          <div className="personalized-table-search">
-                            <Formik>
+                          
                               <FORM className="form">
                                 <div className="efi-transation-search">
                                   <InputGroup className="mb-0">
@@ -196,9 +107,19 @@ const CouponDetailsTable = () => {
                                       placeholder={"Search"}
                                       type="text"
                                       className="form-control trans-form-control"
+                                      onKeyPress={(event) => {
+                                        if (event.key === "Enter") {
+                                          event.preventDefault();
+                                          handleSearch();
+                                        }
+                                      }}
+                                      value={searchKey}
+                                      onChange={(event) => {
+                                        setSearchKey(event.target.value);
+                                      }}
                                     />
                                     <InputGroup.Text id="basic-addon1">
-                                      <Button className="search-btn">
+                                      <Button className="search-btn" onClick={handleSearch}>
                                         {/* <svg
                                 height="30"
                                 width="30"
@@ -212,7 +133,7 @@ const CouponDetailsTable = () => {
                                       </Button>
                                     </InputGroup.Text>
                                     <InputGroup.Text id="basic-addon1">
-                                      <Button className="search-btn">
+                                      <Button className="search-btn" type="submit">
                                         <svg
                                           xmlns="http://www.w3.org/2000/svg"
                                           width="20"
@@ -240,7 +161,7 @@ const CouponDetailsTable = () => {
                               </FORM>
                             </Formik>
                           </div>
-                          <div className="coupon-table-filter">
+                          {/* <div className="coupon-table-filter">
                             <Button onClick={() => setModalShow(true)}>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -256,9 +177,7 @@ const CouponDetailsTable = () => {
                               </svg>
                               {t("filter")}
                             </Button>
-                          </div>
-                        </>
-                      )}
+                          </div> */}
                       <div className="coupon-table-head-btn">
                         <Button
                           onClick={() => history.push("/create-coupon")}
@@ -272,10 +191,7 @@ const CouponDetailsTable = () => {
                             fill="none"
                             viewBox="0 0 15 15"
                           >
-                            <path
-                              fill="#fff"
-                              d="M14.5 8.95h-6v6h-2v-6h-6v-2h6v-6h2v6h6v2z"
-                            ></path>
+                             <path fill="#fff" d="M14.5 8.95h-6v6h-2v-6h-6v-2h6v-6h2v6h6v2z"></path>
                           </svg>
                           {t("create_coupon")}
                         </Button>
@@ -284,466 +200,85 @@ const CouponDetailsTable = () => {
                   </div>
                   <Tabs
                     id="controlled-tab-example"
-                    activeKey={key}
-                    onSelect={(k) => setKey(k)}
+                    activeKey={activeSec}
+                      onSelect={(all) => setActiveSec(all)}
                     className="mb-3 coupon-table-tabs"
                   >
-                    <Tab eventKey="all" title="All Coupons (30)">
-                      {Object.keys(couponCodeList.data).length > 0 ? (
-                        <Table
-                          responsive
-                          className="personalized-request-table"
-                        >
-                          <thead>
-                            <tr>
-                              <th>{t("coupon_code")}</th>
-                              <th>{t("value")}</th>
-                              <th>{t("start_date")}</th>
-                              <th>{t("end_date")}</th>
-                              <th>{t("no_uses")}</th>
-                              <th>{t("status")}</th>
-                              <th>{t("actions")}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="coupon-name">YRUY657YUY4UYHE</td>
-                              <td>$50</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>
-                                <b>5/100</b>
-                              </td>
-                              <td>
-                                <div className="coupon-disabled">Disabled</div>
-                              </td>
-                              <td>
-                                <Dropdown className="table-dropdown">
-                                  <Dropdown.Toggle id="dropdown-basic">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="18"
-                                      height="18"
-                                      enableBackground="new 0 0 512 512"
-                                      viewBox="0 0 512 512"
-                                    >
-                                      <g fill="#9f4298">
-                                        <circle
-                                          cx="458.667"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="256"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="53.333"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                      </g>
-                                    </svg>
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">
-                                      {t("deactivate")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">
-                                      {t("edit")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">
-                                      {t("delete")}
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="coupon-name">YRUY657YUY4UYHE</td>
-                              <td>$50</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>
-                                <b>5/100</b>
-                              </td>
-                              <td>
-                                <div className="coupon-enable">Enabled</div>
-                              </td>
-                              <td>
-                                <Dropdown className="table-dropdown">
-                                  <Dropdown.Toggle id="dropdown-basic">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="18"
-                                      height="18"
-                                      enableBackground="new 0 0 512 512"
-                                      viewBox="0 0 512 512"
-                                    >
-                                      <g fill="#9f4298">
-                                        <circle
-                                          cx="458.667"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="256"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="53.333"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                      </g>
-                                    </svg>
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">
-                                      {t("deactivate")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">
-                                      {t("edit")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">
-                                      {t("delete")}
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="coupon-name">YRUY657YUY4UYHE</td>
-                              <td>$50</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>
-                                <b>5/100</b>
-                              </td>
-                              <td>
-                                <div className="coupon-enable">Enabled</div>
-                              </td>
-                              <td>
-                                <Dropdown className="table-dropdown">
-                                  <Dropdown.Toggle id="dropdown-basic">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="18"
-                                      height="18"
-                                      enableBackground="new 0 0 512 512"
-                                      viewBox="0 0 512 512"
-                                    >
-                                      <g fill="#9f4298">
-                                        <circle
-                                          cx="458.667"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="256"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="53.333"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                      </g>
-                                    </svg>
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">
-                                      {t("deactivate")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">
-                                      {t("edit")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">
-                                      {t("delete")}
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </Table>
-                      ) : (
-                        <NoDataFound />
-                      )}
+                    <Tab eventKey="all" onClick={(event) => setActiveSec("all")} title="All Coupons">
+                      {activeSec == "all" &&
+                        <TableDetails
+                          couponCodeList={couponCodeList}
+                          fetchMoreData={fetchMoreData}
+                        />
+                      }
                     </Tab>
-                    <Tab eventKey="active" title="Active Coupons (5)">
-                      {Object.keys(couponCodeList.data).length > 0 ? (
-                        <Table
-                          responsive
-                          className="personalized-request-table"
-                        >
-                          <thead>
-                            <tr>
-                              <th>{t("coupon_code")}</th>
-                              <th>{t("value")}</th>
-                              <th>{t("start_date")}</th>
-                              <th>{t("end_date")}</th>
-                              <th>{t("no_uses")}</th>
-                              <th>{t("status")}</th>
-                              <th>{t("actions")}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="coupon-name">Active Coupons</td>
-                              <td>$50</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>
-                                <b>5/100</b>
-                              </td>
-                              <td>
-                                <div className="coupon-disabled">Disabled</div>
-                              </td>
-                              <td>
-                                <Dropdown className="table-dropdown">
-                                  <Dropdown.Toggle id="dropdown-basic">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="18"
-                                      height="18"
-                                      enableBackground="new 0 0 512 512"
-                                      viewBox="0 0 512 512"
-                                    >
-                                      <g fill="#9f4298">
-                                        <circle
-                                          cx="458.667"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="256"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="53.333"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                      </g>
-                                    </svg>
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">
-                                      {t("deactivate")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">
-                                      {t("edit")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">
-                                      {t("delete")}
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </Table>
-                      ) : (
-                        <NoDataFound />
-                      )}
+                    <Tab eventKey="active" title="Active Coupons">
+                      {activeSec == "active" &&
+                          <TableDetails
+                            couponCodeList={couponCodeList}
+                            fetchMoreData={fetchMoreData}
+                          />
+                        }
                     </Tab>
-                    <Tab eventKey="scheduled" title="Scheduled Coupons (6)">
-                      {Object.keys(couponCodeList.data).length > 0 ? (
-                        <Table
-                          responsive
-                          className="personalized-request-table"
-                        >
-                          <thead>
-                            <tr>
-                              <th>{t("coupon_code")}</th>
-                              <th>{t("value")}</th>
-                              <th>{t("start_date")}</th>
-                              <th>{t("end_date")}</th>
-                              <th>{t("no_uses")}</th>
-                              <th>{t("status")}</th>
-                              <th>{t("actions")}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="coupon-name">Scheduled</td>
-                              <td>$50</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>
-                                <b>5/100</b>
-                              </td>
-                              <td>
-                                <div className="coupon-disabled">Disabled</div>
-                              </td>
-                              <td>
-                                <Dropdown className="table-dropdown">
-                                  <Dropdown.Toggle id="dropdown-basic">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="18"
-                                      height="18"
-                                      enableBackground="new 0 0 512 512"
-                                      viewBox="0 0 512 512"
-                                    >
-                                      <g fill="#9f4298">
-                                        <circle
-                                          cx="458.667"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="256"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="53.333"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                      </g>
-                                    </svg>
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">
-                                      {t("deactivate")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">
-                                      {t("edit")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">
-                                      {t("delete")}
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </Table>
-                      ) : (
-                        <NoDataFound />
-                      )}
-                    </Tab>
-                    <Tab eventKey="expired" title="Expired Coupons (7)">
-                      {Object.keys(couponCodeList.data).length > 0 ? (
-                        <Table
-                          responsive
-                          className="personalized-request-table"
-                        >
-                          <thead>
-                            <tr>
-                              <th>{t("coupon_code")}</th>
-                              <th>{t("value")}</th>
-                              <th>{t("start_date")}</th>
-                              <th>{t("end_date")}</th>
-                              <th>{t("no_uses")}</th>
-                              <th>{t("status")}</th>
-                              <th>{t("actions")}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="coupon-name">Exp</td>
-                              <td>$50</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>23 May 2024, 11:17 PM</td>
-                              <td>
-                                <b>5/100</b>
-                              </td>
-                              <td>
-                                <div className="coupon-disabled">Disabled</div>
-                              </td>
-                              <td>
-                                <Dropdown className="table-dropdown">
-                                  <Dropdown.Toggle id="dropdown-basic">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="18"
-                                      height="18"
-                                      enableBackground="new 0 0 512 512"
-                                      viewBox="0 0 512 512"
-                                    >
-                                      <g fill="#9f4298">
-                                        <circle
-                                          cx="458.667"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="256"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                        <circle
-                                          cx="53.333"
-                                          cy="256"
-                                          r="53.333"
-                                          data-original="#000000"
-                                        ></circle>
-                                      </g>
-                                    </svg>
-                                  </Dropdown.Toggle>
-                                  <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">
-                                      {t("deactivate")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">
-                                      {t("edit")}
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">
-                                      {t("delete")}
-                                    </Dropdown.Item>
-                                  </Dropdown.Menu>
-                                </Dropdown>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </Table>
-                      ) : (
-                        <NoDataFound />
-                      )}
+                    {/* <Tab eventKey="scheduled" title="Scheduled Coupons (6)">
+                      {activeSec == "expired" &&
+                          <TableDetails
+                            couponCodeList={couponCodeList}
+                            fetchMoreData={fetchMoreData}
+                          />
+                        }
+                    </Tab> */}
+                    <Tab eventKey="expired" title="Expired Coupons">
+                      {activeSec == "expired" &&
+                          <TableDetails
+                            couponCodeList={couponCodeList}
+                            fetchMoreData={fetchMoreData}
+                          />
+                        }
                     </Tab>
                   </Tabs>
+                  </>
+                  :
+                  <div className="create-coupon-main">
+                    <div className="create-coupon-img-sec">
+                      <Image
+                        src="assets/images/phase4/create-coupon.png"
+                        className="create-coupon-img"
+                      />
+                    </div>
+                    <div className="create-coupon-info">
+                      <h4>{t("manage_coupon_codes")}</h4>
+                      <p>
+                        {t("create_coupon_codes_and_automatic_discounts_that")} <br />
+                        {t("apply_at_checkout")}
+                      </p>
+                      <Button
+                        className="default-btn profile-sidebar-broadcast-btn"
+                        type="button"
+                        onClick={() => history.push("/create-coupon")}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="15"
+                          height="15"
+                          fill="none"
+                          viewBox="0 0 15 15"
+                        >
+                          <path
+                            fill="#fff"
+                            d="M14.5 8.95h-6v6h-2v-6h-6v-2h6v-6h2v6h6v2z"
+                          ></path>
+                           </svg>
+                        {t("create_coupon")}
+                      </Button>
+                    </div>
+                  </div>
+              }
                 </Col>
               </Row>
             </div>
-          )}
         </Container>
       </div>
-      {modalShow && (
-        <CouponTableFilterModal
-          show={modalShow}
-          onSubmit={(data) => {
-            setFilter(data);
-            setModalShow(false);
-          }}
-          onHide={() => setModalShow(false)}
-        />
-      )}
-    </>
   );
 };
 

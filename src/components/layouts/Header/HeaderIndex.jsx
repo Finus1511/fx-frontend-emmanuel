@@ -529,7 +529,37 @@ const HeaderIndex = (props) => {
                     }
                     alt={configuration.get("configData.site_name")}
                   />{" "}
-                  Favorite List
+                  {t("favorite_list")}
+                </Link>
+                <Link
+                  to={"/create-coupon"}
+                  className="sidebar-menus-item"
+                  data-name="Profile"
+                  onClick={() => setIsVisible(!isVisible)}
+                >
+                  <Image
+                    src={
+                      window.location.origin +
+                      "/assets/images/icons/new/create-coupon.svg"
+                    }
+                    alt={configuration.get("configData.site_name")}
+                  />{" "}
+                  {t("create_coupon_code")}
+                </Link>
+                <Link
+                  to={"/coupon-details-table"}
+                  className="sidebar-menus-item"
+                  data-name="Profile"
+                  onClick={() => setIsVisible(!isVisible)}
+                >
+                <Image
+                    src={
+                      window.location.origin +
+                      "/assets/images/icons/new/coupon-list.svg"
+                    }
+                    alt={configuration.get("configData.site_name")}
+                  />{" "}
+                  {t("coupon_lists")}
                 </Link>
                 <Link
                   to={"/list"}

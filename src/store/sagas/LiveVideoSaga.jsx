@@ -94,8 +94,8 @@ function* liveVideoSaveAPI() {
       yield put(createNotification(notificationMessage));
       window.location.assign(
         window.location.origin +
-          "/join-live/" +
-          response.data.data.live_video_unique_id
+        "/join-live/" +
+        response.data.data.live_video_unique_id
       );
     } else {
       yield put(videoCallBroadcastFailure(response.data.error));
@@ -195,8 +195,8 @@ function* liveStripeAPI() {
       yield put(createNotification(notificationMessage));
       window.location.assign(
         window.location.origin +
-          "/live-video/" +
-          response.data.data.live_video_unique_id
+        "/live-video/" +
+        response.data.data.live_video_unique_id
       );
     } else {
       yield put(livePaymentStripeFailure(response.data.error));
@@ -231,8 +231,8 @@ function* livePaypalAPI() {
 
       window.location.assign(
         window.location.origin +
-          "/live-video/" +
-          response.data.data.live_video_unique_id
+        "/live-video/" +
+        response.data.data.live_video_unique_id
       );
     } else {
       yield put(livePaymentPaypalFailure(response.data.error));
@@ -333,11 +333,7 @@ function* liveWalletAPI() {
         response.data.message
       );
       yield put(createNotification(notificationMessage));
-      window.location.assign(
-        window.location.origin +
-          "/live-video/" +
-          response.data.data.live_video_unique_id
-      );
+      // window.location.assign(window.location.origin + "/live-video/" + response.data.data.live_video_unique_id);
     } else {
       yield put(livePaymentWalletFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(

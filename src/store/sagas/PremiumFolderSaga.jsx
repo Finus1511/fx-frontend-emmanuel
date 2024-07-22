@@ -5,7 +5,9 @@ import {
   CREATE_COUPON_CODE_START,
   GENERATE_COUPON_CODE_START,
   COUPON_CODE_LIST_START,
+  FETCH_MORE_COUPON_CODE_LIST_START,
   COUPON_CODE_VALIDATION_START,
+  DELETE_COUPON_CODE_START,
   PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_PAYMENT_START,
   CREATE_PREMIUM_FOLDER_START,
@@ -28,6 +30,8 @@ import {
   couponCodeListFailure,
   couponCodeValidationSuccess,
   couponCodeValidationFailure,
+  deleteCouponCodeSuccess,
+  deleteCouponCodeFailure,
   premiumFolderListSuccess,
   premiumFolderListFailure,
   premiumFolderPaymentSuccess,
@@ -42,10 +46,10 @@ import {
 
 function* createCouponCodeAPI(action) {
   try {
-    const response = yield api.postMethod("create_coupon", action.data);
+    const response = yield api.postMethod("promo_code_save", action.data);
 
     if (response.data.success) {
-      yield put(createCouponCodeSuccess(response.data));
+      yield put(createCouponCodeSuccess(response.data.data));
       const notificationMessage = getSuccessNotificationMessage(
         response.data.message
       );
@@ -97,14 +101,9 @@ function* generatCouponCodeAPI(action) {
 
 function* couponCodeListAPI(action) {
   try {
-    const response = yield api.postMethod("coupon_code/list", action.data);
-
+    const response = yield api.postMethod("promo_code_index", action.data);
     if (response.data.success) {
-      yield put(couponCodeListSuccess(response.data));
-      const notificationMessage = getSuccessNotificationMessage(
-        response.data.message
-      );
-      yield put(createNotification(notificationMessage));
+      yield put(couponCodeListSuccess(response.data.data));
     } else {
       yield put(couponCodeListFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(
@@ -121,13 +120,9 @@ function* couponCodeListAPI(action) {
 
 function* couponCodeValidationAPI(action) {
   try {
-    const response = yield api.postMethod(
-      "create_coupon_code_validation",
-      action.data
-    );
-
+    const response = yield api.postMethod("promo_code_validate", action.data);
     if (response.data.success) {
-      yield put(couponCodeValidationSuccess(response.data));
+      yield put(couponCodeValidationSuccess(response.data.data));
       const notificationMessage = getSuccessNotificationMessage(
         response.data.message
       );
@@ -141,6 +136,29 @@ function* couponCodeValidationAPI(action) {
     }
   } catch (error) {
     yield put(couponCodeValidationFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
+function* deleteCouponCodeAPI(action) {
+  try {
+    const response = yield api.postMethod("promo_code_delete", action.data);
+    if (response.data.success) {
+      yield put(deleteCouponCodeSuccess(response.data.data));
+      const notificationMessage = getSuccessNotificationMessage(
+        response.data.message
+      );
+      yield put(createNotification(notificationMessage));
+    } else {
+      yield put(deleteCouponCodeFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(
+        response.data.error
+      );
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(deleteCouponCodeFailure(error));
     const notificationMessage = getErrorNotificationMessage(error.message);
     yield put(createNotification(notificationMessage));
   }
@@ -271,32 +289,14 @@ function* premiumFolderFilesListAPI(action) {
 
 export default function* PremiumFolderSaga() {
   yield all([yield takeLatest(CREATE_COUPON_CODE_START, createCouponCodeAPI)]);
-  yield all([
-    yield takeLatest(GENERATE_COUPON_CODE_START, generatCouponCodeAPI),
-  ]);
+  yield all([yield takeLatest(GENERATE_COUPON_CODE_START, generatCouponCodeAPI)]);
   yield all([yield takeLatest(COUPON_CODE_LIST_START, couponCodeListAPI)]);
-  yield all([
-    yield takeLatest(COUPON_CODE_VALIDATION_START, couponCodeValidationAPI),
-  ]);
-  yield all([
-    yield takeLatest(PREMIUM_FOLDER_LIST_START, premiumFolderListAPI),
-  ]);
-  yield all([
-    yield takeLatest(PREMIUM_FOLDER_PAYMENT_START, premiumFolderPaymentAPI),
-  ]);
-  yield all([
-    yield takeLatest(CREATE_PREMIUM_FOLDER_START, createPremiumFolderAPI),
-  ]);
-  yield all([
-    yield takeLatest(
-      UPLOAD_FILES_PREMIUM_FOLDER_START,
-      uploadFilesPremiumFolderAPI
-    ),
-  ]);
-  yield all([
-    yield takeLatest(
-      PREMIUM_FOLDER_FILES_LIST_START,
-      premiumFolderFilesListAPI
-    ),
-  ]);
+  yield all([yield takeLatest(FETCH_MORE_COUPON_CODE_LIST_START, couponCodeListAPI)]);
+  yield all([yield takeLatest(COUPON_CODE_VALIDATION_START, couponCodeValidationAPI)]);
+  yield all([yield takeLatest(DELETE_COUPON_CODE_START, deleteCouponCodeAPI)]);
+  yield all([yield takeLatest(PREMIUM_FOLDER_LIST_START, premiumFolderListAPI)]);
+  yield all([yield takeLatest(PREMIUM_FOLDER_PAYMENT_START, premiumFolderPaymentAPI)]);
+  yield all([yield takeLatest(CREATE_PREMIUM_FOLDER_START, createPremiumFolderAPI)]);
+  yield all([yield takeLatest(UPLOAD_FILES_PREMIUM_FOLDER_START, uploadFilesPremiumFolderAPI)]);
+  yield all([yield takeLatest(PREMIUM_FOLDER_FILES_LIST_START, premiumFolderFilesListAPI)]);
 }

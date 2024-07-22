@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Image, Modal,InputGroup, Tab, Nav, Row, Col } from "react-bootstrap";
+import { Form, Button, Image, Modal, InputGroup, Tab, Nav, Row, Col } from "react-bootstrap";
 import { connect } from "react-redux";
 import PaypalExpressBtn from "react-paypal-express-checkout";
+import { useHistory } from "react-router-dom";
 import { createNotification } from "react-redux-notify";
 import {
   getSuccessNotificationMessage,
@@ -21,13 +22,18 @@ import {
 import { fetchWalletDetailsStart } from "../../store/actions/WalletAction";
 import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
+import { couponCodeValidationStart } from "../../store/actions/PremiumFolderAction";
 
 const AudioCallMakePaymentModel = (props) => {
 
   const dispatch = useDispatch();
+  const history = useHistory();
   const [paymentType, setPaymentType] = useState(localStorage.getItem("default_payment_method"));
   const wallet = useSelector(state => state.wallet.walletData);
   const [reloadWallet, setReloadWallet] = useState(true);
+  const [skipRender, setSkipRender] = useState(true);
+  const couponCodeValidation = useSelector((state) => state.folder.couponCodeValidation);
+
 
   const [showPayPal, payPal] = useState(false);
 
@@ -100,6 +106,15 @@ const AudioCallMakePaymentModel = (props) => {
   useEffect(() => {
     dispatch(fetchWalletDetailsStart());
   }, [reloadWallet]);
+
+  useEffect(() => {
+    if (!skipRender && !props.audioCallPayByWallet.loading &&
+      Object.keys(props.audioCallPayByWallet.data).length > 0) {
+      history.push("/audio-calls-history");
+      props.closePaymentModal();
+    }
+    setSkipRender(false);
+  }, [props.audioCallPayByWallet]);
 
   return (
     <>

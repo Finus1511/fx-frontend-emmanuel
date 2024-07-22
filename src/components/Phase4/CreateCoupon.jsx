@@ -26,12 +26,9 @@ import { ButtonLoader } from "../helper/Loader";
 
 const CreateCoupon = () => {
   const dispatch = useDispatch();
-  const createCouponCode = useSelector(
-    (state) => state.folder.createCouponCode
-  );
-  const generateCouponCode = useSelector(
-    (state) => state.folder.generateCouponCode
-  );
+  const createCouponCode = useSelector((state) => state.folder.createCouponCode);
+  const generateCouponCode = useSelector((state) => state.folder.generateCouponCode);
+  
   const formRef = useRef();
   const [checked, setChecked] = useState(false);
   const [expiry, setExpiry] = useState(false);
@@ -41,9 +38,9 @@ const CreateCoupon = () => {
 
   const handleChange = (checked) => {
     if (checked) {
-      formRef.current.setFieldValue("active", 1);
+      formRef.current.setFieldValue("status", 1);
     } else {
-      formRef.current.setFieldValue("active", 0);
+      formRef.current.setFieldValue("status", 0);
     }
     setChecked(checked);
   };
@@ -134,31 +131,40 @@ const CreateCoupon = () => {
   };
 
   const options = [
-    { value: "subscription", label: "Subscription" },
-    { value: "free", label: "Free" },
+    { value: "all-payments", label: t("all-payments") },
+    { value: "subscription-payments", label: t("subscription_payments") },
+    { value: "user-tips", label: t("user_tips") },
+    { value: "post-payments", label: t("post_payments") },
+    { value: "video-call-payments", label: t("video_call_payments") },
+    { value: "audio-call-payments", label: t("audio_call_payments") },
+    { value: "chat-asset-payments", label: t("chat_asset_payments") },
+    { value: "order-payments", label: t("order_payments") },
+    { value: "live-video-payments", label: t("live_video_payments") },
+    { value: "total-payments", label: t("total_payments") },
   ];
 
   const CouponSchema = (expiry) => {
     const baseSchema = {
-      generated_coupon: Yup.string().required("Required"),
-      amount_type: Yup.string().required("Required"),
-      amount: Yup.string().required("Required"),
-      applies_on: Yup.string().required("Required"),
-      usage_limit: Yup.string().required("Required"),
-      start_date: Yup.string().required("Required"),
+      promo_code: Yup.string().required(t("required")),
+      amount_type: Yup.string().required(t("required")),
+      amount: Yup.string().required(t("required")),
+      platform: Yup.string().required(t("required")),
+      no_of_users_limit: Yup.string().required(t("required")),
+      per_users_limit: Yup.string().required(t("required")),
+      start_date: Yup.string().required(t("required")),
     };
 
     if (expiry) {
-      baseSchema.end_date = Yup.string().required("Required");
+      baseSchema.expiry_date = Yup.string().required(t("required"));
     } else {
-      baseSchema.end_date = Yup.string();
+      baseSchema.expiry_date = Yup.string();
     }
 
     return Yup.object().shape(baseSchema);
   };
 
   const handleSubmit = (values) => {
-    dispatch(createCouponCodeStart(values));
+    dispatch(createCouponCodeStart({...values, promo_code: values.promo_code.toUpperCase()}));
   };
 
   const handleGenerateCoupon = () => {
@@ -175,7 +181,7 @@ const CreateCoupon = () => {
   useEffect(() => {
     if (!skiprender && Object.keys(generateCouponCode.data).length > 0) {
       formRef.current.setFieldValue(
-        "generated_coupon",
+        "promo_code",
         generateCouponCode.data.coupon_code
       );
     }
@@ -186,13 +192,31 @@ const CreateCoupon = () => {
     if (data) {
       formRef.current.setValues({
         ...formRef.current.values,
-        end_date: "",
+        expiry_date: "",
       });
     } else {
-      const { end_date, ...rest } = formRef.current.values;
+      const { expiry_date, ...rest } = formRef.current.values;
       formRef.current.setValues(rest);
     }
     setExpiry(data);
+  };
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const handleKeyDown = (e) => {
+    // Allow only alphanumeric characters
+    if (!/[a-zA-Z0-9]/.test(e.key) && e.key.length === 1) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -233,13 +257,15 @@ const CreateCoupon = () => {
                   <Col lg={8}>
                     <Formik
                       initialValues={{
-                        generated_coupon: "",
-                        amount_type: "",
+                        promo_code: "",
+                        amount_type: 0,
                         amount: "",
-                        applies_on: "",
-                        usage_limit: "",
+                        platform: "",
+                        no_of_users_limit: "",
+                        per_users_limit: "",
                         start_date: "",
-                        active: 0,
+                        expiry_date: "",
+                        status: 0,
                       }}
                       validationSchema={CouponSchema(expiry)}
                       onSubmit={handleSubmit}
@@ -249,6 +275,7 @@ const CreateCoupon = () => {
                       {({
                         errors,
                         touched,
+                        values,
                         setFieldValue,
                         resetForm,
                         setFieldError,
@@ -263,11 +290,11 @@ const CreateCoupon = () => {
                                     {t("generate_coupon")}
                                   </Form.Label>
                                   <Field
-                                    className="form-control"
-                                    name="generated_coupon"
+                                    className="form-control promo-code-text"
+                                    name="promo_code"
                                     type="text"
                                     placeholder="Generate coupon code"
-                                    disabled={true}
+                                    onKeyDown={handleKeyDown}
                                   />
                                 </Form.Group>
                                 <Button
@@ -283,7 +310,7 @@ const CreateCoupon = () => {
                               </Form>
                               <ErrorMessage
                                 component={"div"}
-                                name="generated_coupon"
+                                name="promo_code"
                                 className="error-msg text-danger text-right"
                               />
                               <p>{t("customer_discount")}</p>
@@ -294,8 +321,9 @@ const CreateCoupon = () => {
                                 <Radio
                                   className="coupon-amount-radio"
                                   name="amount_type"
+                                  checked={values.amount_type == 0}
                                   onClick={(e) =>
-                                    setFieldValue("amount_type", e.target.value)
+                                    setFieldValue("amount_type", 0)
                                   }
                                   value="thin-crust"
                                 >
@@ -304,8 +332,9 @@ const CreateCoupon = () => {
                                 <Radio
                                   className="coupon-amount-radio"
                                   name="amount_type"
+                                  checked={values.amount_type == 1}
                                   onClick={(e) =>
-                                    setFieldValue("amount_type", e.target.value)
+                                    setFieldValue("amount_type", 1)
                                   }
                                   value="regular-crust"
                                 >
@@ -331,17 +360,23 @@ const CreateCoupon = () => {
                                       type="number"
                                       name="amount"
                                       aria-label="Amount (to the nearest dollar)"
+                                      min="1"
+                                      max={values.amount_type == 0 ? 100 : null}
                                     />
-                                    <InputGroup.Text>%</InputGroup.Text>
+                                    {values.amount_type == 0 ?
+                                      <InputGroup.Text>%</InputGroup.Text>
+                                      :
+                                      null}
                                   </InputGroup>
+                                  <ErrorMessage
+                                    component={"div"}
+                                    name="amount"
+                                    className="error-msg text-danger text-right"
+                                  />
                                 </Form.Group>
                               </div>
                             </div>
-                            <ErrorMessage
-                              component={"div"}
-                              name="amount"
-                              className="error-msg text-danger text-right"
-                            />
+
                             <div className="coupon-card">
                               <h4>{t("applies_on")}</h4>
                               <div className="coupon-amount-types">
@@ -352,54 +387,72 @@ const CreateCoupon = () => {
                                   <Select
                                     defaultValue={selectedOption}
                                     onChange={(option) =>
-                                      setFieldValue("applies_on", option.value)
+                                      setFieldValue("platform", option.value)
                                     }
                                     options={options}
                                     styles={customStyles}
                                   />
+                                  <ErrorMessage
+                                    component={"div"}
+                                    name="platform"
+                                    className="error-msg text-danger text-right"
+                                  />
                                 </Form.Group>
                               </div>
                             </div>
-                            <ErrorMessage
-                              component={"div"}
-                              name="applies_on"
-                              className="error-msg text-danger text-right"
-                            />
                             <div className="coupon-card">
                               <h4>{t("usage_limits")}</h4>
                               <div className="coupon-amount-types">
-                                <Radio
-                                  className="coupon-amount-radio"
-                                  name="usage_limit"
-                                  value="thin-crust"
-                                >
-                                  <span>{t("limit_total_number_of_uses")}</span>
-                                </Radio>
-                                <InputGroup className="mb-4 mt-4">
-                                  <Field
-                                    className="form-control"
-                                    type="number"
-                                    name="usage_limit"
-                                    aria-label="Amount (to the nearest dollar)"
+                                <Form.Group>
+                                  <Radio
+                                    className="coupon-amount-radio"
+                                    name="no_of_users_limit"
+                                    value="thin-crust"
+                                    checked
+                                  >
+                                    <span>{t("limit_total_number_of_uses")}</span>
+                                  </Radio>
+                                  <InputGroup className="mb-4 mt-4">
+                                    <Field
+                                      className="form-control"
+                                      type="number"
+                                      name="no_of_users_limit"
+                                      aria-label="Amount (to the nearest dollar)"
+                                      min="1"
+                                    />
+                                  </InputGroup>
+                                  <ErrorMessage
+                                    component={"div"}
+                                    name="no_of_users_limit"
+                                    className="error-msg text-danger text-right"
                                   />
-                                </InputGroup>
-                                <Radio
-                                  className="coupon-amount-radio"
-                                  name="usage_limit"
-                                  value="regular-crust"
-                                  onClick={(e) =>
-                                    setFieldValue("usage_limit", e.target.value)
-                                  }
-                                >
-                                  <span>{t("fixed_amount")}</span>
-                                </Radio>
+                                </Form.Group>
+                                <Form.Group>
+                                  <Radio
+                                    className="coupon-amount-radio"
+                                    name="per_users_limit"
+                                    value="regular-crust"
+                                    checked
+                                  >
+                                    <span>{t("limit_number_of_uses_per_customer")}</span>
+                                  </Radio>
+                                  <InputGroup className="mb-4 mt-4">
+                                    <Field
+                                      className="form-control"
+                                      type="number"
+                                      name="per_users_limit"
+                                      aria-label="Amount (to the nearest dollar)"
+                                      min="1"
+                                    />
+                                  </InputGroup>
+                                  <ErrorMessage
+                                    component={"div"}
+                                    name="per_users_limit"
+                                    className="error-msg text-danger text-right"
+                                  />
+                                </Form.Group>
                               </div>
                             </div>
-                            <ErrorMessage
-                              component={"div"}
-                              name="usage_limit"
-                              className="error-msg text-danger text-right"
-                            />
                             <div className="coupon-card">
                               <h4>{t("active_dates")}</h4>
                               <div className="create-coupon-input">
@@ -411,8 +464,9 @@ const CreateCoupon = () => {
                                     id="schedule-time-input"
                                     type="datetime-local"
                                     className="form-control mb-4"
-                                    placeholder="schedule_time"
-                                    name="schedule_time"
+                                    placeholder="start_date"
+                                    name="start_date"
+                                    min={getMinDateTime()}
                                     onChange={(e) =>
                                       setFieldValue(
                                         "start_date",
@@ -447,11 +501,12 @@ const CreateCoupon = () => {
                                       id="schedule-time-input"
                                       type="datetime-local"
                                       className="form-control"
-                                      placeholder="schedule_time"
-                                      name="schedule_time"
+                                      placeholder="expiry_date"
+                                      name="expiry_date"
+                                      min={values.start_date}
                                       onChange={(e) =>
                                         setFieldValue(
-                                          "end_date",
+                                          "expiry_date",
                                           e.target.value
                                         )
                                       }
@@ -459,11 +514,6 @@ const CreateCoupon = () => {
                                   </Form.Group>
                                 </div>
                               )}
-                              <ErrorMessage
-                                component={"div"}
-                                name="end_date"
-                                className="error-msg text-danger text-right"
-                              />
                             </div>
 
                             <div className="coupon-card">
@@ -477,12 +527,13 @@ const CreateCoupon = () => {
                             </div>
                             <ErrorMessage
                               component={"div"}
-                              name="active"
+                              name="status"
                               className="error-msg text-danger text-right"
                             />
                             <div className="coupon-card-btn">
-                              <Button className="default-cancel-btn">
-                                Cancel
+                              <Button
+                                className="default-cancel-btn">
+                                {t("cancel")}
                               </Button>
                               <Button
                                 className="default-btn"

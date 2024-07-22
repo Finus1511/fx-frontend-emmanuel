@@ -16,8 +16,7 @@ import { translate, t } from "react-multi-lang";
 const LiveStreamingDataCard = (props) => {
   const { live } = props;
 
-  const [liveStreamingPaymentModal, setLiveStreamingPaymentModal] =
-    useState(false);
+  const [liveStreamingPaymentModal, setLiveStreamingPaymentModal] = useState(false);
 
   const closeLiveStreamingPayment = () => {
     setLiveStreamingPaymentModal(false);

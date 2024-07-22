@@ -1,17 +1,6 @@
-import React, { useState, useEffect } from "react";
-import {
-  InputGroup,
-  FormControl,
-  Image,
-  Modal,
-  Media,
-  Row,
-  Col,
-  Form,
-  Button,
-} from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { Button, Modal, Form, InputGroup, Image } from "react-bootstrap";
+import { Link, useHistory } from "react-router-dom";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ToggleButton from "react-bootstrap/ToggleButton";
 import AddCardModalSec from "./AddCardModalSec";
@@ -27,19 +16,32 @@ import {
 import { connect } from "react-redux";
 import { translate, t } from "react-multi-lang";
 import { fetchWalletDetailsStart } from "../../../store/actions/WalletAction";
+import { useDispatch, useSelector } from "react-redux";
+import CustomLazyLoad from "../../helper/CustomLazyLoad";
 import Skeleton from "react-loading-skeleton";
+import { couponCodeValidationStart } from "../../../store/actions/PremiumFolderAction";
+import * as Yup from "yup";
+import { Formik, Form as FORM, ErrorMessage, Field } from "formik";
+import { ButtonLoader } from "../../helper/Loader";
 
 const LiveStreamingPaymentModal = (props) => {
 
+  const history = useHistory();
   const dispatch = useDispatch();
   const nullData = ["", null, undefined, "light"];
-
-  const [paymentType, setPaymentType] = useState(localStorage.getItem("default_payment_method"));
+  const [paymentType, setPaymentType] = useState(
+    localStorage.getItem("default_payment_method")
+  );
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAddCard, setShowAddCard] = useState(false);
-
-  const wallet = useSelector(state => state.wallet.walletData);
+  const [skipRender, setSkipRender] = useState(true);
+  const wallet = useSelector((state) => state.wallet.walletData);
   const [reloadWallet, setReloadWallet] = useState(true);
+  const [couponDiscount, setCouponDiscount] = useState("");
+
+  const couponCodeValidation = useSelector(
+    (state) => state.folder.couponCodeValidation
+  );
 
   const paypalOnError = (err) => {
     const notificationMessage = getErrorNotificationMessage(err);
@@ -71,39 +73,85 @@ const LiveStreamingPaymentModal = (props) => {
         livePaymentStripeStart({
           live_video_id: props.live.live_video_id,
           user_card_id: selectedCard,
+          promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
     if (paymentType === "WALLET")
       props.dispatch(
         livePaymentWalletStart({
           live_video_id: props.live.live_video_id,
+          promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
-    props.closePaymentModal();
   };
 
   useEffect(() => {
     dispatch(fetchWalletDetailsStart());
   }, [reloadWallet]);
 
+  useEffect(() => {
+    if (!skipRender && !props.liveWallet.loading &&
+      Object.keys(props.liveWallet.data).length > 0) {
+      history.push(`/live-video/${props.liveWallet.data.live_video_unique_id}`);
+      props.closepaymentsModal();
+    }
+    setSkipRender(false);
+  }, [props.liveWallet]);
+
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !couponCodeValidation.loading &&
+      Object.keys(couponCodeValidation.data).length > 0
+    ) {
+      setCouponDiscount(couponCodeValidation.data.coupon_code_validate);
+    }
+  }, [couponCodeValidation]);
+
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !couponCodeValidation.loading &&
+      Object.keys(couponCodeValidation.data).length > 0
+    ) {
+      setCouponDiscount(couponCodeValidation.data.coupon_code_validate);
+    }
+  }, [couponCodeValidation]);
+
+  const couponSchema = Yup.object().shape({
+    promo_code: Yup.string().required(t("required")),
+  });
+
+  const handleValidation = (values) => {
+    dispatch(couponCodeValidationStart({
+        ...values,
+        live_video_id: props.live.live_video_id,
+        platform: "live-video-payments",
+      }));
+  };
+
   return (
     <>
       <div className="payment-modal-sec">
         {/* <Modal
-          className={`modal-dialog-center user-list-free-modal payment-modal-res ${nullData.includes(localStorage.getItem("theme")) ?
-            "" : "dark-theme-modal"
-            }`}
+          className={`modal-dialog-center user-list-free-modal payment-modal-res ${
+            nullData.includes(localStorage.getItem("theme"))
+              ? ""
+              : "dark-theme-modal"
+          }`}
           size="xl"
           centered
           show={props.paymentsModal}
           onHide={props.closepaymentsModal}
         >
-           <Modal.Header closeButton>
-            <Modal.Title>User List</Modal.Title> 
-          </Modal.Header> 
+          <Modal.Header closeButton>
+             <Modal.Title>User List</Modal.Title> 
+          </Modal.Header>
           <Modal.Body className="wallet-card-body">
-            <Button className="modal-close"
-              onClick={() => props.closepaymentsModal()}>
+            <Button
+              className="modal-close"
+              onClick={() => props.closepaymentsModal()}
+            >
               <i className="fa fa-times" />
             </Button>
             <div className="payment-modal-body">
@@ -116,11 +164,10 @@ const LiveStreamingPaymentModal = (props) => {
                   setShowAddCard={setShowAddCard}
                 />
                 <Col md={12} xl={5}>
-                  {showAddCard ?
-                    <AddCardModalSec
-                      setShowAddCard={setShowAddCard}
-                    />
-                    : <PaymentModelMsgSec
+                  {showAddCard ? (
+                    <AddCardModalSec setShowAddCard={setShowAddCard} />
+                  ) : (
+                    <PaymentModelMsgSec
                       title={props.live.title}
                       message={props.live.description}
                       paymentType={paymentType}
@@ -131,34 +178,35 @@ const LiveStreamingPaymentModal = (props) => {
                       paypalOnSuccess={paypalOnSuccess}
                       paypalOnCancel={paypalOnCancel}
                       btnDisable={props.liveVideoDetails.buttonDisable}
-                      btnText={props.liveVideoDetails.loadingButtonContent !== null
-                        ? props.liveVideoDetails.loadingButtonContent
-                        : t("pay")}
+                      btnText={
+                        props.liveVideoDetails.loadingButtonContent !== null
+                          ? props.liveVideoDetails.loadingButtonContent
+                          : t("pay")
+                      }
                     />
-                  }
+                  )}
                 </Col>
               </Row>
             </div>
           </Modal.Body>
         </Modal> */}
         <Modal
-          {...props}
-          size="lg"
-          aria-labelledby="contained-modal-title-vcenter"
           show={props.paymentsModal}
           onHide={props.closepaymentsModal}
+          size="xl"
+          aria-labelledby="contained-modal-title-vcenter"
           centered
           className="pay-amount-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
-              {t("select_payment_method")}
+              {t("live_streaming_payments")}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div className="pay-amount-modal-body">
-              <div class="pay-wallet-sec">
-                <div className="pay-amount-head">
+              <div class="pay-wallet-sec ">
+                <div className="pay-amount-head ">
                   <h4>{t("payment_method")}</h4>
                 </div>
                 {wallet.loading ? (
@@ -168,13 +216,6 @@ const LiveStreamingPaymentModal = (props) => {
                     <div className="go-live-select-lable">
                       <div class="form-check">
                         <label class="form-check-label" for="1">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            name="stream_type"
-                            checked={paymentType === "WALLET"}
-                            onChange={() => { }}
-                          />
                           <div className="service-card-custome">
                             <div className="check-tick">
                               <svg
@@ -193,34 +234,35 @@ const LiveStreamingPaymentModal = (props) => {
                             </div>
                             <div className="service-card-custome-sec">
                               <span className="service-card-custome-info">
-                                {t("wallet")}:
+                                Wallet:
                               </span>
                               <span className="wallet-amount">
-                                <Image src="assets/images/phase4/wallet.svg" className="wallet-icon" />
-                                {wallet.data.user_wallet.remaining_formatted}
+                                <Image
+                                  src="assets/images/phase4/wallet.svg"
+                                  className="wallet-icon"
+                                />
+                                {wallet.data?.user_wallet?.remaining_formatted}
                               </span>
                             </div>
                           </div>
                         </label>
                       </div>
                     </div>
-                    {props.live.amount >
-                      wallet.data.user_wallet.remaining ? (
+                    {wallet.data.user_wallet.remaining < props.live.amount && (
                       <p className="text-danger">
                         {t("low_wallet_balance_tips_payment_para")}
                       </p>
-                    ) :
-                      null
-                    }
-                    {props.live.amount >
-                      wallet.data.user_wallet.remaining && (
-                        <div className="add-wallet-btn-sec">
-                          <Link to="/wallet"
-                            className="default-btn">
-                            {t("add_wallet_amount")}
-                          </Link>
-                        </div>
-                      )}
+                    )}
+                    {wallet.data.user_wallet.remaining < props.live.amount && (
+                      <div className="add-wallet-btn-sec">
+                        <Button
+                          className="default-btn"
+                          onClick={() => history.push("/wallet")}
+                        >
+                          {t("add_wallet_amount")}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="d-flex justify-content-center">
@@ -239,38 +281,109 @@ const LiveStreamingPaymentModal = (props) => {
               <div class="pay-amount-sec">
                 <div className="pay-amount-head">
                   <h4>{t("payment_details")}</h4>
-                  <p>Lorem ipsum dolor sit amet.</p>
+                  {/* <p>Lorem ipsum dolor sit amet.</p> */}
                 </div>
                 <div className="coupon-input">
-                  <Form.Group controlId="formBasicEmail">
-                    <InputGroup >
-                      <Form.Control type="text" aria-label="text" value="5BDFKHT6K98Q" />
-                      <InputGroup.Text><Link to="#">{t("apply")}</Link></InputGroup.Text>
-                    </InputGroup>
-                  </Form.Group>
+                {!couponDiscount ? (
+                    <Formik
+                      initialValues={{
+                        promo_code: ""
+                      }}
+                      validationSchema={couponSchema}
+                      onSubmit={handleValidation}
+                    >
+                      {({
+                        errors,
+                        touched,
+                        setFieldValue,
+                        resetForm,
+                        setFieldError,
+                      }) => (
+                        <FORM>
+                          <Form.Group controlId="formBasicEmail">
+                            <InputGroup>
+                              <Field
+                                type="text"
+                                aria-label="text"
+                                name="promo_code"
+                                className="form-control"
+                              />
+                              <InputGroup.Text>
+                                <Button type="submit">
+                                  {couponCodeValidation.loading ? (
+                                    <ButtonLoader />
+                                  ) : (
+                                    "Apply"
+                                  )}
+                                </Button>
+                              </InputGroup.Text>
+                            </InputGroup>
+                          </Form.Group>
+                          <ErrorMessage
+                            component="div"
+                            name="coupon_code"
+                            className="errorMsg"
+                          />
+                        </FORM>
+                      )}
+                    </Formik>
+                  ) : (
+                  <div className="coupon-container">
+                    <div className="coupon-detail">
+                      <Image
+                        className="coupon-image"
+                        src={
+                          window.location.origin + "/assets/images/icons/new/create-coupon.svg"
+                        }
+                      />
+
+                      <div className="coupon-text">
+                        <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
+                        <p className="text-success coupon-saved">
+                          {t("saved")} {couponDiscount.coupon_applied_amount}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link className="coupon-remove" to="#">
+                      {t("remove")}
+                    </Link>
+                  </div>
+                  )}
                 </div>
                 <div className="pay-modal-token-sec">
                   <div className="pay-modal-token">
                     <p>{t("tokens")}</p>
                     <p>{props.live.amount_formatted}</p>
                   </div>
+                  {couponDiscount &&
+                    <div className="pay-modal-token">
+                      <p>{t("coupon_discount")}</p>
+                      <p> -{couponDiscount.coupon_applied_amount}</p>
+                    </div>
+                  }
                   <div className="pay-modal-token">
                     <h5>{t("total_token")}</h5>
-                    <h4>{props.live.amount}</h4>
+                    <h4>
+                      {couponDiscount ?
+                      props.live.amount - couponDiscount.coupon_applied_amount
+                      :
+                      props.live.amount}
+                    </h4>
                   </div>
                 </div>
                 <Button
                   className="default-btn"
-                  onClick={handleSubmit}
-                  buttonDisable={
+                  onClick={() => handleSubmit()}
+                  disabled={
                     props.liveWallet.buttonDisable ||
                     wallet.buttonDisable ||
-                    wallet.data?.user_wallet?.remaining <
-                    props.live.amount
+                    wallet.data?.user_wallet?.remaining < props.live.amount
                   }
-                >{props.liveWallet.loadingButtonContent ?
-                  props.liveWallet.loadingButtonContent :
-                  t("pay")}
+                >
+                  {props.liveWallet.loadingButtonContent !== null
+                    ? props.liveWallet.loadingButtonContent
+                    : t("pay")}
                 </Button>
               </div>
             </div>
@@ -283,7 +396,7 @@ const LiveStreamingPaymentModal = (props) => {
 
 const mapStateToPros = (state) => ({
   liveVideoDetails: state.liveVideo.singleLiveVideo,
-  liveWallet:state.liveVideo.liveWallet,
+  liveWallet: state.liveVideo.liveWallet,
 });
 
 function mapDispatchToProps(dispatch) {
