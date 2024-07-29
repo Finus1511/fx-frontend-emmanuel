@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Form, InputGroup, Image } from 'react-bootstrap';
-import { Link } from "react-router-dom";
+import { Button, Modal, Form, InputGroup, Image } from "react-bootstrap";
 import PaymentMethodCard from "./PaymentMethodCard";
 import AddCardModalSec from "./AddCardModalSec";
 import PaymentModelMsgSec from "./PaymentModelMsgSec";
@@ -11,24 +10,34 @@ import {
   subscriptionPaymentStripeStart,
   subscriptionPaymentWalletStart,
 } from "../../../store/actions/SubscriptionAction";
-import { useSelector, useDispatch } from "react-redux";
 import { translate, t } from "react-multi-lang";
+import * as Yup from "yup";
 import { connect } from "react-redux";
 import { fetchWalletDetailsStart } from "../../../store/actions/WalletAction";
+import { useDispatch, useSelector } from "react-redux";
+import CustomLazyLoad from "../../helper/CustomLazyLoad";
 import Skeleton from "react-loading-skeleton";
+import { useHistory, Link } from "react-router-dom/cjs/react-router-dom.min";
+import { couponCodeValidationStart } from "../../../store/actions/PremiumFolderAction";
+import { ButtonLoader } from "../../helper/Loader";
+import { Formik, Form as FORM, ErrorMessage, Field } from "formik";
 
 const SubscriptionPaymentModal = (props) => {
 
+  const history = useHistory();
   const dispatch = useDispatch();
   const nullData = ["", null, undefined, "light"];
   const [skipRender, setSkipRender] = useState(true);
 
-  const [paymentType, setPaymentType] = useState(localStorage.getItem("default_payment_method"));
-  const wallet = useSelector(state => state.wallet.walletData);
-  const [reloadWallet, setReloadWallet] = useState(true);
-
+  const [paymentType, setPaymentType] = useState(
+    localStorage.getItem("default_payment_method")
+  );
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAddCard, setShowAddCard] = useState(false);
+  const wallet = useSelector((state) => state.wallet.walletData);
+  const [reloadWallet, setReloadWallet] = useState(true);
+  const [couponDiscount, setCouponDiscount] = useState("");
+  const couponCodeValidation = useSelector((state) => state.folder.couponCodeValidation);
 
   const paypalOnError = (err) => {
     const notificationMessage = getErrorNotificationMessage(err);
@@ -69,6 +78,7 @@ const SubscriptionPaymentModal = (props) => {
           user_unique_id: props.user_unique_id,
           plan_type: props.subscriptionData.plan_type,
           is_free: props.subscriptionData.is_free,
+          promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
   };
@@ -98,6 +108,28 @@ const SubscriptionPaymentModal = (props) => {
     dispatch(fetchWalletDetailsStart());
   }, [reloadWallet]);
 
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !couponCodeValidation.loading &&
+      Object.keys(couponCodeValidation.data).length > 0
+    ) {
+      setCouponDiscount(couponCodeValidation.data.coupon_code_validate);
+    }
+  }, [couponCodeValidation]);
+
+  const couponSchema = Yup.object().shape({
+    promo_code: Yup.string().required(t("required")),
+  });
+
+  const handleValidation = (values) => {
+    dispatch(couponCodeValidationStart({
+      ...values,
+      subscription_id: props.subscriptionData.subscription_id,
+      platform: "subscription-payments",
+    }));
+  };
+
   return (
     <>
       <div className="payment-modal-sec">
@@ -112,8 +144,8 @@ const SubscriptionPaymentModal = (props) => {
           show={props.paymentsModal}
           onHide={props.closepaymentsModal}
         >
-           <Modal.Header closeButton>
-             <Modal.Title>User List</Modal.Title> 
+          <Modal.Header closeButton>
+            <Modal.Title>User List</Modal.Title> 
           </Modal.Header>
           <Modal.Body className="wallet-card-body">
             <Button
@@ -164,23 +196,22 @@ const SubscriptionPaymentModal = (props) => {
           </Modal.Body>
         </Modal> */}
         <Modal
-          {...props}
-          size="lg"
-          aria-labelledby="contained-modal-title-vcenter"
           show={props.paymentsModal}
           onHide={props.closepaymentsModal}
+          size="xl"
+          aria-labelledby="contained-modal-title-vcenter"
           centered
           className="pay-amount-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
-              {t("select_payment_method")}
+              {t("subscption_payments")}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div className="pay-amount-modal-body">
-              <div class="pay-wallet-sec">
-                <div className="pay-amount-head">
+              <div class="pay-wallet-sec ">
+                <div className="pay-amount-head ">
                   <h4>{t("payment_method")}</h4>
                 </div>
                 {wallet.loading ? (
@@ -190,13 +221,6 @@ const SubscriptionPaymentModal = (props) => {
                     <div className="go-live-select-lable">
                       <div class="form-check">
                         <label class="form-check-label" for="1">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            name="stream_type"
-                            checked={paymentType === "WALLET"}
-                            onChange={() => { }}
-                          />
                           <div className="service-card-custome">
                             <div className="check-tick">
                               <svg
@@ -215,32 +239,35 @@ const SubscriptionPaymentModal = (props) => {
                             </div>
                             <div className="service-card-custome-sec">
                               <span className="service-card-custome-info">
-                                {t("wallet")}:
+                                Wallet:
                               </span>
                               <span className="wallet-amount">
-                                <Image src="assets/images/phase4/wallet.svg" className="wallet-icon" />
-                                {wallet.data.user_wallet.remaining_formatted}
+                                <Image
+                                  src="assets/images/phase4/wallet.svg"
+                                  className="wallet-icon"
+                                />
+                                {wallet.data?.user_wallet?.remaining_formatted}
                               </span>
                             </div>
                           </div>
                         </label>
                       </div>
                     </div>
-                    {props.subscriptionData.amount >
-                      wallet.data.user_wallet.remaining ? (
-                      <p className="text-danger">
-                        {t("low_wallet_balance_tips_payment_para")}
-                      </p>
-                    ) :
-                      null
-                    }
-                    {props.subscriptionData.amount >
-                      wallet.data.user_wallet.remaining && (
+                    {wallet.data.user_wallet.remaining <
+                      props.subscriptionData.amount && (
+                        <p className="text-danger">
+                          {t("low_wallet_balance_tips_payment_para")}
+                        </p>
+                      )}
+                    {wallet.data.user_wallet.remaining <
+                      props.subscriptionData.amount && (
                         <div className="add-wallet-btn-sec">
-                          <Link to="/wallet"
-                            className="default-btn">
+                          <Button
+                            className="default-btn"
+                            onClick={() => history.push("/wallet")}
+                          >
                             {t("add_wallet_amount")}
-                          </Link>
+                          </Button>
                         </div>
                       )}
                   </div>
@@ -261,38 +288,111 @@ const SubscriptionPaymentModal = (props) => {
               <div class="pay-amount-sec">
                 <div className="pay-amount-head">
                   <h4>{t("payment_details")}</h4>
-                  <p>Lorem ipsum dolor sit amet.</p>
+                  {/* <p>Lorem ipsum dolor sit amet.</p> */}
                 </div>
                 <div className="coupon-input">
-                  <Form.Group controlId="formBasicEmail">
-                    <InputGroup >
-                      <Form.Control type="text" aria-label="text" value="5BDFKHT6K98Q" />
-                      <InputGroup.Text><Link to="#">{t("apply")}</Link></InputGroup.Text>
-                    </InputGroup>
-                  </Form.Group>
+                  {!couponDiscount ? (
+                    <Formik
+                      initialValues={{
+                        promo_code: "",
+                      }}
+                      validationSchema={couponSchema}
+                      onSubmit={handleValidation}
+                    >
+                      {({
+                        errors,
+                        touched,
+                        setFieldValue,
+                        resetForm,
+                        setFieldError,
+                      }) => (
+                        <FORM>
+                          <Form.Group controlId="formBasicEmail">
+                            <InputGroup>
+                              <Field
+                                type="text"
+                                aria-label="text"
+                                name="promo_code"
+                                className="form-control"
+                              />
+                              <InputGroup.Text>
+                                <Button type="submit">
+                                  {couponCodeValidation.loading ? (
+                                    <ButtonLoader />
+                                  ) : (
+                                    "Apply"
+                                  )}
+                                </Button>
+                              </InputGroup.Text>
+                            </InputGroup>
+                          </Form.Group>
+                          <ErrorMessage
+                            component="div"
+                            name="coupon_code"
+                            className="errorMsg"
+                          />
+                        </FORM>
+                      )}
+                    </Formik>
+                  ) : (
+                    <div className="coupon-container">
+                      <div className="coupon-detail">
+                        <Image
+                          className="coupon-image"
+                          src={
+                            window.location.origin + "/assets/images/Coupon.svg"
+                          }
+                        />
+                        <div className="coupon-text">
+                          <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
+                          <p className="text-success coupon-saved">
+                            {t("saved")} {couponDiscount.coupon_applied_amount.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <Link
+                        className="coupon-remove"
+                        to="#"
+                        onClick={() => setCouponDiscount("")}
+                      >
+                        {t("remove")}
+                      </Link>
+                    </div>
+                  )}
                 </div>
                 <div className="pay-modal-token-sec">
                   <div className="pay-modal-token">
                     <p>{t("tokens")}</p>
                     <p>{props.subscriptionData.amount_formatted}</p>
                   </div>
+                  {couponDiscount &&
+                    <div className="pay-modal-token">
+                      <p>{t("coupon_discount")}</p>
+                      <p> -{couponDiscount.coupon_applied_amount.toFixed(2)}</p>
+                    </div>
+                  }
                   <div className="pay-modal-token">
                     <h5>{t("total_token")}</h5>
-                    <h4>{props.subscriptionData.amount}</h4>
+                    <h4>{couponDiscount ?
+                      props.callDetails.amount - couponDiscount.coupon_applied_amount
+                      :
+                      props.subscriptionData.amount}</h4>
                   </div>
                 </div>
                 <Button
                   className="default-btn"
-                  onClick={handleSubmit}
-                  buttonDisable={
-                    props.subPayWallet.buttonDisable ||
+                  onClick={() => handleSubmit()}
+                  disabled={
+                    props.subPayWallet.ButtonDisable ||
                     wallet.buttonDisable ||
                     wallet.data?.user_wallet?.remaining <
                     props.subscriptionData.amount
                   }
-                >{props.subPayWallet.loadingButtonContent ?
-                  props.subPayWallet.loadingButtonContent :
-                  t("pay")}
+                >
+                  {props.subPayWallet.loadingButtonContent
+                    ? props.subPayWallet.loadingButtonContent
+                    : t("pay")}
                 </Button>
               </div>
             </div>

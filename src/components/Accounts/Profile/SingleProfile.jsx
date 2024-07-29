@@ -67,6 +67,8 @@ import { creatorVirtualExperienceListStart } from "../../../store/actions/Creato
 import { userVirtualVhListStart } from "../../../store/actions/UserVirtualActions";
 import BookingModal from "../../VirtualExperience/BookingModal";
 import NewProfileFeedCard from "../../helper/NewProfileFeedCard";
+import ChatMessagePaymentModal from "../../Model/PaymentModal/ChatMessagePaymentModal";
+import { addFavoriteStart } from "../../../store/actions/FavoriteAction";
 
 const SingleProfile = (props) => {
 
@@ -83,19 +85,30 @@ const SingleProfile = (props) => {
   const [sendTip, setSendTip] = useState(false);
   const [subscrptionPayment, setPaymentModal] = useState(false);
   const [showUnfollow, setShowUnfollow] = useState(false);
-  const userVirtualVhList = useSelector(
-    (state) => state.userVirtual.userVirtualVhList
-  );
+  const userVirtualVhList = useSelector((state) => state.userVirtual.userVirtualVhList);
+  const chatMessagePayWallet = useSelector((state) => state.chat.chatMessagePayWallet);
+  const [makePaymentModel, setMakePaymentModel] = useState(false);
+  const [favStatus, setFavStatus] = useState("");
+  const [modelUser, setModelUser] = useState({
+    user_id: "",
+    amount: ""
+  });
 
   const [skip, setSkip] = useState(0);
   const [take, setTake] = useState(12);
   const [type, setType] = useState("image");
+
+  const closeChatPaymentModal = () => {
+    setMakePaymentModel(false);
+  };
+
 
   const [subscriptionData, setSubscriptionData] = useState({
     is_free: 0,
     plan_type: "months",
     amount: 0,
     amount_formatted: 0,
+    subscription_id: 0,
   });
 
   const toggleVisibility = () => { };
@@ -214,20 +227,28 @@ const SingleProfile = (props) => {
     );
   };
 
-  const handleChatUser = (event, user_id) => {
+  const handleChatUser = (event, user_id, amount, user_needs_pay_chat_message) => {
     event.preventDefault();
     if (!localStorage.getItem("userId")) {
       const notificationMessage = getErrorNotificationMessage(
         t("login_to_continue")
       );
       props.dispatch(createNotification(notificationMessage));
-    } else {
+    } else if (user_needs_pay_chat_message == 0) {
       props.dispatch(
         saveChatUserStart({
           from_user_id: localStorage.getItem("userId"),
           to_user_id: user_id,
         })
       );
+    }
+    else {
+      setModelUser({
+        ...modelUser,
+        user_id: user_id,
+        amount: amount
+      })
+      setMakePaymentModel(true)
     }
   };
 
@@ -236,6 +257,7 @@ const SingleProfile = (props) => {
     plan_type,
     amount,
     amount_formatted,
+    subscription_id,
     is_free = 0
   ) => {
     event.preventDefault();
@@ -246,6 +268,7 @@ const SingleProfile = (props) => {
         plan_type: plan_type,
         amount: amount,
         amount_formatted: amount_formatted,
+        subscription_id: subscription_id
       });
       setPaymentModal(true);
     } else {
@@ -255,6 +278,24 @@ const SingleProfile = (props) => {
       props.dispatch(createNotification(notificationMessage));
     }
   };
+
+
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !chatMessagePayWallet.loading &&
+      Object.keys(chatMessagePayWallet.data).length > 0
+    ) {
+      closeChatPaymentModal();
+      props.dispatch(
+        saveChatUserStart({
+          from_user_id: localStorage.getItem("userId"),
+          to_user_id: modelUser.user_id,
+        })
+      );
+    }
+    setSkipRender(false);
+  }, [chatMessagePayWallet]);
 
   const handleBlockUser = (event, user_id) => {
     event.preventDefault();
@@ -295,13 +336,26 @@ const SingleProfile = (props) => {
   const open = Boolean(anchorEl);
   const popoverId = open ? "simple-popover" : undefined;
 
-  useEffect(()=> {
-    if(!skipRender && !props.userPosts.loading)
-    {
-      props.dispatch(fetchSingleUserPostsStart({ type: type, skip: 0, take: take, user_unique_id: props.match.params.username }));
+  useEffect(() => {
+    console.log("userDetails", userDetails)
+    if (!skipRender && !props.userPosts.loading) {
+      props.dispatch(fetchSingleUserPostsStart({ type: type, skip: 0, 
+        take: take, user_unique_id: props.match.params.username }));
     }
     setSkipRender(false);
-  }, [type])
+  }, [type]);
+
+
+  const handleStar = (event, status, user_id) => {
+    event.preventDefault();
+    setFavStatus(status);
+    props.dispatch(
+      addFavoriteStart({
+        user_id: user_id,
+      })
+    );
+  };
+
 
   return (
     <>
@@ -316,6 +370,8 @@ const SingleProfile = (props) => {
                   className="profile-logo-img"
                   src={configuration.get("configData.site_logo")}
                 />
+              </div>
+              <div className="add-model-fav">
               </div>
               <div className="sibebar-header-sec">
                 {userDetails.data.user.featured_story ? (
@@ -381,7 +437,71 @@ const SingleProfile = (props) => {
                 <Link to="#" className="sidebar-user-name">
                   @{userDetails.data.user.username}
                 </Link>
-                <div className="sidebar-total-count-info-box" style={{gridTemplateColumns:userDetails.data.user.show_followings ? "repeat(3, 1fr)" : "repeat(1, 1fr)"}}>
+                <div className="swiper-favorite story">
+                  {favStatus !== "" ? (
+                    <>
+                      <>
+                        {favStatus === "added" ? (
+                          <Link
+                            type="button"
+                            className="swiper-btn-fav"
+                            onClick={(event) => handleStar(event, "removed", userDetails.data.user.user_id)}
+                          >
+                            <Image
+                              src="assets/images/icons/star-active.svg"
+                              className="svg-clone my-p-icons"
+                              width="12"
+                            />
+                            {t("remove_from_favorites")}
+                          </Link>
+                        ) : null}
+                      </>
+                      <>
+                        {favStatus === "removed" ? (
+                          <Link
+                            type="button"
+                            className="swiper-btn-fav"
+                            onClick={(event) => handleStar(event, "added", userDetails.data.user.user_id)}
+                          >
+                            <Image
+                              src="assets/images/icons/star.svg"
+                              className="svg-clone my-p-icons"
+                              width="12"
+                            />
+                            {t("add_to_favorites")}
+                          </Link>
+                        ) : null}
+                      </>
+                    </>
+                  ) : userDetails.data.is_favuser == 1 ? (
+                    <Link
+                      type="button"
+                      className="swiper-btn-fav"
+                      onClick={(event) => handleStar(event, "removed", userDetails.data.user.user_id)}
+                    >
+                      <Image
+                        src="assets/images/icons/star-active.svg"
+                        className="svg-clone my-p-icons"
+                        width="12"
+                      />
+                      {t("remove_from_favorites")}
+                    </Link>
+                  ) : (
+                    <Link
+                      type="button"
+                      className="swiper-btn-fav"
+                      onClick={(event) => handleStar(event, "added", userDetails.data.user.user_id)}
+                    >
+                      <Image
+                        src="assets/images/icons/star.svg"
+                        className="svg-clone my-p-icons"
+                        width="12"
+                      />
+                      {t("add_to_favorites")}
+                    </Link>
+                  )}
+                </div>
+                <div className="sidebar-total-count-info-box" style={{ gridTemplateColumns: userDetails.data.user.show_followings ? "repeat(3, 1fr)" : "repeat(1, 1fr)" }}>
                   <div className="sidebar-total-count-card">
                     <h5>{userDetails.data.user.total_posts}</h5>
                     <p>{t("posts")}</p>
@@ -400,7 +520,7 @@ const SingleProfile = (props) => {
                 {userDetails.data.user.is_content_creator == 2 ? <Button
                   className="default-btn profile-sidebar-broadcast-btn"
                   type="button"
-                  onClick={()=> history.push(`/personalized-request/${userDetails.data.user.user_id}`)}
+                  onClick={() => history.push(`/personalized-request/${userDetails.data.user.user_id}`)}
                 >
                   Personalized Request
                   <svg
@@ -413,7 +533,7 @@ const SingleProfile = (props) => {
                   >
                     <path d="M7 14c2.21 0 4-1.79 4-4S9.21 6 7 6s-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm7 15c0 .55-.45 1-1 1s-1-.45-1-1c0-2.76-2.24-5-5-5s-5 2.24-5 5c0 .55-.45 1-1 1s-1-.45-1-1c0-3.86 3.14-7 7-7s7 3.14 7 7zM24 5v8c0 2.76-2.24 5-5 5h-4c-.55 0-1-.45-1-1s.45-1 1-1h4c1.65 0 3-1.35 3-3V5c0-1.65-1.35-3-3-3H9.46c-1.07 0-2.06.58-2.6 1.5-.28.48-.89.64-1.37.37a.998.998 0 01-.36-1.37C6.03.96 7.69 0 9.46 0H19c2.76 0 5 2.24 5 5zm-10.33 5.92L16.59 8H15c-.55 0-1-.45-1-1s.45-1 1-1h3c1.1 0 2 .9 2 2v3c0 .55-.45 1-1 1s-1-.45-1-1V9.41l-2.92 2.92a2.424 2.424 0 01-2.37.62.997.997 0 01-.69-1.23c.15-.53.7-.84 1.24-.69.12.03.28.02.41-.11z"></path>
                   </svg>
-                </Button>: null}
+                </Button> : null}
               </div>
               {userDetails.data.is_block_user === 0 ? (
                 <div className="sidebar-links">
@@ -509,7 +629,11 @@ const SingleProfile = (props) => {
                       <Link
                         to="#"
                         onClick={(event) =>
-                          handleChatUser(event, userDetails.data.user.user_id)
+                          handleChatUser(event,
+                            userDetails.data.user.user_id,
+                            userDetails.data.user.chat_message_amount,
+                            userDetails.data.payment_info.user_needs_pay_chat_message,
+                          )
                         }
                       >
                         <span>
@@ -857,7 +981,7 @@ const SingleProfile = (props) => {
                       {/* <Link to="#" className="sidebar-user-name">
                         {userDetails.data.user.email}
                       </Link> */}
-                      <div className="sidebar-total-count-info-box" style={{gridTemplateColumns:userDetails.data.user.show_followings ? "repeat(3, 1fr)" : "repeat(1, 1fr)"}}>
+                      <div className="sidebar-total-count-info-box" style={{ gridTemplateColumns: userDetails.data.user.show_followings ? "repeat(3, 1fr)" : "repeat(1, 1fr)" }}>
                         <div className="sidebar-total-count-card">
                           <h5>{userDetails.data.user.total_posts}</h5>
                           <p>{t("posts")}</p>
@@ -993,164 +1117,165 @@ const SingleProfile = (props) => {
                       ) : null}
                     </ul>
                   </div>
-                  
+
                 </div>
 
 
-               
 
-              {userDetails.data.is_block_user == 0 ? (
-                <div className="user-subscription-plans-details">
-                  <h3>{t("subscription_plans")}</h3>
-                  {userDetails.data.payment_info.is_user_needs_pay == 1 &&
-                    userDetails.data.payment_info.unsubscribe_btn_status ==
-                    0 ? (
-                    userDetails.data.payment_info.is_free_account == 0 ? (
-                      <div className="user-subscription-btn-sec">
-                        <div
-                          className="subscription-outline-btn"
-                          onClick={(event) =>
-                            subscriptionPayment(
-                              event,
-                              "months",
-                              userDetails.data.payment_info.subscription_info
-                                .monthly_amount,
+
+                {userDetails.data.is_block_user == 0 ? (
+                  <div className="user-subscription-plans-details">
+                    <h3>{t("subscription_plans")}</h3>
+                    {userDetails.data.payment_info.is_user_needs_pay == 1 &&
+                      userDetails.data.payment_info.unsubscribe_btn_status ==
+                      0 ? (
+                      userDetails.data.payment_info.is_free_account == 0 ? (
+                        <div className="user-subscription-btn-sec">
+                          <div
+                            className="subscription-outline-btn"
+                            onClick={(event) =>
+                              subscriptionPayment(
+                                event,
+                                "months",
+                                userDetails.data.payment_info.subscription_info
+                                  .monthly_amount,
+                                userDetails.data.payment_info.subscription_info
+                                  .monthly_amount_formatted,
+                                userDetails.data.payment_info.subscription_info.user_subscription_id
+                              )
+                            }
+                          >
+                            {
                               userDetails.data.payment_info.subscription_info
                                 .monthly_amount_formatted
-                            )
-                          }
-                        >
-                          {
-                            userDetails.data.payment_info.subscription_info
-                              .monthly_amount_formatted
-                          }{" "}
-                          /{t("month")}
-                        </div>
-                        <div
-                          className="subscription-btn"
-                          onClick={(event) =>
-                            subscriptionPayment(
-                              event,
-                              "years",
-                              userDetails.data.payment_info.subscription_info
-                                .yearly_amount,
+                            }{" "}
+                            /{t("month")}
+                          </div>
+                          <div
+                            className="subscription-btn"
+                            onClick={(event) =>
+                              subscriptionPayment(
+                                event,
+                                "years",
+                                userDetails.data.payment_info.subscription_info
+                                  .yearly_amount,
+                                userDetails.data.payment_info.subscription_info
+                                  .yearly_amount_formatted
+                              )
+                            }
+                          >
+                            {
                               userDetails.data.payment_info.subscription_info
                                 .yearly_amount_formatted
-                            )
-                          }
-                        >
-                          {
-                            userDetails.data.payment_info.subscription_info
-                              .yearly_amount_formatted
-                          }{" "}
-                          /{t("year")}
+                            }{" "}
+                            /{t("year")}
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="user-subscription-btn-sec">
-                        <div
-                          className="subscription-btn"
-                          onClick={(event) => {
-                            if (localStorage.getItem("userId")) {
-                              props.dispatch(
-                                subscriptionPaymentStripeStart({
-                                  user_unique_id:
-                                    userDetails.data.user.user_unique_id,
-                                  plan_type: "months",
-                                  is_free: 0,
-                                })
-                              );
-                            } else {
-                              const notificationMessage =
-                                getErrorNotificationMessage(
-                                  t("login_to_continue")
-                                );
-                              props.dispatch(
-                                createNotification(notificationMessage)
-                              );
-                            }
-                          }}
-                        >
-                          {t("subscribe_for_free")}
-                        </div>
-                      </div>
-                    )
-                  ) : null}
-
-                  {userDetails.data.payment_info.unsubscribe_btn_status ==
-                    1 && (
-                      <>
+                      ) : (
                         <div className="user-subscription-btn-sec">
                           <div
                             className="subscription-btn"
-                            onClick={() => handleUnfollowModalShow()}
+                            onClick={(event) => {
+                              if (localStorage.getItem("userId")) {
+                                props.dispatch(
+                                  subscriptionPaymentStripeStart({
+                                    user_unique_id:
+                                      userDetails.data.user.user_unique_id,
+                                    plan_type: "months",
+                                    is_free: 0,
+                                  })
+                                );
+                              } else {
+                                const notificationMessage =
+                                  getErrorNotificationMessage(
+                                    t("login_to_continue")
+                                  );
+                                props.dispatch(
+                                  createNotification(notificationMessage)
+                                );
+                              }
+                            }}
                           >
-                            {t("unfollow")}
+                            {t("subscribe_for_free")}
                           </div>
                         </div>
-                        <Modal
-                          show={showUnfollow}
-                          onHide={handleUnfollowModalClose}
-                          backdrop="static"
-                          keyboard={false}
-                          centered
-                          className={`${localStorage.getItem("theme") !== "" &&
-                            localStorage.getItem("theme") !== null &&
-                            localStorage.getItem("theme") !== undefined &&
-                            localStorage.getItem("theme") === "dark"
-                            ? "dark-theme-modal"
-                            : ""
-                            }
-        `}
-                        >
-                          <Modal.Header closeButton>
-                            <Modal.Title>{t("unsubscribe")}</Modal.Title>
-                          </Modal.Header>
-                          <Modal.Body>
-                            {t("cancel_subscription_conformation")}
-                          </Modal.Body>
-                          <Modal.Footer>
-                            <Button
-                              variant="secondary"
-                              size="lg"
-                              onClick={handleUnfollowModalClose}
+                      )
+                    ) : null}
+
+                    {userDetails.data.payment_info.unsubscribe_btn_status ==
+                      1 && (
+                        <>
+                          <div className="user-subscription-btn-sec">
+                            <div
+                              className="subscription-btn"
+                              onClick={() => handleUnfollowModalShow()}
                             >
-                              {t("close")}
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="lg"
-                              onClick={(event) =>
-                                handleUnfollow(
-                                  event,
-                                  userDetails.data.user.user_id
-                                )
+                              {t("unfollow")}
+                            </div>
+                          </div>
+                          <Modal
+                            show={showUnfollow}
+                            onHide={handleUnfollowModalClose}
+                            backdrop="static"
+                            keyboard={false}
+                            centered
+                            className={`${localStorage.getItem("theme") !== "" &&
+                              localStorage.getItem("theme") !== null &&
+                              localStorage.getItem("theme") !== undefined &&
+                              localStorage.getItem("theme") === "dark"
+                              ? "dark-theme-modal"
+                              : ""
                               }
-                            >
-                              {t("yes")}
-                            </Button>
-                          </Modal.Footer>
-                        </Modal>
-                      </>
-                    )}
-                </div>
-              ) : (
-                <div className="user-subscription-plans-details">
-                  <div className="user-subscription-btn-sec">
-                    <div
-                      className="subscription-btn"
-                      onClick={(event) =>
-                        handleBlockUser(event, userDetails.data.user.user_id)
-                      }
-                    >
-                      {t("unblock_the_user")}
+        `}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>{t("unsubscribe")}</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                              {t("cancel_subscription_conformation")}
+                            </Modal.Body>
+                            <Modal.Footer>
+                              <Button
+                                variant="secondary"
+                                size="lg"
+                                onClick={handleUnfollowModalClose}
+                              >
+                                {t("close")}
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="lg"
+                                onClick={(event) =>
+                                  handleUnfollow(
+                                    event,
+                                    userDetails.data.user.user_id
+                                  )
+                                }
+                              >
+                                {t("yes")}
+                              </Button>
+                            </Modal.Footer>
+                          </Modal>
+                        </>
+                      )}
+                  </div>
+                ) : (
+                  <div className="user-subscription-plans-details">
+                    <div className="user-subscription-btn-sec">
+                      <div
+                        className="subscription-btn"
+                        onClick={(event) =>
+                          handleBlockUser(event, userDetails.data.user.user_id)
+                        }
+                      >
+                        {t("unblock_the_user")}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <UserCalendarSchedule show={modalShow}
-                onHide={() => setModalShow(false)} />
+                <UserCalendarSchedule show={modalShow}
+                  onHide={() => setModalShow(false)} />
               </div>
               <div className="mobile-display">
                 {userDetails.data.is_block_user === 0 ? (
@@ -1261,7 +1386,7 @@ const SingleProfile = (props) => {
                         <Link
                           to="#"
                           onClick={(event) =>
-                            handleChatUser(event, userDetails.data.user.user_id)
+                            handleChatUser(event, userDetails.data.user.user_id, userDetails.data.user.chat_message_amount)
                           }
                         >
                           <span>
@@ -1545,7 +1670,7 @@ const SingleProfile = (props) => {
                                 />
                               </span>
                               <span className="resp-display-none text-nowrap">
-                              Virtual Experience
+                                Virtual Experience
                               </span>
                             </Nav.Link>
                           </Nav.Item>
@@ -1606,22 +1731,22 @@ const SingleProfile = (props) => {
                         </Col>
                       ) : activeSec == "media" ? (
                         <Col md={12}>
-                          <div className="select-lang-drop-down" style={{width: "10em"}}>
-                              <select className="form-control mw-200 mb-3" 
-                                  name="lang"
-                                  onChange={(e) => setType(e.target.value)}
-                                  value={type}
-                                  >
-                                  <option value="image">
-                                  {t("image")}
-                                  </option>
-                                  <option value="audio">
-                                  {t("audio")}
-                                  </option>
-                                  <option value="video">
-                                  {t("videos")}
-                                  </option>
-                              </select>
+                          <div className="select-lang-drop-down" style={{ width: "10em" }}>
+                            <select className="form-control mw-200 mb-3"
+                              name="lang"
+                              onChange={(e) => setType(e.target.value)}
+                              value={type}
+                            >
+                              <option value="image">
+                                {t("image")}
+                              </option>
+                              <option value="audio">
+                                {t("audio")}
+                              </option>
+                              <option value="video">
+                                {t("videos")}
+                              </option>
+                            </select>
                           </div>
                           {props.userPosts.loading ? (
                             <div className="profile-all-post-box">
@@ -1690,26 +1815,26 @@ const SingleProfile = (props) => {
                               }
                               style={{ height: "auto", overflow: "hidden" }}
                             >
-                                <div className="virtual-card-wrapped">
-                                  {userVirtualVhList.data.virtual_experiences.map(
-                                    (post) => (
-                                      <UserVirtualExperiencsProduct post={post} />
-                                    )
-                                  )}
-                                </div>
+                              <div className="virtual-card-wrapped">
+                                {userVirtualVhList.data.virtual_experiences.map(
+                                  (post) => (
+                                    <UserVirtualExperiencsProduct post={post} />
+                                  )
+                                )}
+                              </div>
                             </InfiniteScroll>
                           ) : (
                             <NoDataFound />
                           )}
                         </Col>
-                      ) : activeSec == "all" ?  props.userPosts.loading ? (
+                      ) : activeSec == "all" ? props.userPosts.loading ? (
                         <Col md={12}>
                           <div className="profile-new-feed-post-box">
-                          {[...Array(8)].map(() => (
-                            <Skeleton className="profile-post-card-loader" />
-                          ))}
+                            {[...Array(8)].map(() => (
+                              <Skeleton className="profile-post-card-loader" />
+                            ))}
                           </div>
-                        </Col>   
+                        </Col>
                       ) : (
                         <Col md={12}>
                           {props.userPosts.data.posts.length > 0 ? (
@@ -1817,6 +1942,13 @@ const SingleProfile = (props) => {
             post_id={null}
             user_id={userDetails.data.user.user_id}
           />
+          {makePaymentModel &&
+            <ChatMessagePaymentModal
+              paymentsModal={makePaymentModel}
+              closeChatPaymentModal={closeChatPaymentModal}
+              modelUser={modelUser}
+            />
+          }
         </>
       ) : null}
     </>

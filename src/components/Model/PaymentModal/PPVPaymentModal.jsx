@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  InputGroup,
-  FormControl,
-  Image,
-  Modal,
-  Media,
-  Row,
-  Col,
-  Form,
-  Button,
-} from "react-bootstrap";
+import { Button, Modal, Form, InputGroup, Image } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ToggleButton from "react-bootstrap/ToggleButton";
@@ -26,20 +16,20 @@ import {
   PPVPaymentCoinPaymentStart,
 } from "../../../store/actions/PostAction";
 import { connect } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { translate, t } from "react-multi-lang";
+import { fetchWalletDetailsStart } from "../../../store/actions/WalletAction";
+import CustomLazyLoad from "../../helper/CustomLazyLoad";
+import Skeleton from "react-loading-skeleton";
 import { couponCodeValidationStart } from "../../../store/actions/PremiumFolderAction";
 import * as Yup from "yup";
 import { Formik, Form as FORM, ErrorMessage, Field } from "formik";
 import { ButtonLoader } from "../../helper/Loader";
-import { useDispatch, useSelector } from "react-redux";
-import "../../Phase4/Phase4.css";
-import { fetchWalletDetailsStart } from "../../../store/actions/WalletAction";
-import Skeleton from "react-loading-skeleton";
 
 const PPVPaymentModal = (props) => {
 
-  const dispatch = useDispatch();
   const history = useHistory();
+  const dispatch = useDispatch();
   const nullData = ["", null, undefined, "light"];
   const [skipRender, setSkipRender] = useState(true);
 
@@ -48,26 +38,13 @@ const PPVPaymentModal = (props) => {
   );
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAddCard, setShowAddCard] = useState(false);
-  const [reloadWallet, setReloadWallet] = useState(true);
-  const [couponDiscount, setCouponDiscount] = useState("");
-
   const wallet = useSelector((state) => state.wallet.walletData);
+  const [reloadWallet, setReloadWallet] = useState(true)
+  const [couponDiscount, setCouponDiscount] = useState("");
   const couponCodeValidation = useSelector(
     (state) => state.folder.couponCodeValidation
   );
 
-  useEffect(() => {
-    dispatch(fetchWalletDetailsStart());
-  }, [reloadWallet]);
-
-  useEffect(() => {
-    if (!skipRender && !props.liveWallet.loading &&
-      Object.keys(props.liveWallet.data).length > 0) {
-      history.push(`/live-video/${props.liveWallet.data.live_video_unique_id}`);
-      props.closepaymentsModal();
-    }
-    setSkipRender(false);
-  }, [props.liveWallet]);
 
   const paypalOnError = (err) => {
     const notificationMessage = getErrorNotificationMessage(err);
@@ -93,7 +70,7 @@ const PPVPaymentModal = (props) => {
 
   const paypalOnCancel = (data) => {
     const notificationMessage = getErrorNotificationMessage(
-     t("payment_cancelled_please_try_again")
+      t("payment_cancelled_please_try_again")
     );
     this.props.dispatch(createNotification(notificationMessage));
   };
@@ -109,7 +86,6 @@ const PPVPaymentModal = (props) => {
               : "",
           amount: props.amount,
           user_id: props.user_id,
-          promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
     if (paymentType === "WALLET")
@@ -120,7 +96,7 @@ const PPVPaymentModal = (props) => {
               ? props.post_id
               : "",
           user_id: props.user_id,
-          promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
+             promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
     // props.closePPVPaymentModal();
@@ -142,20 +118,15 @@ const PPVPaymentModal = (props) => {
       !props.ppvPayWallet.loading &&
       Object.keys(props.ppvPayWallet.success).length > 0
     ) {
+      history.push(`/post/${props.ppvPayWallet.success.post.post_unique_id}`);
       props.closePPVPaymentModal();
     }
     setSkipRender(false);
   }, [props.ppvPayWallet]);
 
   useEffect(() => {
-    if (
-      !skipRender &&
-      !couponCodeValidation.loading &&
-      Object.keys(couponCodeValidation.data).length > 0
-    ) {
-      setCouponDiscount(couponCodeValidation.data.coupon_code_validate);
-    }
-  }, [couponCodeValidation]);
+    dispatch(fetchWalletDetailsStart());
+  }, [reloadWallet]);
 
   useEffect(() => {
     if (
@@ -173,11 +144,12 @@ const PPVPaymentModal = (props) => {
 
   const handleValidation = (values) => {
     dispatch(couponCodeValidationStart({
-        ...values,
-        post_id: props.post_id,
-        platform: "post-payments",
-      }));
+      ...values,
+      post_id: props.post_id,
+      platform: "post-payments",
+    }));
   };
+
 
   return (
     <>
@@ -193,6 +165,9 @@ const PPVPaymentModal = (props) => {
           show={props.PPVPayment}
           onHide={props.closePPVPaymentModal}
         >
+          <Modal.Header closeButton>
+            <Modal.Title>User List</Modal.Title> 
+          </Modal.Header>
           <Modal.Body className="wallet-card-body">
             <Button
               className="modal-close"
@@ -210,46 +185,6 @@ const PPVPaymentModal = (props) => {
                   setShowAddCard={setShowAddCard}
                 />
                 <Col md={12} xl={5}>
-                <div class="pay-amount-sec">
-                <div className="pay-amount-head">
-                  <h4>{t("payment_details")}</h4>
-                
-                </div>
-                <div className="pay-modal-token-sec">
-                  <div className="pay-modal-token">
-                    <p>{t("tokens")}</p>
-                    <p>{props.amount_formatted}</p>
-                  </div>
-                  {couponDiscount &&
-                    <div className="pay-modal-token">
-                      <p>{t("coupon_discount")}</p>
-                      <p> -{couponDiscount.coupon_applied_amount}</p>
-                    </div>
-                  }
-                  <div className="pay-modal-token">
-                    <h5>{t("total_token")}</h5>
-                    <h4>
-                      {couponDiscount ?
-                      props.amount - couponDiscount.coupon_applied_amount
-                      :
-                      props.amount}
-                    </h4>
-                  </div>
-                </div>
-                <Button
-                  className="default-btn"
-                  onClick={() => handleSubmit()}
-                  disabled={
-                    props.liveWallet.buttonDisable ||
-                    wallet.buttonDisable ||
-                    wallet.data?.user_wallet?.remaining < props.amount
-                  }
-                >
-                  {props.liveWallet.loadingButtonContent !== null
-                    ? props.liveWallet.loadingButtonContent
-                    : t("pay")}
-                </Button>
-              </div>
                   {showAddCard ? (
                     <AddCardModalSec setShowAddCard={setShowAddCard} />
                   ) : (
@@ -263,7 +198,6 @@ const PPVPaymentModal = (props) => {
                       paypalOnError={paypalOnError}
                       paypalOnSuccess={paypalOnSuccess}
                       paypalOnCancel={paypalOnCancel}
-                      couponDiscount={couponDiscount}
                       btnDisable={
                         props.ppvPayWallet.ButtonDisable ||
                         props.ppvPayStripe.ButtonDisable
@@ -292,7 +226,7 @@ const PPVPaymentModal = (props) => {
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
-              {t("live_streaming_payments")}
+              {t("post_payments")}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
@@ -326,7 +260,7 @@ const PPVPaymentModal = (props) => {
                             </div>
                             <div className="service-card-custome-sec">
                               <span className="service-card-custome-info">
-                                Wallet:
+                                {("wallet")}:
                               </span>
                               <span className="wallet-amount">
                                 <Image
@@ -376,10 +310,10 @@ const PPVPaymentModal = (props) => {
                   {/* <p>Lorem ipsum dolor sit amet.</p> */}
                 </div>
                 <div className="coupon-input">
-                {!couponDiscount ? (
+                  {!couponDiscount ? (
                     <Formik
                       initialValues={{
-                        promo_code: ""
+                        promo_code: "",
                       }}
                       validationSchema={couponSchema}
                       onSubmit={handleValidation}
@@ -420,27 +354,30 @@ const PPVPaymentModal = (props) => {
                       )}
                     </Formik>
                   ) : (
-                  <div className="coupon-container">
-                    <div className="coupon-detail">
-                      <Image
-                        className="coupon-image"
-                        src={
-                          window.location.origin + "/assets/images/icons/new/create-coupon.svg"
-                        }
-                      />
-
-                      <div className="coupon-text">
-                        <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
-                        <p className="text-success coupon-saved">
-                          {t("saved")} {couponDiscount.coupon_applied_amount.toFixed(2)}
-                        </p>
+                    <div className="coupon-container">
+                      <div className="coupon-detail">
+                        <Image
+                          className="coupon-image"
+                          src={
+                            window.location.origin + "/assets/images/Coupon.svg"
+                          }
+                        />
+                        <div className="coupon-text">
+                          <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
+                          <p className="text-success coupon-saved">
+                            {t("saved")} {couponDiscount.coupon_applied_amount.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <Link className="coupon-remove" to="#">
-                      {t("remove")}
-                    </Link>
-                  </div>
+                      <Link
+                        className="coupon-remove"
+                        to="#"
+                        onClick={() => setCouponDiscount("")}
+                      >
+                        {t("remove")}
+                      </Link>
+                    </div>
                   )}
                 </div>
                 <div className="pay-modal-token-sec">
@@ -456,12 +393,10 @@ const PPVPaymentModal = (props) => {
                   }
                   <div className="pay-modal-token">
                     <h5>{t("total_token")}</h5>
-                    <h4>
-                      {couponDiscount ?
-                      props.amount - couponDiscount.coupon_applied_amount.toFixed(2)
+                    <h4>{couponDiscount ?
+                      props.amount - couponDiscount.coupon_applied_amount
                       :
-                      props.amount} {t("tokens")}
-                    </h4>
+                      props.amount}</h4>
                   </div>
                 </div>
                 <Button
@@ -473,7 +408,7 @@ const PPVPaymentModal = (props) => {
                     wallet.data?.user_wallet?.remaining < props.amount
                   }
                 >
-                  {props.ppvPayWallet.loadingButtonContent !== null
+                  {props.ppvPayWallet.loadingButtonContent
                     ? props.ppvPayWallet.loadingButtonContent
                     : t("pay")}
                 </Button>
@@ -490,7 +425,6 @@ const mapStateToPros = (state) => ({
   liveVideoDetails: state.liveVideo.singleLiveVideo,
   ppvPayWallet: state.post.ppvPayWallet,
   ppvPayStripe: state.post.ppvPayStripe,
-  liveWallet: state.liveVideo.liveWallet,
 });
 
 function mapDispatchToProps(dispatch) {

@@ -23,12 +23,21 @@ import {
 import {
   checkLogoutStatus,
 } from "../actions/ErrorAction";
+import { fetchSingleUserProfileSuccess } from "../actions/OtherUserAction";
 
 function* fetchFavoriteListAPI(action) {
+  let favoriteData = yield select((state) => state.favorite.favoriteList.data);
   try {
     const response = yield api.postMethod("fav_users", action.data);
     if (response.data.success) {
-      yield put(fetchFavoriteListSuccess(response.data.data));
+      if (Object.keys(favoriteData).length > 0) {
+        yield put(fetchFavoriteListSuccess({
+          fav_users: [...favoriteData.fav_users, ...response.data.data.fav_users],
+          total: response.data.data.total
+        }));
+      } else {
+        yield put(fetchFavoriteListSuccess(response.data.data));
+      }
     } else {
       yield put(fetchFavoriteListFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(response.data.error);
@@ -43,6 +52,7 @@ function* fetchFavoriteListAPI(action) {
 
 function* addFavoriteAPI(action) {
   let favoriteListData = yield select((state) => state.favorite.favoriteList.data);
+  let userDetailsData = yield select((state) => state.otherUser.userDetails.data);
   try {
     const response = yield api.postMethod("fav_users_save", action.data);
     if (response.data.success) {
@@ -56,6 +66,13 @@ function* addFavoriteAPI(action) {
             (follower.fav_user_id != action.data.user_id)),
         }));
       }
+      // if (Object.keys(userDetailsData).length > 0 &&
+      //   userDetailsData.user.user_id == response.data.data.fav_user_id) {
+      //   yield put(fetchSingleUserProfileSuccess({
+      //     ...userDetailsData,
+      //     is_favuser: !userDetailsData.is_favuser,
+      //   }));
+      // }
     } else {
       yield put(addFavoriteFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(response.data.error);

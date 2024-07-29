@@ -160,7 +160,7 @@ const NewChatList = (props) => {
                           }
                         `}
                           key={i}
-                          onClick={() => props.dispatch(chatUser(user.admin_id ? {...user.admin,is_admin: 1} : {...user.to_user, id_admin: 0}))}>
+                          onClick={() => props.dispatch(chatUser(user.admin_id ? {...user.admin,is_admin: 1,} : {...user.to_user, is_admin: 0 ,is_user_needs_pay:user.is_user_needs_pay}))}>
                           <div className="new-chat-list-user-msg-sec">
                             <div className="new-chat-list-user-img-sec">
                               <CustomLazyLoad

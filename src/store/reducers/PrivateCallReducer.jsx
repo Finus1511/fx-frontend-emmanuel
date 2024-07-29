@@ -21,15 +21,18 @@ import {
   END_VIDEO_CALL_SUCCESS,
   END_VIDEO_CALL_FAILURE,
   CALL_REQUEST_SENT_USER_START,
+  FETCH_MORE_CALL_REQUEST_SENT_USER_START,
   CALL_REQUEST_SENT_USER_SUCCESS,
   CALL_REQUEST_SENT_USER_FAILURE,
   CALL_HISTORY_USER_START,
+  FETCH_MORE_CALL_HISTORY_USER_START,
   CALL_HISTORY_USER_SUCCESS,
   CALL_HISTORY_USER_FAILURE,
   CALL_HISTORY_MODEL_START,
   CALL_HISTORY_MODEL_SUCCESS,
   CALL_HISTORY_MODEL_FAILURE,
   CALL_REQUEST_RECEIVED_MODEL_START,
+  FETCH_MORE_CALL_REQUEST_RECEIVED_MODEL_START,
   CALL_MORE_AUDIO_REQUEST_RECEIVED_MODEL_START,
   CALL_REQUEST_RECEIVED_MODEL_SUCCESS,
   CALL_REQUEST_RECEIVED_MODEL_FAILURE,
@@ -47,6 +50,7 @@ import {
   ACCEPT_AUDIO_CALL_SUCCESS,
   ACCEPT_AUDIO_CALL_FAILURE,
   AUDIO_CALL_HISTORY_USER_START,
+  FETCH_MORE_AUDIO_CALL_HISTORY_USER_START,
   AUDIO_CALL_HISTORY_USER_SUCCESS,
   AUDIO_CALL_HISTORY_USER_FAILURE,
   REJECT_AUDIO_CALL_START,
@@ -159,12 +163,20 @@ const initialState = {
     buttonDisable: false,
   },
   callRequestSent: {
-    data: {},
+    data: {
+      video_call_requests: [],
+      total: 0,
+    },
     loading: true,
     error: false,
   },
   callHistoryUser: {
-    data: {},
+    data: {
+      data: {
+        video_call_requests: [],
+        total: 0,
+      },
+    },
     loading: true,
     error: false,
   },
@@ -174,7 +186,10 @@ const initialState = {
     error: false,
   },
   callRequestReceivedModel: {
-    data: {},
+    data: {
+      video_call_requests: [],
+      total: 0,
+    },
     loading: true,
     error: false,
   },
@@ -198,7 +213,10 @@ const initialState = {
     buttonDisable: false,
   },
   audioCallHistoryUser: {
-    data: {},
+    data: {
+      audio_call_requests: [],
+      total: 0
+    },
     loading: true,
     error: false,
   },
@@ -554,7 +572,10 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         callRequestSent: {
-          data: {},
+          data: {
+            video_call_requests: [],
+            total: 0,
+          },
           loading: true,
           error: false,
         },
@@ -563,7 +584,10 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         callRequestSent: {
-          data: action.data,
+          data: {
+            video_call_requests: [...state.callRequestSent.data.video_call_requests, ...action.data.video_call_requests],
+            total: action.data.total,
+          },
           loading: false,
           error: false,
         },
@@ -577,6 +601,9 @@ const PostReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+
+      case FETCH_MORE_CALL_REQUEST_SENT_USER_START:
+        return state;
 
     case FETCH_AUDIO_CALL_REQUESTS_START:
       return {
@@ -624,7 +651,10 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         callHistoryUser: {
-          data: {},
+          data: {
+            video_call_requests: [],
+            total: 0,
+          },
           loading: true,
           error: false,
         },
@@ -633,7 +663,10 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         callHistoryUser: {
-          data: action.data,
+          data: {
+            video_call_requests: [...state.callHistoryUser.data.video_call_requests, ...action.data.video_call_requests],
+            total: action.data.total,
+          },
           loading: false,
           error: false,
         },
@@ -647,6 +680,9 @@ const PostReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+    case FETCH_MORE_CALL_HISTORY_USER_START:
+      return state;
+
     case CALL_HISTORY_MODEL_START:
       return {
         ...state,
@@ -678,16 +714,23 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         callRequestReceivedModel: {
-          data: {},
+          data: {
+            video_call_requests: [],
+            total: 0,
+          },
           loading: true,
           error: false,
         },
       };
+
     case CALL_REQUEST_RECEIVED_MODEL_SUCCESS:
       return {
         ...state,
         callRequestReceivedModel: {
-          data: action.data,
+          data: {
+            video_call_requests: [...state.callRequestReceivedModel.data.video_call_requests, ...action.data.video_call_requests],
+            total: action.data.total,
+          },
           loading: false,
           error: false,
         },
@@ -701,6 +744,9 @@ const PostReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+
+      case FETCH_MORE_CALL_REQUEST_RECEIVED_MODEL_START:
+        return state;
 
     case CALL_AUDIO_REQUEST_RECEIVED_MODEL_START:
       return {
@@ -718,6 +764,7 @@ const PostReducer = (state = initialState, action) => {
 
     case CALL_MORE_AUDIO_REQUEST_RECEIVED_MODEL_START:
       return state;
+
     case CALL_AUDIO_REQUEST_RECEIVED_MODEL_SUCCESS:
       return {
         ...state,
@@ -814,7 +861,10 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         audioCallHistoryUser: {
-          data: {},
+          data: {
+            audio_call_requests: [],
+            total: 0
+          },
           loading: true,
           error: false,
         },
@@ -823,7 +873,10 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         audioCallHistoryUser: {
-          data: action.data,
+          data: {
+            audio_call_requests: [...state.audioCallHistoryUser.data.audio_call_requests, ...action.data.audio_call_requests],
+            total: action.data.total
+          },
           loading: false,
           error: false,
         },
@@ -837,6 +890,10 @@ const PostReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+
+    case FETCH_MORE_AUDIO_CALL_HISTORY_USER_START:
+      return state;
+
     case REJECT_AUDIO_CALL_START:
       return {
         ...state,

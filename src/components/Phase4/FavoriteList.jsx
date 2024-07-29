@@ -5,7 +5,6 @@ import {
   fetchFavoriteListStart,
   fetchMoreFavoriteListStart,
   addFavoriteStart,
-  deleteFavoiteStart
 } from "../../store/actions/FavoriteAction";
 import { useDispatch, useSelector } from "react-redux";
 import Skeleton from "react-loading-skeleton";
@@ -22,8 +21,8 @@ const FavoriteList = () => {
 
   useEffect(() => {
     dispatch(fetchFavoriteListStart({
-      skip:0,
-      take:12
+      skip: 0,
+      take: 12
     }));
   }, [])
 
@@ -38,12 +37,12 @@ const FavoriteList = () => {
 
   const removeFavorites = (e, user_id) => {
     e.preventDefault();
-      dispatch(
-        addFavoriteStart({
-          user_id: user_id,
-        })
-      );
-    }
+    dispatch(
+      addFavoriteStart({
+        user_id: user_id,
+      })
+    );
+  }
 
 
   return (
@@ -70,7 +69,7 @@ const FavoriteList = () => {
                       </svg>
                     </span>
                     <span className="personalized-request-back-info">
-                    {t("back")}
+                      {t("back")}
                     </span>
                   </Link>
                   <div className="table-heading">
@@ -80,7 +79,7 @@ const FavoriteList = () => {
               </div>
               <Row>
                 {favoriteList.loading ?
-                  [...Array(6)].map((i) => (
+                  [...Array(4)].map((i) => (
                     <Col md={12} lg={6} xl={3}>
                       <div className="fav-list-card">
                         <Skeleton count={1} width={270} height={180} />
@@ -99,7 +98,7 @@ const FavoriteList = () => {
                         < favoriteList.data.total}
                       loader={
                         <div className="row">
-                          {[...Array(6)].map(() =>
+                          {[...Array(4)].map(() =>
                             <div className="col-lg-4 col-md-6 col-sm-12">
                               <Skeleton height={180} />
                             </div>

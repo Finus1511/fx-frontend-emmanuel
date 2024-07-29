@@ -12785,3 +12785,33 @@ span.favorites-list {
 .update-story-sec::-webkit-scrollbar {
   width: 0 !important;
 }
+
+.add-model-fav {
+  display: flex;
+  align-items: flex-end;
+  justify-content: end;
+}
+
+.default-btn-pay {
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  border: 1px solid var(--primary-color) !important;
+  padding: 0.7em 2em !important;
+  font-size: 1.4em !important;
+  color: var(--secondary-color) !important;
+  font-weight: 500 !important;
+  background: var(--primary-color) !important;
+  transition: opacity .15s ease, background-color .15s ease, box-shadow .15s ease;
+  display: inline-block;
+  white-space: nowrap;
+  text-align: center;
+  align-items: center;
+}
+.default-btn-pay:hover {
+  background: var(--primary-color) !important;
+}
+
+.swiper-favorite.story {
+  padding: 0 5em;
+  width: unset;
+}

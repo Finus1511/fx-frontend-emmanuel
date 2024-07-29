@@ -68,12 +68,15 @@ import {
   ACCEPT_CALL_START,
   CALL_HISTORY_MODEL_START,
   CALL_HISTORY_USER_START,
+  FETCH_MORE_CALL_HISTORY_USER_START,
   CALL_REQUEST_RECEIVED_MODEL_START,
+  FETCH_MORE_CALL_REQUEST_RECEIVED_MODEL_START,
   CALL_AUDIO_REQUEST_RECEIVED_MODEL_START,
   FETCH_AUDIO_CALL_REQUESTS_START,
   FETCH_MORE_AUDIO_CALL_REQUESTS_START,
   CALL_MORE_AUDIO_REQUEST_RECEIVED_MODEL_START,
   CALL_REQUEST_SENT_USER_START,
+  FETCH_MORE_CALL_REQUEST_SENT_USER_START,
   END_VIDEO_CALL_START,
   FETCH_SINGLE_VIDEO_CALL_START,
   JOIN_VIDEO_CALL_START,
@@ -83,6 +86,7 @@ import {
   REQUEST_CALL_START,
   ACCEPT_AUDIO_CALL_START,
   AUDIO_CALL_HISTORY_USER_START,
+  FETCH_MORE_AUDIO_CALL_HISTORY_USER_START,
   REJECT_AUDIO_CALL_START,
   REQUEST_AUDIO_CALL_START,
   PAY_AUDIO_CALL_BY_STRIPE_START,
@@ -308,9 +312,9 @@ function* endVideoCallApi() {
   }
 }
 
-function* callRequestSentUserApi() {
+function* callRequestSentUserApi(action) {
   try {
-    const response = yield api.postMethod("video_call_requests");
+    const response = yield api.postMethod("video_call_requests", action.data);
     if (response.data.success) {
       yield put(callRequestSentUserSuccess(response.data.data));
     } else {
@@ -328,9 +332,9 @@ function* callRequestSentUserApi() {
   }
 }
 
-function* callHistoryUserApi() {
+function* callHistoryUserApi(action) {
   try {
-    const response = yield api.postMethod("user_video_call_history");
+    const response = yield api.postMethod("user_video_call_history" , action.data);
     if (response.data.success) {
       yield put(callHistoryUserSuccess(response.data.data));
     } else {
@@ -368,9 +372,9 @@ function* callHistoryModelApi() {
   }
 }
 
-function* callRequestReceivedModelApi() {
+function* callRequestReceivedModelApi(action) {
   try {
-    const response = yield api.postMethod("model_video_call_requests");
+    const response = yield api.postMethod("model_video_call_requests", action.data);
     if (response.data.success) {
       yield put(callRequestReceivedModelSuccess(response.data.data));
     } else {
@@ -486,9 +490,9 @@ function* acceptAudioCallApi() {
   }
 }
 
-function* audioCallHistoryUserApi() {
+function* audioCallHistoryUserApi(action) {
   try {
-    const response = yield api.postMethod("user_audio_call_history");
+    const response = yield api.postMethod("user_audio_call_history", action.data);
     if (response.data.success) {
       yield put(audioCallHistoryUserSuccess(response.data.data));
     } else {
@@ -756,7 +760,7 @@ function* audioCallPayByWalletApi() {
         response.data.message
       );
       yield put(createNotification(notificationMessage));
-      // window.location.assign("/audio-calls-history");
+      window.location.assign("/audio-calls-history");
     } else {
       yield put(audioCallPayByWalletFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(
@@ -850,10 +854,8 @@ export default function* pageSaga() {
   yield all([yield takeLatest(PAY_BY_PAYPAL_START, payByPayPalApi)]);
   yield all([yield takeLatest(JOIN_VIDEO_CALL_START, joinCallApi)]);
   yield all([yield takeLatest(END_VIDEO_CALL_START, endVideoCallApi)]);
-  yield all([
-    yield takeLatest(CALL_REQUEST_SENT_USER_START, callRequestSentUserApi),
-  ]);
-
+  yield all([ yield takeLatest(CALL_REQUEST_SENT_USER_START, callRequestSentUserApi), ]);
+  yield all([ yield takeLatest(FETCH_MORE_CALL_REQUEST_SENT_USER_START, callRequestSentUserApi), ]);
   yield all([
     yield takeLatest(
       FETCH_AUDIO_CALL_REQUESTS_START,
@@ -868,18 +870,15 @@ export default function* pageSaga() {
     ),
   ]);
 
-
+  
   yield all([yield takeLatest(CALL_HISTORY_USER_START, callHistoryUserApi)]);
+  yield all([yield takeLatest(FETCH_MORE_CALL_HISTORY_USER_START, callHistoryUserApi)]);
   yield all([yield takeLatest(CALL_HISTORY_MODEL_START, callHistoryModelApi)]);
   yield all([
     yield takeLatest(FETCH_SINGLE_VIDEO_CALL_START, fetchSingleVideoCallAPI),
   ]);
-  yield all([
-    yield takeLatest(
-      CALL_REQUEST_RECEIVED_MODEL_START,
-      callRequestReceivedModelApi
-    ),
-  ]);
+  yield all([yield takeLatest(CALL_REQUEST_RECEIVED_MODEL_START,callRequestReceivedModelApi),]);
+  yield all([yield takeLatest(FETCH_MORE_CALL_REQUEST_RECEIVED_MODEL_START,callRequestReceivedModelApi),]);
   yield all([
     yield takeLatest(
       CALL_AUDIO_REQUEST_RECEIVED_MODEL_START,
@@ -894,6 +893,7 @@ export default function* pageSaga() {
   ]);
   yield all([yield takeLatest(ACCEPT_AUDIO_CALL_START, acceptAudioCallApi)]);
   yield all([yield takeLatest(AUDIO_CALL_HISTORY_USER_START, audioCallHistoryUserApi)]);
+  yield all([yield takeLatest(FETCH_MORE_AUDIO_CALL_HISTORY_USER_START, audioCallHistoryUserApi)]);
   yield all([yield takeLatest(REJECT_AUDIO_CALL_START, rejectAudioCallApi)]);
   yield all([yield takeLatest(REQUEST_AUDIO_CALL_START, saveRequestAudioCallApi)]);
   yield all([yield takeLatest(PAY_AUDIO_CALL_BY_STRIPE_START, payAudioCallByStripeApi)]);

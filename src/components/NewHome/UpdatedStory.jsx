@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import Zuck from "zuck.js";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserStoriesStart } from "../../store/actions/StoriesAction";
+import { fetchStoriesStart } from "../../store/actions/StoriesAction";
 import Skeleton from "react-loading-skeleton";
 import StoryUploadModal from "../Home/StoryUploadModal";
 
 const UpdatedStory = () => {
   const dispatch = useDispatch();
   const [storyModal, setStoryModal] = useState(false);
-  const userStories = useSelector((state) => state.userStories.userStories);
+  const userStories = useSelector((state) => state.userStories.stories);
   const storiesContainerRef = useRef(null);
 
   useEffect(() => {
-    dispatch(fetchUserStoriesStart());
+    dispatch(fetchStoriesStart());
   }, []);
 
   useEffect(() => {
@@ -33,11 +33,11 @@ const UpdatedStory = () => {
 
         stories: userStories.data.stories.map((story) => ({
           id: story.id,
-          photo: story.story_files[0].preview_file,
+          photo: story.storyFiles[0].preview_file,
           name: story.username,
           link: "",
           lastUpdated: story.updated,
-          items: story.story_files.map((item) => ({
+          items: story.storyFiles.map((item) => ({
             id: "",
             type: item.file_type == "image" ? "photo" : "video",
             length: 8,

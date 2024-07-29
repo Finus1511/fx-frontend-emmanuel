@@ -1106,6 +1106,13 @@ class App extends Component {
 
               <PrivateRoute
                 authentication={this.state.authentication}
+                path={"/edit-coupon/:promo_code_unique_id"}
+                component={CreateCoupon}
+                layout={MainLayout}
+              />
+
+              <PrivateRoute
+                authentication={this.state.authentication}
                 path={"/coupon-details-table"}
                 component={CouponDetailsTable}
                 layout={MainLayout}

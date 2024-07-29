@@ -4,3 +4,4 @@ dist/
 package-lock.json
 /server
 
+node_modules.zip

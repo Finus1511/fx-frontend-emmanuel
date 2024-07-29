@@ -16,7 +16,8 @@ import {
   FETCH_MORE_CHAT_USERS_START,
   FETCH_MORE_USER_CHAT_ASSETS_START,
   FETCH_USER_CHAT_ASSETS_START,
-  SAVE_CHAT_USERS_START
+  SAVE_CHAT_USERS_START,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_START,
 } from "../actions/ActionConstant";
 import {
   broadcastMessageFailure,
@@ -36,22 +37,26 @@ import {
   fetchUserChatAssetsFailure,
   fetchUserChatAssetsSuccess,
   saveChatUserFailure,
-  saveChatUserSuccess
+  saveChatUserSuccess,
+  chatMessagePaymentByWalletSuccess,
+  chatMessagePaymentByWalletFailure,
 } from "../actions/ChatAction";
 import { createNotification } from "react-redux-notify";
+import store from '../index';
 
 function* fetchChatUserAPI(action) {
+  let chatUsersData = yield select((state) => state.chat.chatUsers.data);
   try {
     const response = yield api.postMethod("chat_users", action.data);
     if (response.data.success) {
-      yield put(fetchChatUsersSuccess(response.data.data));
-      // if (response.data.data.users.length > 0 && inputData.search_key == '')
-      //   yield put(
-      //     fetchChatMessageStart({
-      //       to_user_id: response.data.data.users[0].to_user_id,
-      //       from_user_id: response.data.data.users[0].from_user_id,
-      //     })
-      //   );
+      if (Object.keys(chatUsersData).length > 0) {
+        yield put(fetchChatUsersSuccess({
+          users: [...chatUsersData.users, ...response.data.data.users],
+          total: response.data.data.total
+        }));
+      } else {
+        yield put(fetchChatUsersSuccess(response.data.data));
+      }
     } else {
       yield put(fetchChatUsersFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(response.data.error);
@@ -195,6 +200,42 @@ function* chatBroadcastAssetSaveAPI(action) {
   }
 }
 
+function* chatMessagePaymentByWalletAPI(action) {
+  let chatUsersData = yield select((state) => state.chat.chatUsers.data);
+  let chatUserData = yield select((state) => state.chat.chatUser);
+  try {
+    const response = yield api.postMethod("chat_message_payment_by_wallet", action.data);
+    if (response.data.success) {
+      yield put(chatMessagePaymentByWalletSuccess(response.data.data));
+      const notificationMessage = getSuccessNotificationMessage(response.data.message);
+      yield put(createNotification(notificationMessage));
+      if (Object.keys(chatUsersData).length > 0) {
+        yield put(fetchChatUsersSuccess({
+          ...chatUsersData,
+          users: chatUsersData.users.map(user =>
+            user.from_user_id == response.data.data.user_id
+              ? {
+                ...user, is_user_needs_pay: 0
+              } : user
+          )
+        }));
+        store.dispatch(chatUser({
+          ...chatUserData,
+          is_user_needs_pay: 0
+        }))
+      }
+    } else {
+      yield put(chatMessagePaymentByWalletFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(response.data.error);
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(chatMessagePaymentByWalletFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
 export default function* ChatSaga() {
   yield all([
     yield takeLatest(FETCH_CHAT_USERS_START, fetchChatUserAPI),
@@ -207,6 +248,9 @@ export default function* ChatSaga() {
     yield takeLatest(CHAT_ASSET_FILES_UPLOAD_START, chatAssetFilesUploadAPI),
     yield takeLatest(BROADCAST_MESSAGE_START, broadcastMessageAPI),
     yield takeLatest(CHAT_MESSAGE_DELETE_START, chatMessageDeleteAPI),
-    yield takeLatest(CHAT_BROADCAST_ASSET_SAVE_START, chatBroadcastAssetSaveAPI)
+    yield takeLatest(CHAT_BROADCAST_ASSET_SAVE_START, chatBroadcastAssetSaveAPI),
+    yield takeLatest(CHAT_MESSAGE_PAYMENT_BY_WALLET_START, chatMessagePaymentByWalletAPI)
+
   ]);
 }
+

@@ -15,6 +15,12 @@ import {
   DELETE_COUPON_CODE_START,
   DELETE_COUPON_CODE_SUCCESS,
   DELETE_COUPON_CODE_FAILURE,
+  PROMO_CODE_STATUS_UPDATE_START,
+  PROMO_CODE_STATUS_UPDATE_SUCCESS,
+  PROMO_CODE_STATUS_UPDATE_FAILURE,
+  SINGLE_VIEW_COUPON_CODE_START,
+  SINGLE_VIEW_COUPON_CODE_SUCCESS,
+  SINGLE_VIEW_COUPON_CODE_FAILURE,
   PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_LIST_SUCCESS,
   PREMIUM_FOLDER_LIST_FAILURE,
@@ -44,10 +50,7 @@ const initialState = {
     error: false,
   },
   couponCodeList: {
-    data: {
-      promocode: [],
-      total: 0,
-    },
+    data: {},
     loading: true,
     error: false,
   },
@@ -57,6 +60,16 @@ const initialState = {
     error: false,
   },
   deleteCouponCode: {
+    data: {},
+    loading: false,
+    error: false,
+  },
+  promoCodeStatus: {
+    data: {},
+    loading: false,
+    error: false,
+  },
+  couponCodeView: {
     data: {},
     loading: false,
     error: false,
@@ -155,11 +168,7 @@ const PremiumFolderReducer = (state = initialState, action) => {
       return {
         ...state,
         couponCodeList: {
-          data: {
-            ...state.couponCodeList.data,
-            promocode: [],
-            total: 0,
-          },
+          data: {},
           loading: true,
           error: false,
         },
@@ -169,10 +178,7 @@ const PremiumFolderReducer = (state = initialState, action) => {
       return {
         ...state,
         couponCodeList: {
-          data: {
-            promocode: [...state.couponCodeList.data.promocode, ...action.data.promocode],
-            total: action.data.total,
-          },
+          data: action.data,
           loading: false,
           error: false,
         },
@@ -187,6 +193,7 @@ const PremiumFolderReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+
     case FETCH_MORE_COUPON_CODE_LIST_START:
       return state;
 
@@ -220,30 +227,90 @@ const PremiumFolderReducer = (state = initialState, action) => {
         },
       };
 
-      case DELETE_COUPON_CODE_START:
+    case DELETE_COUPON_CODE_START:
+      return {
+        ...state,
+        deleteCouponCode: {
+          data: {},
+          loading: true,
+          error: false,
+        },
+      };
+
+    case DELETE_COUPON_CODE_SUCCESS:
+      return {
+        ...state,
+        deleteCouponCode: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+
+    case DELETE_COUPON_CODE_FAILURE:
+      return {
+        ...state,
+        deleteCouponCode: {
+          data: {},
+          loading: false,
+          error: action.error,
+        },
+      };
+
+    case PROMO_CODE_STATUS_UPDATE_START:
+      return {
+        ...state,
+        promoCodeStatus: {
+          data: {},
+          loading: true,
+          error: false,
+        },
+      };
+
+    case PROMO_CODE_STATUS_UPDATE_SUCCESS:
+      return {
+        ...state,
+        promoCodeStatus: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+
+    case PROMO_CODE_STATUS_UPDATE_FAILURE:
+      return {
+        ...state,
+        promoCodeStatus: {
+          data: {},
+          loading: false,
+          error: action.error,
+        },
+      };
+
+      case SINGLE_VIEW_COUPON_CODE_START:
         return {
           ...state,
-          deleteCouponCode: {
+          couponCodeView: {
             data: {},
             loading: true,
             error: false,
           },
         };
   
-      case DELETE_COUPON_CODE_SUCCESS:
+      case SINGLE_VIEW_COUPON_CODE_SUCCESS:
         return {
           ...state,
-          deleteCouponCode: {
+          couponCodeView: {
             data: action.data,
             loading: false,
             error: false,
           },
         };
   
-      case DELETE_COUPON_CODE_FAILURE:
+      case SINGLE_VIEW_COUPON_CODE_FAILURE:
         return {
           ...state,
-          deleteCouponCode: {
+          couponCodeView: {
             data: {},
             loading: false,
             error: action.error,

@@ -15,7 +15,7 @@ import BillingAccountLoader from "../../Loader/BillingAccountLoader";
 import { translate, t } from "react-multi-lang";
 import {
   acceptCallStart,
-  callRequestReceivedModelStart,
+  fetchMoreCallHistoryUserStart,
   callHistoryUserStart,
   rejectCallStart,
   endVideoCallStart,
@@ -24,16 +24,27 @@ import {
 import { Link } from "react-router-dom";
 import VideoCallMakePaymentModel from "../../helper/VideoCallMakePaymentModel";
 import CallPaymentModal from "../../Model/PaymentModal/CallPaymentModal";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Skeleton from "react-loading-skeleton";
 
 const VideoCallHistoryIndex = (props) => {
-  const [skip, setSkip] = useState({
-    skip: 0,
-    take: 12,
-  });
+
+
 
   useEffect(() => {
-    props.dispatch(callHistoryUserStart());
+    props.dispatch(callHistoryUserStart({
+      skip: 0,
+      take: 12
+    }));
   }, []);
+
+  const fetchMoreData = () => {
+    props.dispatch(fetchMoreCallHistoryUserStart({
+      skip: props.callHistoryUser.data.video_call_requests.length,
+      take: 12
+    }));
+  };
+
 
   const [makePaymentInput, setMakePaymentInput] = useState({
     video_call_request_id: "",
@@ -107,155 +118,164 @@ const VideoCallHistoryIndex = (props) => {
         <Container>
           {props.callHistoryUser.loading ? (
             <BillingAccountLoader />
-          ) : props.callHistoryUser.data.video_call_requests &&
+          ) : Object.keys(props.callHistoryUser.data).length > 0 &&
             props.callHistoryUser.data.video_call_requests.length > 0 ? (
             <Row>
               <Col sm={12} md={12}>
                 <div className="trans-table">
-                  <Table borderedless responsive>
-                    <thead>
-                      <tr className="bg-white text-muted text-center text-uppercase">
-                        <th>{t("s_no")}</th>
-                        <th>{t("requested_from")}</th>
-                        <th>{t("requested_to")}</th>
-                        <th>{t("amount")}</th>
-                        <th className="text-nowrap">{t("scheduled")}</th>
-                        <th className="text-nowrap">{t("end_time")}</th>
-                        <th>{t("status")}</th>
-                        <th>{t("action")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {props.callHistoryUser.data.video_call_requests.map(
-                        (videoCall, index) => (
-                          <tr
-                            key={videoCall.video_call_request_id}
-                            className="text-center"
-                          >
-                            <td>{index + 1}</td>
-                            <td>
-                              <Link to={`/` + videoCall.user_unique_id}>
-                                {videoCall.user_displayname}
-                              </Link>
-                            </td>
-                            <td>
-                              <Link to={`/` + videoCall.model_unique_id}>
-                                {videoCall.model_displayname}
-                              </Link>
-                            </td>
-                            <td>{videoCall.amount_formatted}</td>
-                            <td className="text-nowrap">
-                              {videoCall.start_time
-                                ? videoCall.start_time
-                                : "-"}
-                            </td>
-                            <td className="text-nowrap">
-                              {videoCall.end_time ? videoCall.end_time : "-"}
-                            </td>
-                            <td>{videoCall.call_status_formatted}</td>
-                            <td>
-                              {videoCall.accept_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-sm btn-success mr-3 col-12 mb-2"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      acceptCallStart({
-                                        video_call_request_id:
-                                          videoCall.video_call_request_id,
-                                      })
-                                    )
-                                  }
-                                >
-                                  {t("accept")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-                              {videoCall.reject_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-sm btn-danger mr-3 col-12 mb-2"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      rejectCallStart({
-                                        video_call_request_id:
-                                          videoCall.video_call_request_id,
-                                      })
-                                    )
-                                  }
-                                >
-                                  {t("reject")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-                              {videoCall.payment_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-success mr-3 col-12 mb-2"
-                                  onClick={(event) =>
-                                    makePayment(event, videoCall)
-                                  }
-                                >
-                                  {videoCall.amount > 0
-                                    ? t("paynow")
-                                    : t("confirm_request")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-
-                              {videoCall.join_btn_status == 1 ? (
-                                <Link
-                                  className="btn btn-success mr-3 col-12 mb-2"
-                                  to={`/video-call/${videoCall.video_call_request_unique_id}`}
-                                >
-                                  {t("join_call")}
+                  <InfiniteScroll
+                    dataLength={props.callHistoryUser.data.video_call_requests.length}
+                    next={fetchMoreData}
+                    hasMore={props.callHistoryUser.data.video_call_requests.length <
+                      props.callHistoryUser.data.total}
+                    loader={[...Array(6)].map(() =>
+                      <Skeleton className="mb-2" height={60} width={"100%"} />)}
+                  >
+                    <Table borderedless responsive>
+                      <thead>
+                        <tr className="bg-white text-muted text-center text-uppercase">
+                          <th>{t("s_no")}</th>
+                          <th>{t("requested_from")}</th>
+                          <th>{t("requested_to")}</th>
+                          <th>{t("amount")}</th>
+                          <th className="text-nowrap">{t("scheduled")}</th>
+                          <th className="text-nowrap">{t("end_time")}</th>
+                          <th>{t("status")}</th>
+                          <th>{t("action")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {props.callHistoryUser.data.video_call_requests.map(
+                          (videoCall, index) => (
+                            <tr
+                              key={videoCall.video_call_request_id}
+                              className="text-center"
+                            >
+                              <td>{index + 1}</td>
+                              <td>
+                                <Link to={`/` + videoCall.user_unique_id}>
+                                  {videoCall.user_displayname}
                                 </Link>
-                              ) : (
-                                ""
-                              )}
+                              </td>
+                              <td>
+                                <Link to={`/` + videoCall.model_unique_id}>
+                                  {videoCall.model_displayname}
+                                </Link>
+                              </td>
+                              <td>{videoCall.amount_formatted}</td>
+                              <td className="text-nowrap">
+                                {videoCall.start_time
+                                  ? videoCall.start_time
+                                  : "-"}
+                              </td>
+                              <td className="text-nowrap">
+                                {videoCall.end_time ? videoCall.end_time : "-"}
+                              </td>
+                              <td>{videoCall.call_status_formatted}</td>
+                              <td>
+                                {videoCall.accept_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-sm btn-success mr-3 col-12 mb-2"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        acceptCallStart({
+                                          video_call_request_id:
+                                            videoCall.video_call_request_id,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    {t("accept")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
+                                {videoCall.reject_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-sm btn-danger mr-3 col-12 mb-2"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        rejectCallStart({
+                                          video_call_request_id:
+                                            videoCall.video_call_request_id,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    {t("reject")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
+                                {videoCall.payment_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-success mr-3 col-12 mb-2"
+                                    onClick={(event) =>
+                                      makePayment(event, videoCall)
+                                    }
+                                  >
+                                    {videoCall.amount > 0
+                                      ? t("paynow")
+                                      : t("confirm_request")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
 
-                              {videoCall.start_btn_status == 1 ? (
-                                <Link
-                                  className="btn btn-success mr-3 col-12 mb-2"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      startVideoCallRequestStart({
-                                        video_call_request_unique_id:
-                                        videoCall.video_call_request_unique_id,
-                                      })
-                                    )
-                                  }
+                                {videoCall.join_btn_status == 1 ? (
+                                  <Link
+                                    className="btn btn-success mr-3 col-12 mb-2"
+                                    to={`/video-call/${videoCall.video_call_request_unique_id}`}
+                                  >
+                                    {t("join_call")}
+                                  </Link>
+                                ) : (
+                                  ""
+                                )}
+
+                                {videoCall.start_btn_status == 1 ? (
+                                  <Link
+                                    className="btn btn-success mr-3 col-12 mb-2"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        startVideoCallRequestStart({
+                                          video_call_request_unique_id:
+                                            videoCall.video_call_request_unique_id,
+                                        })
+                                      )
+                                    }
                                   // to={`/video-call/${videoCall.video_call_request_unique_id}`}
-                                >
-                                  {t("start_call")}
-                                </Link>
-                              ) : (
-                                ""
-                              )}
+                                  >
+                                    {t("start_call")}
+                                  </Link>
+                                ) : (
+                                  ""
+                                )}
 
-                              {videoCall.end_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-danger mr-3 col-12 mb-2"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      endVideoCallStart({
-                                        video_call_request_id:
-                                          videoCall.video_call_request_id,
-                                      })
-                                    )
-                                  }
-                                >
-                                  {t("end_call")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-                            </td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </Table>
+                                {videoCall.end_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-danger mr-3 col-12 mb-2"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        endVideoCallStart({
+                                          video_call_request_id:
+                                            videoCall.video_call_request_id,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    {t("end_call")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </Table>
+                  </InfiniteScroll>
                 </div>
               </Col>
               {/* <VideoCallMakePaymentModel

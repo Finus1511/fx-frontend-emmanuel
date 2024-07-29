@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap";
 import "./NewChat.css";
 import { Link, useHistory } from "react-router-dom";
+import { useSelector } from "react-redux";
 import NewChatUploadModal from "./NewChatUploadModal";
 import AltraChatAudioPlayer from "../CustomComponents/AudioPlayer/AltraChatAudioPlayer";
 import SendChat from "./SendChat";
@@ -23,6 +24,7 @@ import FancyBox from "../NewHome/NewSingleView/FancyBox";
 import {
   changeChatAudio,
   fetchChatMessagesStart,
+  fetchChatUsersStart,
   fetchMoreChatMessagesStart,
   updateChatMessagesSuccess,
 } from "../../store/actions/ChatAction";
@@ -41,6 +43,7 @@ import { createNotification } from "react-redux-notify/lib/modules/Notifications
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import PageLoader from "../Loader/PageLoader";
+import ChatMessagePaymentModal from "../Model/PaymentModal/ChatMessagePaymentModal";
 
 let chatSocket;
 
@@ -51,6 +54,7 @@ const NewChatRoom = (props) => {
   const userId = localStorage.getItem("userId");
 
   const chatSocketUrl = configuration.get("configData.chat_socket_url");
+  const chatMessagePayWallet = useSelector((state) => state.chat.chatMessagePayWallet);
   const [skipRender, setSkipRender] = useState(true);
   const [requestVideoCall, setRequestVideoCall] = useState(false);
   const [requestAudioCall, setRequestAudioCall] = useState(false);
@@ -60,6 +64,16 @@ const NewChatRoom = (props) => {
   const [cursorPointer, setCursorPointer] = useState(0);
   const [isChat, setIsChat] = useState(true);
   const [newMsg, setNewMsg] = useState(false);
+  const [makePaymentModel, setMakePaymentModel] = useState(false);
+  const [modelUser, setModelUser] = useState({
+    user_id: props.chatUser.user_id,
+    amount: props.chatUser.chat_message_amount,
+  });
+
+  const closeChatPaymentModal = () => {
+    setMakePaymentModel(false);
+  };
+
 
   const messageField = useRef();
   const latest = useRef();
@@ -93,8 +107,8 @@ const NewChatRoom = (props) => {
       from_user_id: userId,
       to_user_id: props.selectedUser.user_id,
     }
-    if(props.chatUser?.is_admin)
-      values = {...values, admin_id: props.chatUser.id}
+    if (props.chatUser?.is_admin)
+      values = { ...values, admin_id: props.chatUser.id }
     props.chatUser && props.dispatch(
       fetchChatMessagesStart(values)
     );
@@ -104,7 +118,9 @@ const NewChatRoom = (props) => {
     chatSocketConnect(props.selectedUser.user_id);
     setIsChat(true);
     return () => {
-      chatSocket.disconnect();
+      if (chatSocket) {
+        chatSocket.disconnect();
+      }
     };
   }, [props.selectedUser.user_id]);
 
@@ -237,9 +253,8 @@ const NewChatRoom = (props) => {
     index--;
   };
 
-  useEffect(()=> {
-    if(!skipRender && !props.chatMessageDelete.loading && Object.keys(props.chatMessageDelete.data).length > 0)
-    {
+  useEffect(() => {
+    if (!skipRender && !props.chatMessageDelete.loading && Object.keys(props.chatMessageDelete.data).length > 0) {
       props.dispatch(
         fetchChatMessagesStart({
           from_user_id: userId,
@@ -251,10 +266,10 @@ const NewChatRoom = (props) => {
   }, [props.chatMessageDelete])
 
   function generateString(length) {
-    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = ' ';
     const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
+    for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     result = Date.now() + result;
@@ -269,17 +284,32 @@ const NewChatRoom = (props) => {
     })
   }
 
-  useEffect(()=> {
-    if(props.chatMessages?.data?.messages?.length > 0)
-    {
-      chatSocket.on("delete", (newData) => {
-        props.dispatch(updateChatMessagesSuccess({
-          delete: 1,
-          messages: props.chatMessages?.data?.messages.filter(item =>item.reference_id != newData.chat_message_reference_id)
-        }));
-      });
+  useEffect(() => {
+    if (props.chatMessages?.data?.messages?.length > 0) {
+      if (chatSocket) {
+        chatSocket.on("delete", (newData) => {
+          props.dispatch(updateChatMessagesSuccess({
+            delete: 1,
+            messages: props.chatMessages?.data?.messages.filter(item => item.reference_id != newData.chat_message_reference_id)
+          }));
+        });
+      }
     }
   }, [props.chatMessages])
+
+  useEffect(() => {
+    if (!skipRender && !chatMessagePayWallet.loading &&
+      Object.keys(chatMessagePayWallet.data).length > 0
+    ) {
+      closeChatPaymentModal();
+    }
+    setSkipRender(false);
+  }, [chatMessagePayWallet]);
+
+
+//   useEffect(() => {
+//  console.log(props.chatUser)
+//   }, [props.chatUser])
 
   return (
     <>
@@ -318,7 +348,7 @@ const NewChatRoom = (props) => {
               :  */}
             <>
               {props.chatMessages.data.user &&
-              props.chatMessages.data.user.is_online_status == 1 ? (
+                props.chatMessages.data.user.is_online_status == 1 ? (
                 <p>
                   {props.chatMessages.data.user.is_user_online == 1
                     ? "Online"
@@ -390,7 +420,7 @@ const NewChatRoom = (props) => {
               </Link>
             </Media>
           </ul>
-        </div>: null}
+        </div> : null}
       </div>
       {isChat ? (
         <>
@@ -461,71 +491,82 @@ const NewChatRoom = (props) => {
                   </FancyBox>
                 </InfiniteScroll>
               </div>
-              {!props.chatUser.is_admin ? <div className="new-chat-room-input-sec">
-                <Form
-                  className="new-chat-room-form"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleMessageSubmit({});
-                  }}
-                >
-                  <div
-                    className={`emoji-container ${
-                      showEmojis ? "show" : "hide"
-                    }`}
+              {!props.chatUser.is_admin 
+               ? <div className="new-chat-room-input-sec">
+                {props.chatUser.is_user_needs_pay 
+                ?
+                  <Button
+                    className="default-btn-pay"
+                    onClick={() => setMakePaymentModel(true)}
                   >
-                    <Picker
-                      data={data}
-                      onEmojiSelect={onEmojiPick}
-                      onClickOutside={() => {
-                        console.log("Outside triggered");
-                        if (showEmojis) setShowEmojis(false);
-                      }}
-                    />
-                  </div>
-                  <InputGroup className="mb-0">
-                    <InputGroup.Text onClick={() => handleToggleEmojis()}>
-                      <Image
-                        className="new-chat-emoji-icon"
-                        src={
-                          window.location.origin +
-                          "/assets/images/feed-story/comments-emoji.svg"
-                        }
+                    {t("pay_now")}
+                  </Button>
+                  :
+                  <Form
+                    className="new-chat-room-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleMessageSubmit({});
+                    }}
+                  >
+                    <div
+                      className={`emoji-container ${showEmojis ? "show" : "hide"
+                        }`}
+                    >
+                      <Picker
+                        data={data}
+                        onEmojiSelect={onEmojiPick}
+                        onClickOutside={() => {
+                          console.log("Outside triggered");
+                          if (showEmojis) setShowEmojis(false);
+                        }}
                       />
-                    </InputGroup.Text>
-                    <Form.Control
-                      ref={messageField}
-                      placeholder={t("type_something")}
-                      value={!newChatUpload ? message : ""}
-                      onChange={(e) => setMessage(e.target.value)}
-                      // onKeyPress={e => {
-                      //   if (e.key === "Enter")
-                      //     handleMessageSubmit({})
-                      // }}
-                      autoFocus={true}
-                      on
-                    />
-                    <InputGroup.Text onClick={() => setNewChatUpload(true)}>
-                      <Image
-                        className="new-chat-file-icon"
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-chat/attach-file.png"
-                        }
+                    </div>
+                    <InputGroup className="mb-0">
+                      <InputGroup.Text onClick={() => handleToggleEmojis()}>
+                        <Image
+                          className="new-chat-emoji-icon"
+                          src={
+                            window.location.origin +
+                            "/assets/images/feed-story/comments-emoji.svg"
+                          }
+                        />
+                      </InputGroup.Text>
+                      <Form.Control
+                        ref={messageField}
+                        placeholder={t("type_something")}
+                        value={!newChatUpload ? message : ""}
+                        onChange={(e) => setMessage(e.target.value)}
+                        // onKeyPress={e => {
+                        //   if (e.key === "Enter")
+                        //     handleMessageSubmit({})
+                        // }}
+                        autoFocus={true}
+                        on
                       />
-                    </InputGroup.Text>
-                    <InputGroup.Text onClick={() => handleMessageSubmit({})}>
-                      <Image
-                        className="new-chat-send-icon"
-                        src={
-                          window.location.origin +
-                          "/assets/images/feed-story/comments-send.svg"
-                        }
-                      />
-                    </InputGroup.Text>
-                  </InputGroup>
-                </Form>
-              </div> : null}
+                      <InputGroup.Text onClick={() => setNewChatUpload(true)}>
+                        <Image
+                          className="new-chat-file-icon"
+                          src={
+                            window.location.origin +
+                            "/assets/images/new-chat/attach-file.png"
+                          }
+                        />
+                      </InputGroup.Text>
+                      <InputGroup.Text onClick={() => handleMessageSubmit({})}>
+                        <Image
+                          className="new-chat-send-icon"
+                          src={
+                            window.location.origin +
+                            "/assets/images/feed-story/comments-send.svg"
+                          }
+                        />
+                      </InputGroup.Text>
+                    </InputGroup>
+                  </Form>
+                }
+              </div> :
+               null}
             </>
           ) : null}
         </>
@@ -567,6 +608,13 @@ const NewChatRoom = (props) => {
           user_id={props.selectedUser.user_id}
         />
       ) : null}
+      {makePaymentModel &&
+        <ChatMessagePaymentModal
+          paymentsModal={makePaymentModel}
+          closeChatPaymentModal={closeChatPaymentModal}
+          modelUser={modelUser}
+        />
+      }
     </>
   );
 };

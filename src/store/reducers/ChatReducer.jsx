@@ -32,6 +32,9 @@ import {
   CHAT_BROADCAST_ASSET_SAVE_START,
   CHAT_BROADCAST_ASSET_SAVE_SUCCESS,
   CHAT_BROADCAST_ASSET_SAVE_FAILURE,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_START,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_SUCCESS,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_FAILURE,
 } from "../actions/ActionConstant";
 
 const initialState = {
@@ -89,6 +92,14 @@ const initialState = {
     loadingButtonContent: null,
     buttonDisable: false,
   },
+  chatMessagePayWallet: {
+    data: {},
+    loading: true,
+    error: false,
+    success: {},
+    buttonDisable: false,
+    loadingButtonContent: null,
+  },
 };
 
 const ChatReducer = (state = initialState, action) => {
@@ -102,10 +113,7 @@ const ChatReducer = (state = initialState, action) => {
       return {
         ...state,
         chatUsers: {
-          data: {
-            users: [],
-            total: 0,
-          },
+          data: {},
           loading: true,
           error: false,
         },
@@ -116,10 +124,7 @@ const ChatReducer = (state = initialState, action) => {
       return {
         ...state,
         chatUsers: {
-          data: {
-            users: [...state.chatUsers.data.users, ...action.data.users],
-            total: action.data.total,
-          },
+          data: action.data,
           loading: false,
           error: false,
         }
@@ -372,17 +377,17 @@ const ChatReducer = (state = initialState, action) => {
         },
       };
     case CHAT_MESSAGE_DELETE_FAILURE:
-        return {
-          ...state,
-          chatMessageDelete: {
-            data: {},
-            loading: false,
-            error: action.error,
-            buttonDisable: false,
-            loadingButtonContent: null,
-          },
-        };
-      
+      return {
+        ...state,
+        chatMessageDelete: {
+          data: {},
+          loading: false,
+          error: action.error,
+          buttonDisable: false,
+          loadingButtonContent: null,
+        },
+      };
+
     case CHAT_BROADCAST_ASSET_SAVE_START:
       return {
         ...state,
@@ -406,17 +411,52 @@ const ChatReducer = (state = initialState, action) => {
         },
       };
     case CHAT_BROADCAST_ASSET_SAVE_FAILURE:
-        return {
-          ...state,
-          chatBroadcastAsset: {
-            data: {},
-            loading: false,
-            error: action.error,
-            buttonDisable: false,
-            loadingButtonContent: null,
-          },
-        };
-      
+      return {
+        ...state,
+        chatBroadcastAsset: {
+          data: {},
+          loading: false,
+          error: action.error,
+          buttonDisable: false,
+          loadingButtonContent: null,
+        },
+      };
+
+    case CHAT_MESSAGE_PAYMENT_BY_WALLET_START:
+      return {
+        ...state,
+        chatMessagePayWallet: {
+          data: action.data,
+          loading: true,
+          error: false,
+          success: {},
+          buttonDisable: true,
+          loadingButtonContent: "Processing.. Please wait...",
+        },
+      };
+    case CHAT_MESSAGE_PAYMENT_BY_WALLET_SUCCESS:
+      return {
+        ...state,
+        chatMessagePayWallet: {
+          loading: false,
+          error: false,
+          data: action.data,
+          buttonDisable: false,
+          loadingButtonContent: null,
+        },
+      };
+    case CHAT_MESSAGE_PAYMENT_BY_WALLET_FAILURE:
+      return {
+        ...state,
+        chatMessagePayWallet: {
+          loading: false,
+          error: action.error,
+          data: {},
+          buttonDisable: false,
+          loadingButtonContent: null,
+        },
+      };
+
     default: return state;
   }
 }

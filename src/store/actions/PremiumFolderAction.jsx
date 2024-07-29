@@ -15,6 +15,12 @@ import {
   DELETE_COUPON_CODE_START,
   DELETE_COUPON_CODE_SUCCESS,
   DELETE_COUPON_CODE_FAILURE,
+  PROMO_CODE_STATUS_UPDATE_START,
+  PROMO_CODE_STATUS_UPDATE_SUCCESS,
+  PROMO_CODE_STATUS_UPDATE_FAILURE,
+  SINGLE_VIEW_COUPON_CODE_START,
+  SINGLE_VIEW_COUPON_CODE_SUCCESS,
+  SINGLE_VIEW_COUPON_CODE_FAILURE,
   PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_LIST_SUCCESS,
   PREMIUM_FOLDER_LIST_FAILURE,
@@ -248,3 +254,48 @@ export function premiumFolderFilesListFailure(error) {
     error,
   };
 }
+
+export function promoCodeStatusUpdateStart(data) {
+  return {
+    type: PROMO_CODE_STATUS_UPDATE_START,
+    data,
+  };
+}
+
+export function promoCodeStatusUpdateSuccess(data) {
+  return {
+    type: PROMO_CODE_STATUS_UPDATE_SUCCESS,
+    data,
+  };
+}
+
+export function promoCodeStatusUpdateFailure(error) {
+  return {
+    type: PROMO_CODE_STATUS_UPDATE_FAILURE,
+    error,
+  };
+}
+
+export function singleViewCouponCodeStart(data) {
+  return {
+    type:SINGLE_VIEW_COUPON_CODE_START,
+    data,
+  };
+}
+
+export function singleViewCouponCodeSuccess(data) {
+  return {
+    type: SINGLE_VIEW_COUPON_CODE_SUCCESS,
+    data,
+  };
+}
+
+export function singleViewCouponCodeFailure(error) {
+  return {
+    type: SINGLE_VIEW_COUPON_CODE_FAILURE,
+    error,
+  };
+}
+
+
+

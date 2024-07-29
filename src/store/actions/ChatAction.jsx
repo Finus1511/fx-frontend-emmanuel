@@ -37,7 +37,10 @@ import {
   CHAT_MESSAGE_DELETE_FAILURE,
   CHAT_BROADCAST_ASSET_SAVE_START,
   CHAT_BROADCAST_ASSET_SAVE_SUCCESS,
-  CHAT_BROADCAST_ASSET_SAVE_FAILURE
+  CHAT_BROADCAST_ASSET_SAVE_FAILURE,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_START,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_SUCCESS,
+  CHAT_MESSAGE_PAYMENT_BY_WALLET_FAILURE,
 } from "./ActionConstant";
 
 export function fetchChatUsersStart(data) {
@@ -316,3 +319,23 @@ export function chatBroadcastAssetSaveFailure(error) {
   };
 }
 
+export function chatMessagePaymentByWalletStart(data) {
+  return {
+    type: CHAT_MESSAGE_PAYMENT_BY_WALLET_START,
+    data,
+  };
+}
+
+export function chatMessagePaymentByWalletSuccess(data) {
+  return {
+    type: CHAT_MESSAGE_PAYMENT_BY_WALLET_SUCCESS,
+    data,
+  };
+}
+
+export function chatMessagePaymentByWalletFailure(error) {
+  return {
+    type: CHAT_MESSAGE_PAYMENT_BY_WALLET_FAILURE,
+    error,
+  };
+}

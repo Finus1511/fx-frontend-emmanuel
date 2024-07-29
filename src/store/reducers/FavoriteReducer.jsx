@@ -13,10 +13,7 @@ import {
 
 const initialState = {
   favoriteList: {
-    data: {
-      fav_users: [],
-      total: 0,
-    },
+    data: {},
     loading: true,
     error: false,
   },
@@ -44,10 +41,7 @@ const FavoriteReducer = (state = initialState, action) => {
       return {
         ...state,
         favoriteList: {
-          data: {
-            fav_users: [],
-            total: 0,
-          },
+          data: {},
           loading: true,
           error: false,
         },
@@ -56,10 +50,7 @@ const FavoriteReducer = (state = initialState, action) => {
       return {
         ...state,
         favoriteList: {
-          data: {
-            fav_users: [...state.favoriteList.data.fav_users, ...action.data.fav_users],
-            total: action.data.total,
-          },
+          data: action.data,
           loading: false,
           error: false,
         },

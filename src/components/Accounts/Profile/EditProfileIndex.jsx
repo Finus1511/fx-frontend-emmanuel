@@ -67,6 +67,7 @@ const EditProfileIndex = (props) => {
     yearly_amount: "",
     video_call_amount: "",
     audio_call_amount: "",
+    chat_message_amount: "",
   });
 
   const [subscriptionError, setSubscriptionError] = useState({
@@ -157,12 +158,14 @@ const EditProfileIndex = (props) => {
           yearly_amount: profile.data.yearly_amount,
           video_call_amount: profile.data.video_call_token,
           audio_call_amount: profile.data.audio_call_token,
+          chat_message_amount: profile.data.chat_message_amount,
         })
         : (subscriptionData = {
           monthly_amount: profile.data.monthly_amount,
           yearly_amount: profile.data.yearly_amount,
           video_call_amount: profile.data.video_call_amount,
           audio_call_amount: profile.data.audio_call_amount,
+          chat_message_amount: profile.data.chat_message_amount,
         });
 
       setSubscription(subscriptionData);
@@ -210,6 +213,7 @@ const EditProfileIndex = (props) => {
         yearly_amount: "",
         video_call_amount: "",
         audio_call_amount: "",
+        chat_message_amount: "",
       });
       props.dispatch(updateUserDetailsStart(subscription));
     }
@@ -222,6 +226,7 @@ const EditProfileIndex = (props) => {
       "yearly_amount",
       "video_call_amount",
       "audio_call_amount",
+      "chat_message_amount"
     ];
     let newError = {};
     keys.map((key) => {
@@ -996,6 +1001,87 @@ const EditProfileIndex = (props) => {
                                     <span>{t("note")} :</span>{" "}
                                     {t("audio_call_amount_note")}
                                   </p>
+                                </div>
+                                <div className="settings-subscription-card">
+                                  <div className="settings-subscription-amount-choose">
+                                    {configuration.get(
+                                      "configData.is_only_wallet_payment"
+                                    ) == 1 ? (
+                                      <FormLabel>
+                                        <span className="align-center">
+                                          {t("chat_message")} (In{" "}
+                                          {configuration.get(
+                                            "configData.token_symbol"
+                                          )}
+                                          )
+                                          <Image
+                                            src={
+                                              window.location.origin +
+                                              "/assets/images/icons/new/mail-new-1.svg"
+                                            }
+                                          />
+                                        </span>
+                                      </FormLabel>
+                                    ) : (
+                                      <FormLabel>
+                                        <span className="align-center">
+                                          {t("chat_message")} (
+                                          {configuration.get(
+                                            "configData.currency_code"
+                                          )}
+                                          )
+                                          <Image
+                                            src={
+                                              window.location.origin +
+                                              "/assets/images/icons/new/mail-new-1.svg"
+                                            }
+                                          />
+                                        </span>
+                                      </FormLabel>
+                                    )}
+                                    <InputRange
+                                      maxValue={1000}
+                                      minValue={0}
+                                      value={subscription.chat_message_amount}
+                                      onChange={(value) =>
+                                        setSubscription({
+                                          ...subscription,
+                                          chat_message_amount: value,
+                                        })
+                                      }
+                                      disabled={
+                                        localStorage.getItem(
+                                          "is_subscription_enabled"
+                                        ) == 1
+                                          ? false
+                                          : true
+                                      }
+                                    />
+                                  </div>
+                                  <div className="settings-subscription-amount-display">
+                                    <div className="amount-display-btn">
+                                      <input
+                                        type="number"
+                                        value={subscription.chat_message_amount}
+                                        onChange={(e) =>
+                                          setSubscription({
+                                            ...subscription,
+                                            chat_message_amount: e.target.value,
+                                          })
+                                        }
+                                        disabled={
+                                          localStorage.getItem(
+                                            "is_subscription_enabled"
+                                          ) == 1
+                                            ? false
+                                            : true
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="text-danger text-right">
+                                    {subscriptionError.chat_message_amount}
+                                  </div>
                                 </div>
                               </div>
                             )}

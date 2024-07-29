@@ -27,9 +27,10 @@ import { Link } from "react-router-dom";
 import AudioCallMakePaymentModel from "../../helper/AudioCallMakePaymentModel";
 import InfiniteScroll from "react-infinite-scroll-component";
 import CallPaymentModal from "../../Model/PaymentModal/CallPaymentModal";
+import Skeleton from "react-loading-skeleton";
 
 const AudioCallRequestSentIndex = (props) => {
- 
+
   useEffect(() => {
     props.dispatch(
       fetchAudioCallRequestsStart({
@@ -118,164 +119,166 @@ const AudioCallRequestSentIndex = (props) => {
         <Container>
           {props.audioCallRequests.loading ? (
             <BillingAccountLoader />
-          ) : props.audioCallRequests.data.audio_call_requests &&
+          ) : Object.keys(props.audioCallRequests.data).length > 0 &&
             props.audioCallRequests.data.audio_call_requests.length > 0 ? (
             <Row>
               <Col sm={12} md={12}>
                 <div className="trans-table">
-                <InfiniteScroll
-                  dataLength={props.audioCallRequests.data.audio_call_requests.length}
-                  next={fetchMoreData}
-                  hasMore={
-                    props.audioCallRequests.data.audio_call_requests.length <
+                  <InfiniteScroll
+                    dataLength={props.audioCallRequests.data.audio_call_requests.length}
+                    next={fetchMoreData}
+                    hasMore={
+                      props.audioCallRequests.data.audio_call_requests.length <
                       props.audioCallRequests.data.total &&
-                    props.audioCallRequests.errorCount < 2
-                  }
-                  loader={<h4>{t("loading")}</h4>}
-                >
-                  <Table borderedless responsive>
-                    <thead>
-                      <tr className="bg-white text-muted text-center text-uppercase">
-                        <th>{t("s_no")}</th>
-                        <th>{t("model")}</th>
-                        <th>{t("user")}</th>
-                        <th>{t("scheduled")}</th>
-                        <th>{t("end_time")}</th>
-                        <th>{t("status")}</th>
-                        <th>{t("action")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {props.audioCallRequests.data.audio_call_requests.map(
-                        (audioCall, index) => (
-                          <tr
-                            key={audioCall.audio_call_request_id}
-                            className="text-center"
-                          >
-                            <td>{index + 1}</td>
-                            <td>
-                              <Link to={`/` + audioCall.model_unique_id}>
-                                {audioCall.model_displayname}
-                              </Link>
-                            </td>
-                            <td>
-                              <Link to={`/` + audioCall.user_unique_id}>
-                                {audioCall.user_displayname}
-                              </Link>
-                            </td>
-                            <td>
-                              {audioCall.start_time
-                                ? audioCall.start_time
-                                : "-"}
-                            </td>
-                            <td>
-                              {audioCall.end_time ? audioCall.end_time : "-"}
-                            </td>
-                            <td>{audioCall.call_status_formatted}</td>
-                            <td>
-                              {audioCall.accept_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-sm btn-success mr-3"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      acceptAudioCallStart({
-                                        audio_call_request_id:
-                                        audioCall.audio_call_request_id,
-                                      })
-                                    )
-                                  }
-                                >
-                                  {t("accept")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-                              {audioCall.reject_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-sm btn-danger  mr-3"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      rejectAudioCallStart({
-                                        audio_call_request_id:
-                                        audioCall.audio_call_request_id,
-                                      })
-                                    )
-                                  }
-                                >
-                                  {t("reject")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-                              {audioCall.payment_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-success mr-3"
-                                  onClick={(event) =>
-                                    makePayment(event, audioCall)
-                                  }
-                                >
-                                  {t("paynow")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-
-                              {audioCall.join_btn_status == 1 ? (
-                                <Link
-                                  className="btn btn-success mr-3"
-                                  to={`/audio-call/${audioCall.audio_call_request_unique_id}`}
-                                >
-                                  {t("join_call")}
+                      props.audioCallRequests.errorCount < 2
+                    }
+                    loader={[...Array(6)].map(() =>
+                      <Skeleton className="mb-2" height={60} width={"100%"} />)}
+                  >
+                    <Table borderedless responsive>
+                      <thead>
+                        <tr className="bg-white text-muted text-center text-uppercase">
+                          <th>{t("s_no")}</th>
+                          <th>{t("model")}</th>
+                          <th>{t("user")}</th>
+                          <th>{t("scheduled")}</th>
+                          <th>{t("end_time")}</th>
+                          <th>{t("status")}</th>
+                          <th>{t("action")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {props.audioCallRequests.data.audio_call_requests.map(
+                          (audioCall, index) => (
+                            <tr
+                              key={audioCall.audio_call_request_id}
+                              className="text-center"
+                            >
+                              <td>{index + 1}</td>
+                              <td>
+                                <Link to={`/` + audioCall.model_unique_id}>
+                                  {audioCall.model_displayname}
                                 </Link>
-                              ) : (
-                                ""
-                              )}
+                              </td>
+                              <td>
+                                <Link to={`/` + audioCall.user_unique_id}>
+                                  {audioCall.user_displayname}
+                                </Link>
+                              </td>
+                              <td>
+                                {audioCall.start_time
+                                  ? audioCall.start_time
+                                  : "-"}
+                              </td>
+                              <td>
+                                {audioCall.end_time ? audioCall.end_time : "-"}
+                              </td>
+                              <td>{audioCall.call_status_formatted}</td>
+                              <td>
+                                {audioCall.accept_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-sm btn-success mr-3"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        acceptAudioCallStart({
+                                          audio_call_request_id:
+                                            audioCall.audio_call_request_id,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    {t("accept")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
+                                {audioCall.reject_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-sm btn-danger  mr-3"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        rejectAudioCallStart({
+                                          audio_call_request_id:
+                                            audioCall.audio_call_request_id,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    {t("reject")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
+                                {audioCall.payment_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-success mr-3"
+                                    onClick={(event) =>
+                                      makePayment(event, audioCall)
+                                    }
+                                  >
+                                    {t("paynow")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
 
-                              {audioCall.start_btn_status == 1 ? (
-                                <Link
-                                  className="btn btn-success mr-3"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      startAudioCallRequestStart({
-                                        audio_call_request_unique_id:
-                                        audioCall.audio_call_request_unique_id,
-                                      })
-                                    )
-                                  }
+                                {audioCall.join_btn_status == 1 ? (
+                                  <Link
+                                    className="btn btn-success mr-3"
+                                    to={`/audio-call/${audioCall.audio_call_request_unique_id}`}
+                                  >
+                                    {t("join_call")}
+                                  </Link>
+                                ) : (
+                                  ""
+                                )}
+
+                                {audioCall.start_btn_status == 1 ? (
+                                  <Link
+                                    className="btn btn-success mr-3"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        startAudioCallRequestStart({
+                                          audio_call_request_unique_id:
+                                            audioCall.audio_call_request_unique_id,
+                                        })
+                                      )
+                                    }
                                   // to={`/audio-call/${audioCall.audio_call_request_unique_id}`}
-                                >
-                                  {t("start_call")}
-                                </Link>
-                              ) : (
-                                ""
-                              )}
+                                  >
+                                    {t("start_call")}
+                                  </Link>
+                                ) : (
+                                  ""
+                                )}
 
-                              {audioCall.end_btn_status == 1 ? (
-                                <Button
-                                  className="btn btn-danger mr-3"
-                                  onClick={() =>
-                                    props.dispatch(
-                                      endAudioCallStart({
-                                        audio_call_request_id:
-                                        audioCall.audio_call_request_id,
-                                      })
-                                    )
-                                  }
-                                >
-                                  {t("end_call")}
-                                </Button>
-                              ) : (
-                                ""
-                              )}
-                            </td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </Table>
+                                {audioCall.end_btn_status == 1 ? (
+                                  <Button
+                                    className="btn btn-danger mr-3"
+                                    onClick={() =>
+                                      props.dispatch(
+                                        endAudioCallStart({
+                                          audio_call_request_id:
+                                            audioCall.audio_call_request_id,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    {t("end_call")}
+                                  </Button>
+                                ) : (
+                                  ""
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </Table>
                   </InfiniteScroll>
                 </div>
               </Col>
+
               {makePaymentModel ?
                 <CallPaymentModal
                   paymentsModal={makePaymentModel}

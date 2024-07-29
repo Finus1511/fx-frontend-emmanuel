@@ -35,13 +35,11 @@ const LiveStreamingPaymentModal = (props) => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAddCard, setShowAddCard] = useState(false);
   const [skipRender, setSkipRender] = useState(true);
-  const wallet = useSelector((state) => state.wallet.walletData);
-  const [reloadWallet, setReloadWallet] = useState(true);
   const [couponDiscount, setCouponDiscount] = useState("");
 
-  const couponCodeValidation = useSelector(
-    (state) => state.folder.couponCodeValidation
-  );
+  const wallet = useSelector((state) => state.wallet.walletData);
+  const [reloadWallet, setReloadWallet] = useState(true);
+  const couponCodeValidation = useSelector((state) => state.folder.couponCodeValidation);
 
   const paypalOnError = (err) => {
     const notificationMessage = getErrorNotificationMessage(err);
@@ -73,7 +71,6 @@ const LiveStreamingPaymentModal = (props) => {
         livePaymentStripeStart({
           live_video_id: props.live.live_video_id,
           user_card_id: selectedCard,
-          promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
     if (paymentType === "WALLET")
@@ -108,27 +105,18 @@ const LiveStreamingPaymentModal = (props) => {
     }
   }, [couponCodeValidation]);
 
-  useEffect(() => {
-    if (
-      !skipRender &&
-      !couponCodeValidation.loading &&
-      Object.keys(couponCodeValidation.data).length > 0
-    ) {
-      setCouponDiscount(couponCodeValidation.data.coupon_code_validate);
-    }
-  }, [couponCodeValidation]);
-
   const couponSchema = Yup.object().shape({
     promo_code: Yup.string().required(t("required")),
   });
 
   const handleValidation = (values) => {
     dispatch(couponCodeValidationStart({
-        ...values,
-        live_video_id: props.live.live_video_id,
-        platform: "live-video-payments",
-      }));
+      ...values,
+      live_video_id: props.live.live_video_id,
+      platform: "live-video-payments",
+    }));
   };
+
 
   return (
     <>
@@ -284,10 +272,10 @@ const LiveStreamingPaymentModal = (props) => {
                   {/* <p>Lorem ipsum dolor sit amet.</p> */}
                 </div>
                 <div className="coupon-input">
-                {!couponDiscount ? (
+                  {!couponDiscount ? (
                     <Formik
                       initialValues={{
-                        promo_code: ""
+                        promo_code: "",
                       }}
                       validationSchema={couponSchema}
                       onSubmit={handleValidation}
@@ -328,27 +316,29 @@ const LiveStreamingPaymentModal = (props) => {
                       )}
                     </Formik>
                   ) : (
-                  <div className="coupon-container">
-                    <div className="coupon-detail">
-                      <Image
-                        className="coupon-image"
-                        src={
-                          window.location.origin + "/assets/images/icons/new/create-coupon.svg"
-                        }
-                      />
-
-                      <div className="coupon-text">
-                        <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
-                        <p className="text-success coupon-saved">
-                          {t("saved")} {couponDiscount.coupon_applied_amount}
-                        </p>
+                    <div className="coupon-container">
+                      <div className="coupon-detail">
+                        <Image
+                          className="coupon-image"
+                          src={
+                            window.location.origin + "/assets/images/Coupon.svg"
+                          }
+                        />
+                        <div className="coupon-text">
+                          <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
+                          <p className="text-success coupon-saved">
+                            {t("saved")} {couponDiscount.coupon_applied_amount.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
+                      <Link
+                        className="coupon-remove"
+                        to="#"
+                        onClick={() => setCouponDiscount("")}
+                      >
+                        {t("remove")}
+                      </Link>
                     </div>
-
-                    <Link className="coupon-remove" to="#">
-                      {t("remove")}
-                    </Link>
-                  </div>
                   )}
                 </div>
                 <div className="pay-modal-token-sec">
@@ -359,17 +349,15 @@ const LiveStreamingPaymentModal = (props) => {
                   {couponDiscount &&
                     <div className="pay-modal-token">
                       <p>{t("coupon_discount")}</p>
-                      <p> -{couponDiscount.coupon_applied_amount}</p>
+                      <p> -{couponDiscount.coupon_applied_amount.toFixed(2)}</p>
                     </div>
                   }
                   <div className="pay-modal-token">
                     <h5>{t("total_token")}</h5>
-                    <h4>
-                      {couponDiscount ?
+                    <h4>{couponDiscount ?
                       props.live.amount - couponDiscount.coupon_applied_amount
                       :
-                      props.live.amount}
-                    </h4>
+                      props.live.amount}</h4>
                   </div>
                 </div>
                 <Button

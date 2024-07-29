@@ -342,7 +342,7 @@ const CallPaymentModal = (props) => {
                         <div className="coupon-text">
                           <p className="text-dark coupon-code">{couponDiscount.promo_code}</p>
                           <p className="text-success coupon-saved">
-                            {t("saved")} {couponDiscount.coupon_applied_amount}
+                            {t("saved")} {couponDiscount.coupon_applied_amount.toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -365,14 +365,14 @@ const CallPaymentModal = (props) => {
                   {couponDiscount &&
                     <div className="pay-modal-token">
                       <p>{t("coupon_discount")}</p>
-                      <p> -{couponDiscount.coupon_applied_amount}</p>
+                      <p> -{couponDiscount.coupon_applied_amount.toFixed(2)}</p>
                     </div>
                   }
                   <div className="pay-modal-token">
                     <h5>{t("total_token")}</h5>
                     <h4>
                       {couponDiscount ?
-                      props.callDetails.amount - couponDiscount.coupon_applied_amount
+                      props.callDetails.amount - couponDiscount.coupon_applied_amount.toFixed(2)
                       :
                       props.callDetails.amount}
                     </h4>
