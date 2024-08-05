@@ -9,12 +9,20 @@ import {
   COUPON_CODE_VALIDATION_START,
   DELETE_COUPON_CODE_START,
   PREMIUM_FOLDER_LIST_START,
+  FETCH_MORE_PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_PAYMENT_START,
   CREATE_PREMIUM_FOLDER_START,
   UPLOAD_FILES_PREMIUM_FOLDER_START,
   PREMIUM_FOLDER_FILES_LIST_START,
   PROMO_CODE_STATUS_UPDATE_START,
   SINGLE_VIEW_COUPON_CODE_START,
+  DELETE_FOLDER_FILE_START,
+  FOLDER_FILE_VIEW_START,
+  FOLDER_FILES_REMOVE_START,
+  FOLDER_FILES_LIST_START,
+  FETCH_MORE_FOLDER_FILES_LIST_START,
+  FOLDER_FILES_LIST_FOR_OTHERS_START,
+  FETCH_MORE_FOLDER_FILES_LIST_FOR_OTHERS_START
 } from "../actions/ActionConstant";
 
 import { createNotification } from "react-redux-notify";
@@ -47,7 +55,17 @@ import {
   promoCodeStatusUpdateSuccess,
   promoCodeStatusUpdateFailure,
   singleViewCouponCodeSuccess,
-  singleViewCouponCodeFailure
+  singleViewCouponCodeFailure,
+  deleteFolderFileSuccess,
+  deleteFolderFileFailure,
+  folderFileViewSuccess,
+  folderFileViewFailure,
+  folderFilesRemoveSuccess,
+  folderFilesRemoveFailure,
+  folderFilesListSuccess,
+  folderFilesListFailure,
+  folderFilesListForOthersSuccess,
+  folderFilesListForOthersFailure,
 } from "../actions/PremiumFolderAction";
 
 function* createCouponCodeAPI(action) {
@@ -246,15 +264,19 @@ function* singeViewCouponCodeAPI(action) {
 
 
 function* premiumFolderListAPI(action) {
+  let premiumFolderListData = yield select((state) => state.folder.premiumFolderList.data);
   try {
-    const response = yield api.postMethod("premium_folder_list", action.data);
+    const response = yield api.postMethod("collections", action.data);
 
     if (response.data.success) {
-      yield put(premiumFolderListSuccess(response.data));
-      const notificationMessage = getSuccessNotificationMessage(
-        response.data.message
-      );
-      yield put(createNotification(notificationMessage));
+      if (Object.keys(premiumFolderListData).length > 0) {
+        yield put(premiumFolderListSuccess({
+          collections: [...premiumFolderListData.collections, ...response.data.data.collections],
+          total: response.data.data.total
+        }));
+      } else {
+        yield put(premiumFolderListSuccess(response.data.data));
+      }
     } else {
       yield put(premiumFolderListFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(
@@ -270,18 +292,22 @@ function* premiumFolderListAPI(action) {
 }
 
 function* premiumFolderPaymentAPI(action) {
+  let premiumFolderListData = yield select((state) => state.folder.premiumFolderList.data);
   try {
-    const response = yield api.postMethod(
-      "premium_folder_payment",
-      action.data
-    );
-
+    const response = yield api.postMethod("collections/collections_payment_by_wallet", action.data);
     if (response.data.success) {
       yield put(premiumFolderPaymentSuccess(response.data));
-      const notificationMessage = getSuccessNotificationMessage(
-        response.data.message
-      );
+      const notificationMessage = getSuccessNotificationMessage(response.data.message);
       yield put(createNotification(notificationMessage));
+      console.log("act", action.data)
+      if (Object.keys(premiumFolderListData).length > 0) {
+        yield put(premiumFolderListSuccess({
+          ...premiumFolderListData,
+          collections: premiumFolderListData.collections.map(collection =>
+            collection.unique_id == action.data.collection_unique_id
+              ? { ...collection, user_needs_to_pay: 0 } : collection)
+        }));
+      }
     } else {
       yield put(premiumFolderPaymentFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(
@@ -297,15 +323,19 @@ function* premiumFolderPaymentAPI(action) {
 }
 
 function* createPremiumFolderAPI(action) {
+  let premiumFolderListData = yield select((state) => state.folder.premiumFolderList.data);
   try {
-    const response = yield api.postMethod("create_premium_folder", action.data);
-
+    const response = yield api.postMethod("collections/store", action.data);
     if (response.data.success) {
       yield put(createPremiumFolderSuccess(response.data));
-      const notificationMessage = getSuccessNotificationMessage(
-        response.data.message
-      );
+      const notificationMessage = getSuccessNotificationMessage(response.data.message);
       yield put(createNotification(notificationMessage));
+      if (Object.keys(premiumFolderListData).length > 0) {
+        yield put(premiumFolderListSuccess({
+          ...premiumFolderListData,
+          collections: [response.data.data.collection, ...premiumFolderListData.collections]
+        }));
+      }
     } else {
       yield put(createPremiumFolderFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(
@@ -315,30 +345,6 @@ function* createPremiumFolderAPI(action) {
     }
   } catch (error) {
     yield put(createPremiumFolderFailure(error));
-    const notificationMessage = getErrorNotificationMessage(error.message);
-    yield put(createNotification(notificationMessage));
-  }
-}
-
-function* uploadFilesPremiumFolderAPI(action) {
-  try {
-    const response = yield api.postMethod("upload_files", action.data);
-
-    if (response.data.success) {
-      yield put(uploadFilesPremiumFolderSuccess(response.data));
-      const notificationMessage = getSuccessNotificationMessage(
-        response.data.message
-      );
-      yield put(createNotification(notificationMessage));
-    } else {
-      yield put(uploadFilesPremiumFolderFailure(response.data.error));
-      const notificationMessage = getErrorNotificationMessage(
-        response.data.error
-      );
-      yield put(createNotification(notificationMessage));
-    }
-  } catch (error) {
-    yield put(uploadFilesPremiumFolderFailure(error));
     const notificationMessage = getErrorNotificationMessage(error.message);
     yield put(createNotification(notificationMessage));
   }
@@ -368,6 +374,163 @@ function* premiumFolderFilesListAPI(action) {
   }
 }
 
+function* deleteFolderFileAPI(action) {
+  let premiumFolderListData = yield select((state) => state.folder.premiumFolderList.data);
+  try {
+    const response = yield api.postMethod("collections/destroy", action.data);
+    if (response.data.success) {
+      yield put(deleteFolderFileSuccess(response.data.data));
+      const notificationMessage = getSuccessNotificationMessage(response.data.message);
+      yield put(createNotification(notificationMessage));
+      if (Object.keys(premiumFolderListData).length > 0) {
+        yield put(premiumFolderListSuccess({
+          collections: premiumFolderListData.collections.filter(code =>
+            code.unique_id !== action.data.collection_unique_id
+          ),
+          total: premiumFolderListData.total - 1
+        }));
+      }
+    } else {
+      yield put(deleteFolderFileFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(response.data.error);
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(deleteFolderFileFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
+function* folderFileViewAPI(action) {
+  try {
+    const response = yield api.postMethod("collections/view", action.data);
+
+    if (response.data.success) {
+      yield put(folderFileViewSuccess(response.data.data));
+    } else {
+      yield put(folderFileViewFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(
+        response.data.error
+      );
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(folderFileViewFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
+function* uploadFilesPremiumFolderAPI(action) {
+  let folderFilesListData = yield select((state) => state.folder.folderFilesList.data);
+  try {
+    const response = yield api.postMethod("collections/files_upload", action.data);
+    if (response.data.success) {
+      yield put(uploadFilesPremiumFolderSuccess(response.data.data));
+      const notificationMessage = getSuccessNotificationMessage(response.data.message);
+      yield put(createNotification(notificationMessage));
+      if (Object.keys(folderFilesListData).length > 0) {
+        yield put(folderFilesListSuccess({
+          collection_files: [...folderFilesListData.collection_files, ...response.data.data.collection_files],
+        }));
+      }
+    } else {
+      yield put(uploadFilesPremiumFolderFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(
+        response.data.error
+      );
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(uploadFilesPremiumFolderFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
+function* folderFilesRemoveAPI(action) {
+  let folderFilesListData = yield select((state) => state.folder.folderFilesList.data);
+  try {
+    const response = yield api.postMethod("collections/files_remove", action.data);
+    if (response.data.success) {
+      yield put(folderFilesRemoveSuccess(response.data.data));
+      const notificationMessage = getSuccessNotificationMessage(response.data.message);
+      yield put(createNotification(notificationMessage));
+      if (Object.keys(folderFilesListData).length > 0) {
+        yield put(folderFilesListSuccess({
+          collection_files: folderFilesListData.collection_files.filter(code =>
+            code.unique_id != action.data.collection_file_unique_id
+          ),
+          total: folderFilesListData.total - 1
+        }));
+      }
+    } else {
+      yield put(folderFilesRemoveFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(response.data.error);
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(folderFilesRemoveFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
+function* folderFilesListAPI(action) {
+  let folderFilesListData = yield select((state) => state.folder.folderFilesList.data);
+  try {
+    const response = yield api.postMethod("collections/files_list", action.data);
+    if (response.data.success) {
+      if (Object.keys(folderFilesListData).length > 0) {
+        yield put(folderFilesListSuccess({
+          collection_files: [...folderFilesListData.collection_files, ...response.data.data.collection_files],
+          total: response.data.data.total
+        }));
+      } else {
+        yield put(folderFilesListSuccess(response.data.data));
+      }
+    } else {
+      yield put(folderFilesListFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(
+        response.data.error
+      );
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(folderFilesListFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
+function* folderFilesListForOthersAPI(action) {
+  let folderFilesListData = yield select((state) => state.folder.folderFilesListForOthers.data);
+  try {
+    const response = yield api.postMethod("collections/files_list_for_others", action.data);
+    if (response.data.success) {
+      if (Object.keys(folderFilesListData).length > 0) {
+        yield put(folderFilesListForOthersSuccess({
+          collection_files: [...folderFilesListData.collection_files, ...response.data.data.collection_files],
+          total: response.data.data.total
+        }));
+      } else {
+        yield put(folderFilesListForOthersSuccess(response.data.data));
+      }
+    } else {
+      yield put(folderFilesListForOthersFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(
+        response.data.error
+      );
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(folderFilesListForOthersFailure(error));
+    const notificationMessage = getErrorNotificationMessage(error.message);
+    yield put(createNotification(notificationMessage));
+  }
+}
+
 export default function* PremiumFolderSaga() {
   yield all([yield takeLatest(CREATE_COUPON_CODE_START, createCouponCodeAPI)]);
   yield all([yield takeLatest(GENERATE_COUPON_CODE_START, generatCouponCodeAPI)]);
@@ -378,9 +541,17 @@ export default function* PremiumFolderSaga() {
   yield all([yield takeLatest(PROMO_CODE_STATUS_UPDATE_START, promoCodeStatusAPI)]);
   yield all([yield takeLatest(SINGLE_VIEW_COUPON_CODE_START, singeViewCouponCodeAPI)]);
   yield all([yield takeLatest(PREMIUM_FOLDER_LIST_START, premiumFolderListAPI)]);
+  yield all([yield takeLatest(FETCH_MORE_PREMIUM_FOLDER_LIST_START, premiumFolderListAPI)]);
   yield all([yield takeLatest(PREMIUM_FOLDER_PAYMENT_START, premiumFolderPaymentAPI)]);
   yield all([yield takeLatest(CREATE_PREMIUM_FOLDER_START, createPremiumFolderAPI)]);
   yield all([yield takeLatest(UPLOAD_FILES_PREMIUM_FOLDER_START, uploadFilesPremiumFolderAPI)]);
   yield all([yield takeLatest(PREMIUM_FOLDER_FILES_LIST_START, premiumFolderFilesListAPI)]);
+  yield all([yield takeLatest(DELETE_FOLDER_FILE_START, deleteFolderFileAPI)]);
+  yield all([yield takeLatest(FOLDER_FILE_VIEW_START, folderFileViewAPI)]);
+  yield all([yield takeLatest(FOLDER_FILES_REMOVE_START, folderFilesRemoveAPI)]);
+  yield all([yield takeLatest(FOLDER_FILES_LIST_START, folderFilesListAPI)]);
+  yield all([yield takeLatest(FETCH_MORE_FOLDER_FILES_LIST_START, folderFilesListAPI)]);
+  yield all([yield takeLatest(FOLDER_FILES_LIST_FOR_OTHERS_START, folderFilesListForOthersAPI)]);
+  yield all([yield takeLatest(FETCH_MORE_FOLDER_FILES_LIST_FOR_OTHERS_START, folderFilesListForOthersAPI)]);
 }
 

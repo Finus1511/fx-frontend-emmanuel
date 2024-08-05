@@ -47,9 +47,9 @@ function* fetchUserStoriesAPI() {
   }
 }
 
-function* fetchStoriesAPI() {
+function* fetchStoriesAPI(action) {
   try {
-    const response = yield api.postMethod("stories_home");
+    const response = yield api.postMethod("stories_home", action.data);
 
     if (response.data.success) {
       yield put(fetchStoriesSucess(response.data.data));

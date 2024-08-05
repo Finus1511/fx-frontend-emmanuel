@@ -29,7 +29,6 @@ import EditCouponLoder from "./EditCouponLoder";
 const CreateCoupon = (props) => {
 
   const dispatch = useDispatch();
-  const params = useParams();
 
   const createCouponCode = useSelector((state) => state.folder.createCouponCode);
   const generateCouponCode = useSelector((state) => state.folder.generateCouponCode);
@@ -144,6 +143,8 @@ const CreateCoupon = (props) => {
     { value: "audio-call-payments", label: t("audio_call_payments") },
     { value: "chat-asset-payments", label: t("chat_asset_payments") },
     { value: "live-video-payments", label: t("live_video_payments") },
+    { value: "chat-message-payments", label: t("chat-message-payments") },
+    { value: "collection-payments", label: t("collection_payments") },
     { value: "all-payments", label: t("all-payments") },
   ];
 

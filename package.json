@@ -57,6 +57,7 @@
     "react-calendar": "^4.7.0",
     "react-chartjs-2": "^3.0.4",
     "react-collapsible": "^2.10.0",
+    "react-confirm-alert": "^3.0.6",
     "react-content-loader": "^5.1.0",
     "react-contenteditable": "^3.3.7",
     "react-copy-to-clipboard": "^5.1.0",

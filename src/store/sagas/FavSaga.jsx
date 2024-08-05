@@ -16,20 +16,26 @@ import {
 import {
   DELETE_FAV_START,
   FETCH_FAV_START,
+  FETCH_MORE_FAV_START,
   SAVE_FAV_START,
 } from "../actions/ActionConstant";
 import {
   checkLogoutStatus,
 } from "../actions/ErrorAction";
 
-function* fetchFavAPI() {
+function* fetchFavAPI(action) {
+  let favListData = yield select((state) => state.fav.fav.data);
   try {
-    const inputData = yield select(
-      (state) => state.fav.fav.inputData
-    );
-    const response = yield api.postMethod("fav_users",inputData);
+    const response = yield api.postMethod("fav_users",action.data);
     if (response.data.success) {
-      yield put(fetchFavSuccess(response.data.data));
+      if (Object.keys(favListData).length > 0) {
+        yield put(fetchFavSuccess({
+          fav_users: [...favListData.fav_users, ...response.data.data.fav_users],
+          total: response.data.data.total
+        }));
+      } else {
+        yield put(fetchFavSuccess(response.data.data));
+      }
     } else {
       yield put(fetchFavFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(
@@ -97,6 +103,7 @@ function* deleteFavAPI() {
 
 export default function* pageSaga() {
   yield all([yield takeLatest(FETCH_FAV_START, fetchFavAPI)]);
+  yield all([yield takeLatest(FETCH_MORE_FAV_START, fetchFavAPI)]);
   yield all([yield takeLatest(SAVE_FAV_START, saveFavAPI)]);
   yield all([yield takeLatest(DELETE_FAV_START, deleteFavAPI)]);
 }

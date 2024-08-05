@@ -66,13 +66,13 @@ function* addFavoriteAPI(action) {
             (follower.fav_user_id != action.data.user_id)),
         }));
       }
-      // if (Object.keys(userDetailsData).length > 0 &&
-      //   userDetailsData.user.user_id == response.data.data.fav_user_id) {
-      //   yield put(fetchSingleUserProfileSuccess({
-      //     ...userDetailsData,
-      //     is_favuser: !userDetailsData.is_favuser,
-      //   }));
-      // }
+      if (Object.keys(userDetailsData).length > 0 &&
+        userDetailsData.user.user_id == response.data.data.fav_user_id) {
+        yield put(fetchSingleUserProfileSuccess({
+          ...userDetailsData,
+          is_favuser: response.data.data.is_favuser,
+        }));
+      }
     } else {
       yield put(addFavoriteFailure(response.data.error));
       const notificationMessage = getErrorNotificationMessage(response.data.error);

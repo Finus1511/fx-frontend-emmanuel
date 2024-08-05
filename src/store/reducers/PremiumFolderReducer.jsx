@@ -22,6 +22,7 @@ import {
   SINGLE_VIEW_COUPON_CODE_SUCCESS,
   SINGLE_VIEW_COUPON_CODE_FAILURE,
   PREMIUM_FOLDER_LIST_START,
+  FETCH_MORE_PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_LIST_SUCCESS,
   PREMIUM_FOLDER_LIST_FAILURE,
   PREMIUM_FOLDER_PAYMENT_START,
@@ -36,6 +37,23 @@ import {
   PREMIUM_FOLDER_FILES_LIST_START,
   PREMIUM_FOLDER_FILES_LIST_SUCCESS,
   PREMIUM_FOLDER_FILES_LIST_FAILURE,
+  DELETE_FOLDER_FILE_START,
+  DELETE_FOLDER_FILE_SUCCESS,
+  DELETE_FOLDER_FILE_FAILURE,
+  FOLDER_FILE_VIEW_START,
+  FOLDER_FILE_VIEW_SUCCESS,
+  FOLDER_FILE_VIEW_FAILURE,
+  FOLDER_FILES_REMOVE_START,
+  FOLDER_FILES_REMOVE_SUCCESS,
+  FOLDER_FILES_REMOVE_FAILURE,
+  FOLDER_FILES_LIST_START,
+  FETCH_MORE_FOLDER_FILES_LIST_START,
+  FOLDER_FILES_LIST_SUCCESS,
+  FOLDER_FILES_LIST_FAILURE,
+  FOLDER_FILES_LIST_FOR_OTHERS_START,
+  FETCH_MORE_FOLDER_FILES_LIST_FOR_OTHERS_START,
+  FOLDER_FILES_LIST_FOR_OTHERS_SUCCESS,
+  FOLDER_FILES_LIST_FOR_OTHERS_FAILURE
 } from "../actions/ActionConstant";
 
 const initialState = {
@@ -96,6 +114,31 @@ const initialState = {
     error: false,
   },
   premiumFolderFilesList: {
+    data: {},
+    loading: false,
+    error: false,
+  },
+  deleteFolderFile: {
+    data: {},
+    loading: true,
+    error: false,
+  },
+  folderFileView: {
+    data: {},
+    loading: true,
+    error: false,
+  },
+  filesRemove: {
+    data: {},
+    loading: false,
+    error: false,
+  },
+  folderFilesList: {
+    data: {},
+    loading: false,
+    error: false,
+  },
+  folderFilesListForOthers: {
     data: {},
     loading: false,
     error: false,
@@ -287,35 +330,33 @@ const PremiumFolderReducer = (state = initialState, action) => {
         },
       };
 
-      case SINGLE_VIEW_COUPON_CODE_START:
-        return {
-          ...state,
-          couponCodeView: {
-            data: {},
-            loading: true,
-            error: false,
-          },
-        };
-  
-      case SINGLE_VIEW_COUPON_CODE_SUCCESS:
-        return {
-          ...state,
-          couponCodeView: {
-            data: action.data,
-            loading: false,
-            error: false,
-          },
-        };
-  
-      case SINGLE_VIEW_COUPON_CODE_FAILURE:
-        return {
-          ...state,
-          couponCodeView: {
-            data: {},
-            loading: false,
-            error: action.error,
-          },
-        };
+    case SINGLE_VIEW_COUPON_CODE_START:
+      return {
+        ...state,
+        couponCodeView: {
+          data: {},
+          loading: true,
+          error: false,
+        },
+      };
+    case SINGLE_VIEW_COUPON_CODE_SUCCESS:
+      return {
+        ...state,
+        couponCodeView: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+    case SINGLE_VIEW_COUPON_CODE_FAILURE:
+      return {
+        ...state,
+        couponCodeView: {
+          data: {},
+          loading: false,
+          error: action.error,
+        },
+      };
 
     case PREMIUM_FOLDER_LIST_START:
       return {
@@ -326,6 +367,9 @@ const PremiumFolderReducer = (state = initialState, action) => {
           error: false,
         },
       };
+
+    case FETCH_MORE_PREMIUM_FOLDER_LIST_START:
+      return state;
 
     case PREMIUM_FOLDER_LIST_SUCCESS:
       return {
@@ -467,6 +511,149 @@ const PremiumFolderReducer = (state = initialState, action) => {
         },
       };
 
+    case DELETE_FOLDER_FILE_START:
+      return {
+        ...state,
+        deleteFolderFile: {
+          data: {},
+          loading: true,
+          error: false,
+        },
+      };
+    case DELETE_FOLDER_FILE_SUCCESS:
+      return {
+        ...state,
+        deleteFolderFile: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+    case DELETE_FOLDER_FILE_FAILURE:
+      return {
+        ...state,
+        deleteFolderFile: {
+          data: {},
+          loading: true,
+          error: action.error,
+        },
+      };
+      case FOLDER_FILE_VIEW_START:
+        return {
+          ...state,
+          folderFileView: {
+            data: {},
+            loading: true,
+            error: false,
+          },
+        };
+      case FOLDER_FILE_VIEW_SUCCESS:
+        return {
+          ...state,
+          folderFileView: {
+            data: action.data,
+            loading: false,
+            error: false,
+          },
+        };
+      case FOLDER_FILE_VIEW_FAILURE:
+        return {
+          ...state,
+          folderFileView: {
+            data: {},
+            loading: true,
+            error: action.error,
+          },
+        };
+      case FOLDER_FILES_REMOVE_START:
+        return {
+          ...state,
+          filesRemove: {
+            data: {},
+            loading: true,
+            error: false,
+          },
+        };
+      case FOLDER_FILES_REMOVE_SUCCESS:
+        return {
+          ...state,
+          filesRemove: {
+            data: action.data,
+            loading: false,
+            error: false,
+          },
+        };
+      case FOLDER_FILES_REMOVE_FAILURE:
+        return {
+          ...state,
+          filesRemove: {
+            data: {},
+            loading: true,
+            error: action.error,
+          },
+        };
+  
+      case FOLDER_FILES_LIST_START:
+        return {
+          ...state,
+          folderFilesList: {
+            data: {},
+            loading: true,
+            error: false,
+          },
+        };
+      case FOLDER_FILES_LIST_SUCCESS:
+        return {
+          ...state,
+          folderFilesList: {
+            data: action.data,
+            loading: false,
+            error: false,
+          },
+        };
+      case FOLDER_FILES_LIST_FAILURE:
+        return {
+          ...state,
+          folderFilesList: {
+            data: {},
+            loading: true,
+            error: action.error,
+          },
+        };
+  
+      case FETCH_MORE_FOLDER_FILES_LIST_START:
+        return state;
+
+      case FOLDER_FILES_LIST_FOR_OTHERS_START:
+        return {
+          ...state,
+          folderFilesListForOthers: {
+            data: {},
+            loading: true,
+            error: false,
+          },
+        };
+      case FOLDER_FILES_LIST_FOR_OTHERS_SUCCESS:
+        return {
+          ...state,
+          folderFilesListForOthers: {
+            data: action.data,
+            loading: false,
+            error: false,
+          },
+        };
+      case FOLDER_FILES_LIST_FOR_OTHERS_FAILURE:
+        return {
+          ...state,
+          folderFilesListForOthers: {
+            data: {},
+            loading: true,
+            error: action.error,
+          },
+        };
+  
+      case FETCH_MORE_FOLDER_FILES_LIST_FOR_OTHERS_START:
+        return state;
     default:
       return state;
   }

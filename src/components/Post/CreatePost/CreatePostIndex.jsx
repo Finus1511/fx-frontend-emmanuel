@@ -68,6 +68,8 @@ const CreatePostIndex = (props) => {
     audioPreviewImage: "",
   });
 
+  const [youtubeLink, setYoutubeLink] = useState("");
+
   const [disableAudio, setDisableAudio] = useState(false);
 
   const [videoPreview, setVideoPreview] = useState({ previewVideo: "" });
@@ -81,17 +83,32 @@ const CreatePostIndex = (props) => {
   useEffect(() => {
     if (
       props.fileUpload.loading === false &&
-      props.fileUpload.data.post_file.length > 0
+      props.fileUpload.data
     ) {
-      let files = [];
-      props.fileUpload.data.post_file.map((value, i) => {
-        files.push(value.post_file);
-      });
-      setPostFileData(files);
-      setInputData({
-        ...inputData,
-        post_file_id: props.fileUpload.data.post_file_id,
-      });
+      if (props.fileUpload.data.post_file && props.fileUpload.data.post_file.length > 0) {
+        let files = [];
+        props.fileUpload.data.post_file.map((value, i) => {
+          files.push(value.post_file);
+        });
+        setPostFileData(files);
+        setInputData({
+          ...inputData,
+          post_file_id: props.fileUpload.data.post_file_id,
+        });
+      } else {
+        console.log("fileUpload data", props.fileUpload.data)
+        setInputData({
+          ...inputData,
+          post_file_id: props.fileUpload.data.post_file_id
+        });
+        setAddLinkModal(false);
+        setYoutubeLink(props.fileUpload.data.file)
+        setPaidPost(true);
+        setDisableImage(true);
+        setDisableAudio(true);
+        setDisableVideo(true);
+        setFileUploadStatus(true);
+      }
     }
   }, [!props.fileUpload.loading]);
 
@@ -112,6 +129,7 @@ const CreatePostIndex = (props) => {
         setVideoPreviewUrl(false);
         setVideoThumbnailStatus(false);
         setAudioThumbnail(false);
+        setYoutubeLink("");
       }
       setInputData({
         ...inputData,
@@ -764,6 +782,22 @@ const CreatePostIndex = (props) => {
                       ))}
                     </Row>
                   ) : null}
+                  {youtubeLink ? (
+                    <Row>
+                      <Col sm={12} md={12}>
+                        <div className="post-img-preview-sec">
+                        <div dangerouslySetInnerHTML={{ __html: youtubeLink }} />
+                          <Link
+                            to="#"
+                            onClick={(event) => handleClose(event, youtubeLink)}
+                            className="close-audio"
+                          >
+                            <i className="far fa-window-close"></i>
+                          </Link>
+                        </div>
+                      </Col>
+                    </Row>
+                  ) : null}
                 </Col>
               </Row>
             </Form>
@@ -775,7 +809,7 @@ const CreatePostIndex = (props) => {
       {localStorage.getItem("is_content_creator") != 2 && (
         <ContentCreatorSteps />
       )}
-      <AddLinkModal show={addLinkModal} onHide={() => setAddLinkModal(false)} />
+      {addLinkModal && <AddLinkModal show={addLinkModal} onHide={() => setAddLinkModal(false)} />}
     </div>
   );
 };

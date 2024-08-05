@@ -2,6 +2,7 @@ import {
   FETCH_FAV_START,
   FETCH_FAV_SUCCESS,
   FETCH_FAV_FAILURE,
+  FETCH_MORE_FAV_START,
   SAVE_FAV_START,
   SAVE_FAV_SUCCESS,
   SAVE_FAV_FAILURE,
@@ -28,6 +29,13 @@ export function fetchFavFailure(error) {
   return {
     type: FETCH_FAV_FAILURE,
     error,
+  };
+}
+
+export function fetchMoreFavStart(data) {
+  return {
+    type: FETCH_MORE_FAV_START,
+    data,
   };
 }
 

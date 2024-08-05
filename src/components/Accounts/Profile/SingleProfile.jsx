@@ -69,6 +69,8 @@ import BookingModal from "../../VirtualExperience/BookingModal";
 import NewProfileFeedCard from "../../helper/NewProfileFeedCard";
 import ChatMessagePaymentModal from "../../Model/PaymentModal/ChatMessagePaymentModal";
 import { addFavoriteStart } from "../../../store/actions/FavoriteAction";
+import UserFolderList from "../../Phase4/UserFolderList";
+import { fetchMorepremiumFolderListStart, premiumFolderListStart } from "../../../store/actions/PremiumFolderAction";
 
 const SingleProfile = (props) => {
 
@@ -87,6 +89,7 @@ const SingleProfile = (props) => {
   const [showUnfollow, setShowUnfollow] = useState(false);
   const userVirtualVhList = useSelector((state) => state.userVirtual.userVirtualVhList);
   const chatMessagePayWallet = useSelector((state) => state.chat.chatMessagePayWallet);
+  const premiumFolderList = useSelector((state) => state.folder.premiumFolderList);
   const [makePaymentModel, setMakePaymentModel] = useState(false);
   const [favStatus, setFavStatus] = useState("");
   const [modelUser, setModelUser] = useState({
@@ -165,8 +168,14 @@ const SingleProfile = (props) => {
         props.dispatch(fetchSingleUserPostsStart({ type: key, skip: 0, take: take, user_unique_id: props.match.params.username }));
         setSkip(take);
         break;
+      case "folders":
+        props.dispatch(
+          premiumFolderListStart({ skip: 0, take: 12, user_unique_id: props.match.params.username })
+        );
+
+        break;
       case "virtual":
-        props.dispatch(userVirtualVhListStart({ skip: 0, take: take, user_unique_id: props.match.params.username }));
+        props.dispatch(userVirtualVhListStart({ skip: 0, take: 12, user_unique_id: props.match.params.username }));
         setSkip(take);
         break;
       case "media":
@@ -204,11 +213,14 @@ const SingleProfile = (props) => {
     setSkip(take);
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  const fetchMoreCollections = () => {
+    props.dispatch(
+      fetchMorepremiumFolderListStart({
+        user_unique_id: props.match.params.username,
+        skip: premiumFolderList.data.collections.length,
+        take: 12,
+      })
+    )
   };
 
   const onCopy = (event) => {
@@ -337,14 +349,14 @@ const SingleProfile = (props) => {
   const popoverId = open ? "simple-popover" : undefined;
 
   useEffect(() => {
-    console.log("userDetails", userDetails)
     if (!skipRender && !props.userPosts.loading) {
-      props.dispatch(fetchSingleUserPostsStart({ type: type, skip: 0, 
-        take: take, user_unique_id: props.match.params.username }));
+      props.dispatch(fetchSingleUserPostsStart({
+        type: type, skip: 0,
+        take: take, user_unique_id: props.match.params.username
+      }));
     }
     setSkipRender(false);
   }, [type]);
-
 
   const handleStar = (event, status, user_id) => {
     event.preventDefault();
@@ -1655,6 +1667,27 @@ const SingleProfile = (props) => {
                           </Nav.Item>
                           <Nav.Item>
                             <Nav.Link
+                              eventKey="folders"
+                              onClick={(event) =>
+                                setActiveSection(event, "folders")
+                              }
+                            >
+                              <span>
+                                <Image
+                                  className="profile-post-tab-icon"
+                                  src={
+                                    window.location.origin +
+                                    "/assets/images/new-home/icon/premium-folder.svg"
+                                  }
+                                />
+                              </span>
+                              <span className="resp-display-none text-nowrap">
+                                Premium Folders
+                              </span>
+                            </Nav.Link>
+                          </Nav.Item>
+                          <Nav.Item>
+                            <Nav.Link
                               eventKey="virtual"
                               onClick={(event) =>
                                 setActiveSection(event, "virtual")
@@ -1791,87 +1824,95 @@ const SingleProfile = (props) => {
                             </>
                           )}
                         </Col>
-                      ) : activeSec == "virtual" ? userVirtualVhList.loading ? (
+                      ) : activeSec == "folders" ?
                         <Col md={12}>
-                          <div className="profile-all-post-box">
-                            {[...Array(8)].map(() => (
-                              <Skeleton className="profile-post-card-loader" />
-                            ))}
-                          </div>
+                          <UserFolderList
+                            premiumFolderList={premiumFolderList}
+                            fetchMorePost={fetchMoreCollections}
+                          />
                         </Col>
-                      ) : (
-                        <Col md={12}>
-                          {userVirtualVhList.data?.virtual_experiences?.length > 0 ? (
-                            <InfiniteScroll
-                              dataLength={userVirtualVhList.data.virtual_experiences.length}
-                              next={fetchMoreVE}
-                              hasMore={userVirtualVhList.data.virtual_experiences.length < userVirtualVhList.data.total}
-                              loader={
-                                <div className="profile-all-post-box">
-                                  {[...Array(8)].map(() => (
-                                    <Skeleton className="profile-post-card-loader" />
-                                  ))}
+                        :
+                        activeSec == "virtual" ? userVirtualVhList.loading ? (
+                          <Col md={12}>
+                            <div className="profile-all-post-box">
+                              {[...Array(8)].map(() => (
+                                <Skeleton className="profile-post-card-loader" />
+                              ))}
+                            </div>
+                          </Col>
+                        ) : (
+                          <Col md={12}>
+                            {userVirtualVhList.data?.virtual_experiences?.length > 0 ? (
+                              <InfiniteScroll
+                                dataLength={userVirtualVhList.data.virtual_experiences.length}
+                                next={fetchMoreVE}
+                                hasMore={userVirtualVhList.data.virtual_experiences.length < userVirtualVhList.data.total}
+                                loader={
+                                  <div className="profile-all-post-box">
+                                    {[...Array(8)].map(() => (
+                                      <Skeleton className="profile-post-card-loader" />
+                                    ))}
+                                  </div>
+                                }
+                                style={{ height: "auto", overflow: "hidden" }}
+                              >
+                                <div className="virtual-card-wrapped">
+                                  {userVirtualVhList.data.virtual_experiences.map(
+                                    (post) => (
+                                      <UserVirtualExperiencsProduct post={post} />
+                                    )
+                                  )}
                                 </div>
-                              }
-                              style={{ height: "auto", overflow: "hidden" }}
-                            >
-                              <div className="virtual-card-wrapped">
-                                {userVirtualVhList.data.virtual_experiences.map(
-                                  (post) => (
-                                    <UserVirtualExperiencsProduct post={post} />
-                                  )
-                                )}
-                              </div>
-                            </InfiniteScroll>
-                          ) : (
-                            <NoDataFound />
-                          )}
-                        </Col>
-                      ) : activeSec == "all" ? props.userPosts.loading ? (
-                        <Col md={12}>
-                          <div className="profile-new-feed-post-box">
-                            {[...Array(8)].map(() => (
-                              <Skeleton className="profile-post-card-loader" />
-                            ))}
-                          </div>
-                        </Col>
-                      ) : (
-                        <Col md={12}>
-                          {props.userPosts.data.posts.length > 0 ? (
-                            <InfiniteScroll
-                              dataLength={props.userPosts.data.posts.length}
-                              next={fetchMorePost}
-                              hasMore={
-                                props.userPosts.data.posts.length <
-                                props.userPosts.data.total
-                              }
-                              loader={
+                              </InfiniteScroll>
+                            ) : (
+                              <NoDataFound />
+                            )}
+                          </Col>
+                        ) : activeSec == "all" ? props.userPosts.loading ? (
+                          <Col md={12}>
+                            <div className="profile-new-feed-post-box">
+                              {[...Array(8)].map(() => (
+                                <Skeleton className="profile-post-card-loader" />
+                              ))}
+                            </div>
+                          </Col>
+                        ) : (
+                          <Col md={12}>
+                            {props.userPosts.data.posts.length > 0 ? (
+                              <InfiniteScroll
+                                dataLength={props.userPosts.data.posts.length}
+                                next={fetchMorePost}
+                                hasMore={
+                                  props.userPosts.data.posts.length <
+                                  props.userPosts.data.total
+                                }
+                                loader={
+                                  <div className="profile-new-feed-post-box">
+                                    {[...Array(4)].map(() => (
+                                      <Skeleton className="profile-post-card-loader" />
+                                    ))}
+                                  </div>
+                                }
+                                style={{ height: "auto", overflow: "hidden" }}
+                              >
                                 <div className="profile-new-feed-post-box">
-                                  {[...Array(4)].map(() => (
-                                    <Skeleton className="profile-post-card-loader" />
-                                  ))}
-                                </div>
-                              }
-                              style={{ height: "auto", overflow: "hidden" }}
-                            >
-                              <div className="profile-new-feed-post-box">
-                                {props.userPosts.data.posts.map((post, index) => (
-                                  <>
-                                    {/* {post.postFiles &&
+                                  {props.userPosts.data.posts.map((post, index) => (
+                                    <>
+                                      {/* {post.postFiles &&
                                       post.postFiles.length > 0 && (
                                         // post.postFiles.map((postFile, index) =>
                                         <ProfileSinglePost post={post} />
                                       )} */}
-                                    <NewProfileFeedCard post={post} key={index} index={index} />
-                                  </>
-                                ))}
-                              </div>
-                            </InfiniteScroll>
-                          ) : (
-                            <NoDataFound />
-                          )}
-                        </Col>
-                      ) : null}
+                                      <NewProfileFeedCard post={post} key={index} index={index} />
+                                    </>
+                                  ))}
+                                </div>
+                              </InfiniteScroll>
+                            ) : (
+                              <NoDataFound />
+                            )}
+                          </Col>
+                        ) : null}
                     </Row>
                   </Tab.Container>
                 </div>

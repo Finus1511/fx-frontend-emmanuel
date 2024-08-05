@@ -54,7 +54,10 @@ import BroadCastModal from "../../Chat/BroadCastModal";
 import NewProfileFeedCard from "../../helper/NewProfileFeedCard";
 import CreatorFolderList from "../../Phase4/CreatorFolderList";
 import UserFolderList from "../../Phase4/UserFolderList";
-import { premiumFolderListStart } from "../../../store/actions/PremiumFolderAction";
+import {
+  premiumFolderListStart,
+  fetchMorepremiumFolderListStart
+} from "../../../store/actions/PremiumFolderAction";
 
 const ProfileIndex = (props) => {
   const history = useHistory();
@@ -93,9 +96,8 @@ const ProfileIndex = (props) => {
         break;
       case "folders":
         dispatch(
-          premiumFolderListStart({ type: key, skip: 0, take: take })
+          premiumFolderListStart({ skip: 0, take: 12 })
         );
-        setSkip(take);
         break;
       case "virtual":
         dispatch(
@@ -117,7 +119,6 @@ const ProfileIndex = (props) => {
       case "all":
         props.dispatch(
           fetchPostsStart({
-            type: activeSec,
             append: true,
             skip: 0,
             take: take,
@@ -127,10 +128,9 @@ const ProfileIndex = (props) => {
         break;
       case "folders":
         dispatch(
-          premiumFolderListStart({
-            skip: skip,
-            take: take,
-            append: true,
+          fetchMorepremiumFolderListStart({
+            skip: premiumFolderList.data.mermaids.length,
+            take: 12,
           })
         );
         setSkip(take);
@@ -522,15 +522,15 @@ const ProfileIndex = (props) => {
                 </ul>
               </div>
               {props.profile.data.youtube_link ||
-              props.profile.data.pinterest_link ||
-              props.profile.data.linkedin_link ||
-              props.profile.data.snapchat_link ||
-              props.profile.data.twitter_link ||
-              props.profile.data.instagram_link ||
-              props.profile.data.amazon_wishlist ||
-              props.profile.data.facebook_link ||
-              props.profile.data.twitch_link ||
-              props.profile.data.website ? (
+                props.profile.data.pinterest_link ||
+                props.profile.data.linkedin_link ||
+                props.profile.data.snapchat_link ||
+                props.profile.data.twitter_link ||
+                props.profile.data.instagram_link ||
+                props.profile.data.amazon_wishlist ||
+                props.profile.data.facebook_link ||
+                props.profile.data.twitch_link ||
+                props.profile.data.website ? (
                 <div className="sidebar-social-links">
                   <ul className="list-unstyled">
                     {props.profile.data.youtube_link && (
@@ -1003,15 +1003,15 @@ const ProfileIndex = (props) => {
                   </ul>
                 </div>
                 {props.profile.data.youtube_link ||
-                props.profile.data.pinterest_link ||
-                props.profile.data.linkedin_link ||
-                props.profile.data.snapchat_link ||
-                props.profile.data.twitter_link ||
-                props.profile.data.instagram_link ||
-                props.profile.data.amazon_wishlist ||
-                props.profile.data.facebook_link ||
-                props.profile.data.twitch_link ||
-                props.profile.data.website ? (
+                  props.profile.data.pinterest_link ||
+                  props.profile.data.linkedin_link ||
+                  props.profile.data.snapchat_link ||
+                  props.profile.data.twitter_link ||
+                  props.profile.data.instagram_link ||
+                  props.profile.data.amazon_wishlist ||
+                  props.profile.data.facebook_link ||
+                  props.profile.data.twitch_link ||
+                  props.profile.data.website ? (
                   <div className="sidebar-social-links">
                     <ul className="list-unstyled">
                       {props.profile.data.youtube_link && (
@@ -1462,65 +1462,59 @@ const ProfileIndex = (props) => {
                             </>
                           )}
                         </>
-                      ) : activeSec == "folders" ? (
-                        <>
-                          {/* add this for no data */}
-                          {/* <CreatePremiumFolder/>  */}
-
-                          {/* for creator */}
-                          {/* <CreatorFolderList/> */}
-
-                          {/* For user */}
-                          <CreatorFolderList />
-                        </>
-                      ) : activeSec == "virtual" ? (
-                        userVirtualExperienceCreatedList.loading ? (
-                          <div className="profile-all-post-box">
-                            {[...Array(8)].map(() => (
-                              <Skeleton className="profile-post-card-loader" />
-                            ))}
-                          </div>
-                        ) : (
-                          <>
-                            {userVirtualExperienceCreatedList.data &&
-                            userVirtualExperienceCreatedList.data
-                              .virtual_experiences &&
-                            userVirtualExperienceCreatedList.data
-                              .virtual_experiences.length > 0 ? (
-                              <InfiniteScroll
-                                dataLength={
-                                  userVirtualExperienceCreatedList.data
-                                    .virtual_experiences.length
-                                }
-                                next={fetchMorePost}
-                                hasMore={
-                                  userVirtualExperienceCreatedList.data
-                                    .virtual_experiences.length <
-                                  userVirtualExperienceCreatedList.data.total
-                                }
-                                loader={
-                                  <div className="profile-all-post-box">
-                                    {[...Array(8)].map(() => (
-                                      <Skeleton className="profile-post-card-loader" />
-                                    ))}
+                      ) : activeSec == "folders" ?
+                        <CreatorFolderList
+                          premiumFolderList={premiumFolderList}
+                          fetchMorePost={fetchMorePost}
+                        />
+                        : activeSec == "virtual" ? (
+                          userVirtualExperienceCreatedList.loading ? (
+                            <div className="profile-all-post-box">
+                              {[...Array(8)].map(() => (
+                                <Skeleton className="profile-post-card-loader" />
+                              ))}
+                            </div>
+                          ) : (
+                            <>
+                              {userVirtualExperienceCreatedList.data &&
+                                userVirtualExperienceCreatedList.data
+                                  .virtual_experiences &&
+                                userVirtualExperienceCreatedList.data
+                                  .virtual_experiences.length > 0 ? (
+                                <InfiniteScroll
+                                  dataLength={
+                                    userVirtualExperienceCreatedList.data
+                                      .virtual_experiences.length
+                                  }
+                                  next={fetchMorePost}
+                                  hasMore={
+                                    userVirtualExperienceCreatedList.data
+                                      .virtual_experiences.length <
+                                    userVirtualExperienceCreatedList.data.total
+                                  }
+                                  loader={
+                                    <div className="profile-all-post-box">
+                                      {[...Array(8)].map(() => (
+                                        <Skeleton className="profile-post-card-loader" />
+                                      ))}
+                                    </div>
+                                  }
+                                  style={{ height: "auto", overflow: "hidden" }}
+                                >
+                                  <div className="virtual-card-wrapped">
+                                    {userVirtualExperienceCreatedList.data.virtual_experiences.map(
+                                      (post) => (
+                                        <VirtualExperiencsProduct post={post} />
+                                      )
+                                    )}
                                   </div>
-                                }
-                                style={{ height: "auto", overflow: "hidden" }}
-                              >
-                                <div className="virtual-card-wrapped">
-                                  {userVirtualExperienceCreatedList.data.virtual_experiences.map(
-                                    (post) => (
-                                      <VirtualExperiencsProduct post={post} />
-                                    )
-                                  )}
-                                </div>
-                              </InfiniteScroll>
-                            ) : (
-                              <NoDataFound />
-                            )}
-                          </>
-                        )
-                      ) : null}
+                                </InfiniteScroll>
+                              ) : (
+                                <NoDataFound />
+                              )}
+                            </>
+                          )
+                        ) : null}
                     </Col>
                   </Row>
                 </Tab.Container>

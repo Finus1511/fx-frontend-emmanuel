@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Zuck from "zuck.js";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchStoriesStart } from "../../store/actions/StoriesAction";
+import { fetchStoriesStart,
+  fetchUserStoriesStart } from "../../store/actions/StoriesAction";
 import Skeleton from "react-loading-skeleton";
 import StoryUploadModal from "../Home/StoryUploadModal";
 

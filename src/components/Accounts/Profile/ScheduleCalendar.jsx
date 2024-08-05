@@ -114,17 +114,17 @@ const ScheduleCalendar = (props) => {
     if (today) {
       setStartTime(
         today.getFullYear() +
-          "-" +
-          formatNumber(parseInt(today.getMonth() + 1)) +
-          "-" +
-          formatNumber(today.getDate())
+        "-" +
+        formatNumber(parseInt(today.getMonth() + 1)) +
+        "-" +
+        formatNumber(today.getDate())
       );
       setStartTimeFormatted(
         parseInt(today.getMonth() + 1) +
-          "/" +
-          today.getDate() +
-          "/" +
-          today.getFullYear()
+        "/" +
+        today.getDate() +
+        "/" +
+        today.getFullYear()
       );
       setSkipRender(false);
     }
@@ -166,7 +166,7 @@ const ScheduleCalendar = (props) => {
       "image/jpg": [".jpg"],
       "image/gif": [".gif"],
     },
-    onDrop: (acceptedFiles, rejectedFiles) =>  {
+    onDrop: (acceptedFiles, rejectedFiles) => {
       let validFiles = acceptedFiles.filter((file) => {
         const ext = file.name.slice(file.name.lastIndexOf('.'));
         return ['.png', '.jpg', '.gif'].includes(ext);
@@ -182,11 +182,11 @@ const ScheduleCalendar = (props) => {
       });
       let data_array = [];
       uploadedFiles.forEach((file, key) => {
-          let name = "files[" + key + "]";
-          data_array[name] = file;
+        let name = "files[" + key + "]";
+        data_array[name] = file;
       });
       formRef.current.setFieldValue("file_ids", data_array);
-      },
+    },
   });
 
   useEffect(() => {
@@ -538,85 +538,16 @@ const ScheduleCalendar = (props) => {
                   )}
                 </ul>
               </div>
-              {/* <div className="sidebar-links">
-                                <ul className="list-unstyled">
-                                    <Media as="li">
-                                        <Link to="#">
-                                            <span>
-                                                <Image
-                                                    className="sidebar-links-icon"
-                                                    src={
-                                                        window.location.origin + "/assets/images/new-home/video-call-1.svg"
-                                                    }
-                                                />
-                                            </span>
-                                            Video Call
-                                        </Link>
-                                    </Media>
-                                    <Media as="li">
-                                        <Link to="#">
-                                            <span>
-                                                <Image
-                                                    className="sidebar-links-icon"
-                                                    src={
-                                                        window.location.origin + "/assets/images/new-home/audio-call-1.svg"
-                                                    }
-                                                />
-                                            </span>
-                                            Voice Call
-                                        </Link>
-                                    </Media>
-                                    <Media as="li">
-                                        <Link to="#">
-                                            <span>
-                                                <Image
-                                                    className="sidebar-links-icon"
-                                                    src={
-                                                        window.location.origin + "/assets/images/new-home/sent-tip-1.svg"
-                                                    }
-                                                />
-                                            </span>
-                                            Tip Me
-                                        </Link>
-                                    </Media>
-                                    <Media as="li">
-                                        <Link to="#">
-                                            <span>
-                                                <Image
-                                                    className="sidebar-links-icon"
-                                                    src={
-                                                        window.location.origin + "/assets/images/new-home/message-1.svg"
-                                                    }
-                                                />
-                                            </span>
-                                            Message
-                                        </Link>
-                                    </Media>
-                                    <Media as="li">
-                                        <Link to="#">
-                                            <span>
-                                                <Image
-                                                    className="sidebar-links-icon"
-                                                    src={
-                                                        window.location.origin + "/assets/images/new-home/share-theme-1.svg"
-                                                    }
-                                                />
-                                            </span>
-                                            Share
-                                        </Link>
-                                    </Media>
-                                </ul>
-                            </div> */}
               {props.profile.data.youtube_link ||
-              props.profile.data.pinterest_link ||
-              props.profile.data.linkedin_link ||
-              props.profile.data.snapchat_link ||
-              props.profile.data.twitter_link ||
-              props.profile.data.instagram_link ||
-              props.profile.data.amazon_wishlist ||
-              props.profile.data.facebook_link ||
-              props.profile.data.twitch_link ||
-              props.profile.data.website ? (
+                props.profile.data.pinterest_link ||
+                props.profile.data.linkedin_link ||
+                props.profile.data.snapchat_link ||
+                props.profile.data.twitter_link ||
+                props.profile.data.instagram_link ||
+                props.profile.data.amazon_wishlist ||
+                props.profile.data.facebook_link ||
+                props.profile.data.twitch_link ||
+                props.profile.data.website ? (
                 <div className="sidebar-social-links">
                   <ul className="list-unstyled">
                     {props.profile.data.youtube_link && (
@@ -812,32 +743,31 @@ const ScheduleCalendar = (props) => {
                         <div className="schedule-grid-layout">
                           {props.slotAvailable.loading
                             ? [...Array(12)].map((i, key) => (
-                                <Skeleton
-                                  key={key}
-                                  height={40}
-                                  width={300}
-                                  borderRadius={30}
-                                />
-                              ))
+                              <Skeleton
+                                key={key}
+                                height={40}
+                                width={300}
+                                borderRadius={30}
+                              />
+                            ))
                             : Object.keys(props.slotAvailable.data).length >
-                                0 &&
+                              0 &&
                               Object.keys(props.slotAvailable.data.slots)
                                 .length > 0
-                            ? props.slotAvailable.data.slots.map((slot, i) => (
+                              ? props.slotAvailable.data.slots.map((slot, i) => (
                                 <Button
                                   key={i}
-                                  className={`date-card ${
-                                    activeButton === slot.start_time
+                                  className={`date-card ${activeButton === slot.start_time
                                       ? "active"
                                       : ""
-                                  }`}
+                                    }`}
                                   onClick={() => handleButtonClick(slot, setFieldError)}
                                   disabled={!slot.is_available}
                                 >
                                   {slot.start_time} - {slot.end_time}
                                 </Button>
                               ))
-                            : null}
+                              : null}
                         </div>
                       </div>
                       {!values.scheduled_start && <ErrorMessage
@@ -987,27 +917,6 @@ const ScheduleCalendar = (props) => {
                               />
 
                               <div className="file-preview-card-wrapper">
-                                {/* <h4 className="file-preview-title">Uploading - 3/3 files</h4> */}
-
-                                {/* <div className="file-preview-card">
-                                                            <p>File Name</p>
-                                                            <Button>
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width="20"
-                                                                    height="20"
-                                                                    enableBackground="new 0 0 512 512"
-                                                                    viewBox="0 0 512 512"
-                                                                >
-                                                                    <path
-                                                                        fill="#efefef"
-                                                                        d="M256 0C114.836 0 0 114.836 0 256s114.836 256 256 256 256-114.836 256-256S397.164 0 256 0zm94.273 320.105c8.34 8.344 8.34 21.825 0 30.168a21.275 21.275 0 01-15.086 6.25c-5.46 0-10.921-2.09-15.082-6.25L256 286.164l-64.105 64.11a21.273 21.273 0 01-15.083 6.25 21.275 21.275 0 01-15.085-6.25c-8.34-8.344-8.34-21.825 0-30.169L225.836 256l-64.11-64.105c-8.34-8.344-8.34-21.825 0-30.168 8.344-8.34 21.825-8.34 30.169 0L256 225.836l64.105-64.11c8.344-8.34 21.825-8.34 30.168 0 8.34 8.344 8.34 21.825 0 30.169L286.164 256zm0 0"
-                                                                        data-original="#000000"
-                                                                    ></path>
-                                                                </svg>
-                                                            </Button>
-                                                        </div> */}
-
                                 {uploadedFiles.length > 0 && (
                                   <h4 className="file-preview-title">
                                     Uploaded
@@ -1079,7 +988,7 @@ const ScheduleCalendar = (props) => {
                               >
                                 {!props.creatorVirtualExperienceFileSave
                                   .buttonDisable ||
-                                props.creatorVirtualExperienceSave.buttonDisable
+                                  props.creatorVirtualExperienceSave.buttonDisable
                                   ? "Create"
                                   : "Loading"}
                               </Button>

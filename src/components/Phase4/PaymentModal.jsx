@@ -1,12 +1,14 @@
 import React from 'react'
 import { Button, Modal, Form, InputGroup, Image } from 'react-bootstrap';
 import { Link, useHistory } from "react-router-dom";
-import "./Phase4.css"
+import "./Phase4.css";
+import { premiumFolderPaymentStart } from '../../store/actions/PremiumFolderAction';
 
 const PaymentModal = (props) => {
   return (
     <Modal
-      {...props}
+      show={props.modalShow}
+      onHide={props.closeFolderModal}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered
@@ -32,10 +34,6 @@ const PaymentModal = (props) => {
                       type="checkbox"
                       name="stream_type"
                       id="1"
-                    // checked={values.stream_type == "public"}
-                    // onChange={() =>
-                    //   setFieldValue("stream_type", "public")
-                    // }
                     />
                     <div className="service-card-custome">
                       <div className="check-tick">
@@ -76,7 +74,7 @@ const PaymentModal = (props) => {
             <div className="coupon-input">
               <Form.Group controlId="formBasicEmail">
                 <InputGroup >
-                  <Form.Control type="text" aria-label="text" value="5BDFKHT6K98Q"/>
+                  <Form.Control type="text" aria-label="text" value="5BDFKHT6K98Q" />
                   <InputGroup.Text><Link to="#">Apply</Link></InputGroup.Text>
                 </InputGroup>
               </Form.Group>

@@ -12815,3 +12815,53 @@ span.favorites-list {
   padding: 0 5em;
   width: unset;
 }
+
+.error-msg {
+  font-size: 0.8em;
+  font-weight: 400;
+  color: red;
+  margin-top: 0.3em;
+}
+
+.folder-list-card-img-sec {
+  height: 270px;
+}
+
+.preview-img.file {
+  margin-bottom: .5em;
+}
+button.delete-preview.btn.btn-primary {
+    width: 1em !important;
+}
+.file-preview-card-wrapper.preview {
+  padding: 0px !important;
+}
+
+td.coupon-platform {
+  text-transform: capitalize;
+}
+
+.user-profile1.w-100 {
+  height: 25em;
+  object-fit: cover;
+}
+
+.default-link-btn {
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  border: 1px solid var(--primary-color) !important;
+  padding: 0.8em 3em !important;
+  font-size: 1.4em !important;
+  color: var(--secondary-color) !important;
+  font-weight: 500 !important;
+  background: var(--primary-color) !important;
+  transition: opacity .15s ease, background-color .15s ease, box-shadow .15s ease;
+  display: inline-block;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.default-link-btn:hover {
+  color: var(--secondary-color) !important;
+  text-decoration: none !important;
+}

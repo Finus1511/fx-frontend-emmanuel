@@ -14,29 +14,32 @@ import Skeleton from "react-loading-skeleton";
 import PremiunFolderDetail from "./PremiumFolderDetail";
 import { translate, t } from "react-multi-lang";
 import {
-  fetchMorefolderFilesListStart,
-  folderFilesRemoveStart,
-  folderFilesListStart,
-  folderFileViewStart,
+  folderFilesListForOthersStart,
+  fetchMorefolderFilesListForOthersStart,
+  folderFileViewStart
 } from "../../store/actions/PremiumFolderAction";
 import InfiniteScroll from "react-infinite-scroll-component";
 import FilesUploadModal from "./FilesUploadModal";
 import NoDataFound from "../NoDataFound/NoDataFound";
+import { getErrorNotificationMessage } from "../helper/NotificationMessage";
+import { createNotification } from "react-redux-notify";
+import { connect } from "react-redux";
 
-const PremiumFolderFile = () => {
+const PremiumFolderFileOthers = (props) => {
 
   const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams();
-  const folderFilesList = useSelector((state) => state.folder.folderFilesList);
+  const folderFilesList = useSelector((state) => state.folder.folderFilesListForOthers);
   const folderFileView = useSelector((state) => state.folder.folderFileView);
-  const [modalShow, setModalShow] = useState(false);
+
+  console.log("folderFilesList", folderFilesList)
 
   useEffect(() => {
     dispatch(folderFileViewStart({
       collection_unique_id: params.unique_id,
     }))
-    dispatch(folderFilesListStart({
+    dispatch(folderFilesListForOthersStart({
       skip: 0,
       take: 12,
       collection_unique_id: params.unique_id,
@@ -45,7 +48,7 @@ const PremiumFolderFile = () => {
 
   const fetchMorePost = () => {
     dispatch(
-      fetchMorefolderFilesListStart({
+        fetchMorefolderFilesListForOthersStart({
         skip: folderFilesList.data.collection_files.length,
         take: 12,
         collection_unique_id: params.unique_id,
@@ -53,9 +56,16 @@ const PremiumFolderFile = () => {
     );
   };
 
-  const closeFolderModal = () => {
-    setModalShow(false);
-  }
+  useEffect(() => {
+    if (!folderFileView.loading && Object.keys(folderFileView.data).length > 0) {
+        if (folderFileView.data.collection && folderFileView.data.collection.user_needs_to_pay == 1) {
+            const notificationMessage = getErrorNotificationMessage("Please pay for the collection to view the files");
+            props.dispatch(createNotification(notificationMessage));
+            props.history.goBack()
+            
+        }
+    }
+  }, [folderFileView]);
 
   return (
     <>
@@ -120,63 +130,9 @@ const PremiumFolderFile = () => {
                             </p>
                           </div>
                         </div>
-                        <div className="coupon-table-action">
-                          <div className="premium-folder-upload-btn">
-                            <Button
-                              className="default-btn"
-                              type="button"
-                              onClick={() => setModalShow(true)}
-                            >{t("upload")}</Button>
-                          </div>
-                        </div>
                       </div>
-                      {/* <div className="premium-folder-count">
-                        <span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            enableBackground="new 0 0 512 512"
-                            viewBox="0 0 24 24"
-                          >
-                            <g fill="#9f4298">
-                              <path
-                                d="M19.5 0h-15A4.505 4.505 0 000 4.5v15A4.505 4.505 0 004.5 24h15a4.505 4.505 0 004.5-4.5v-15A4.505 4.505 0 0019.5 0zm-15 3h15A1.5 1.5 0 0121 4.5v15a1.492 1.492 0 01-.44 1.06l-8.732-8.732a4 4 0 00-5.656 0L3 15V4.5A1.5 1.5 0 014.5 3z"
-                                data-original="#000000"
-                              ></path>
-                              <circle
-                                cx="15.5"
-                                cy="7.5"
-                                r="2.5"
-                                data-original="#000000"
-                              ></circle>
-                            </g>
-                          </svg>
-                          <p>
-                            Image: <strong>232</strong>
-                          </p>
-                        </span>
-                        <span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            enableBackground="new 0 0 512 512"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fill="#9f4298"
-                              d="M19 24H5a5.006 5.006 0 01-5-5V5a5.006 5.006 0 015-5h14a5.006 5.006 0 015 5v14a5.006 5.006 0 01-5 5zM5 2a3 3 0 00-3 3v14a3 3 0 003 3h14a3 3 0 003-3V5a3 3 0 00-3-3zm4.342 15.005a2.368 2.368 0 01-1.186-.323 2.313 2.313 0 01-1.164-2.021V9.339a2.337 2.337 0 013.5-2.029l5.278 2.635a2.336 2.336 0 01.049 4.084l-5.376 2.687a2.2 2.2 0 01-1.101.289zm-.025-8a.314.314 0 00-.157.042.327.327 0 00-.168.292v5.322a.337.337 0 00.5.293l5.376-2.688a.314.314 0 00.12-.266.325.325 0 00-.169-.292L9.545 9.073a.462.462 0 00-.228-.068z"
-                              data-original="#000000"
-                            ></path>
-                          </svg>
-                          <p>
-                            Video: <strong>12</strong>
-                          </p>
-                        </span>
-                      </div> */}
-                      {Object.keys(folderFilesList.data).length > 0 &&
-                  folderFilesList.data.collection_files.length > 0 ?
+                      {!folderFileView.data.collection.user_needs_to_pay && Object.keys(folderFilesList.data).length > 0 &&
+                        folderFilesList.data.collection_files.length > 0 ?
                       <InfiniteScroll
                         dataLength={folderFilesList.data.collection_files.length}
                         next={fetchMorePost}
@@ -241,45 +197,12 @@ const PremiumFolderFile = () => {
                                     ></path>
                                   </svg>
                                 </Button>
-                                <Button
-                                  type="button"
-                                  className="premium-img-delete"
-                                  onClick={() => {
-                                    if (
-                                      window.confirm(
-                                        t("delete_files")
-                                      )
-                                    ) {
-                                      dispatch(
-                                        folderFilesRemoveStart({
-                                          collection_file_unique_id: collection.unique_id,
-                                        })
-                                      )
-                                    }
-                                  }}
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="25"
-                                    height="25"
-                                    fill="none"
-                                    viewBox="0 0 14 16"
-                                  >
-                                    <path
-                                      stroke="#fff"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="1.353"
-                                      d="M13.092 4.542H.914M11.569 6.825l-.51 5.602a3.045 3.045 0 01-3.044 2.77H5.96a3.045 3.045 0 01-3.045-2.77l-.48-5.602M5.48 8.347v2.284M8.518 8.347v2.284M10.428 4.542h-6.85l.38-1.606a1.888 1.888 0 011.865-1.439h2.36a1.888 1.888 0 011.865 1.439l.38 1.606z"
-                                    ></path>
-                                  </svg>
-                                </Button>
                               </div>
                             </div>
                           )}
                         </div>
                       </InfiniteScroll>
-                      : <PremiunFolderDetail /> }
+                      : <NoDataFound /> }
                     </>
                   ) : (
                     <NoDataFound />
@@ -289,15 +212,15 @@ const PremiumFolderFile = () => {
           </div>
         </Container>
       </div>
-      {modalShow &&
-        <FilesUploadModal
-          modalShow={modalShow}
-          setModalShow={setModalShow}
-          closeFolderModal={closeFolderModal}
-        />
-      }
     </>
   );
 };
 
-export default translate(PremiumFolderFile);
+function mapDispatchToProps(dispatch) {
+    return { dispatch };
+  }
+  
+  export default connect(
+    mapDispatchToProps
+  )(translate(PremiumFolderFileOthers));
+  

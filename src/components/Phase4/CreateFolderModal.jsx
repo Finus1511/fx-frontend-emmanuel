@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Button, Modal, Form, Image } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { translate, t } from "react-multi-lang";
@@ -8,64 +8,127 @@ import { createPremiumFolderStart } from "../../store/actions/PremiumFolderActio
 import { useDispatch, useSelector } from "react-redux";
 import { ButtonLoader } from "../helper/Loader";
 import { useDropzone } from "react-dropzone";
-import { getErrorNotificationMessage } from "../helper/NotificationMessage";
-import { createNotification } from "react-redux-notify";
-import { values } from "draft-js/lib/DefaultDraftBlockRenderMap";
 
 const CreateFolderModal = (props) => {
+
   const formRef = useRef();
   const dispatch = useDispatch();
-  const createPremiumFolder = useSelector(
-    (state) => state.folder.createPremiumFolder
-  );
-  const history = useHistory();
-  const [selectedImages, setSelectedImages] = useState(null);
+  const createPremiumFolder = useSelector((state) => state.folder.createPremiumFolder);
+  const [skipRender, setSkipRender] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [error, setError] = useState("");
 
-  const handleSubmit = () => {
-    dispatch(createPremiumFolderStart());
-  };
+  const handleSubmit = (values) => {
+    if (files.length > 0 && error == "") {
+      dispatch(createPremiumFolderStart(values));
+    }
+  }
 
   const folderSchema = Yup.object().shape({
     name: Yup.string().required(t("required")),
-    file: Yup.string().nullable().required(t("required")),
+    thumbnail: Yup.string().nullable().required(t("required")),
     description: Yup.string().required(t("required")),
     amount: Yup.string().required(t("required")),
   });
 
+  const onDropRejected = useCallback((rejectedFiles) => {
+    if (rejectedFiles.length > 1) {
+      setErrorMessage(t("please_upload_only_one_file_at_a_time"));
+      setError("");
+    } else {
+      const invalidFiles = rejectedFiles.filter(
+        (file) => !["image/jpeg", "image/png", "image/jpg"].includes(file.type)
+      );
+      if (invalidFiles.length > 0) {
+        setErrorMessage(t("invalid_file_formats"));
+        setError("");
+      }
+    }
+  }, []);
+
+  const onDropAccepted = () => {
+    setErrorMessage("");
+  };
+
   const { getRootProps, getInputProps } = useDropzone({
+    onDropRejected,
+    onDropAccepted,
     accept: {
-      "image/png": [".png"],
-      "image/jpg": [".jpg"],
-      "image/jpeg": [".jpeg"],
+      "image/jpeg": [],
+      "image/png": [],
+      "image/jpg": [],
     },
     maxFiles: 1,
-    onDrop: (acceptedFiles, rejectedFiles) => {
-      if (rejectedFiles.length > 0) {
-        const notificationMessage = getErrorNotificationMessage(
-          t("image_only_allowed")
-        );
-        dispatch(createNotification(notificationMessage));
-      } else {
-        handleImageChange(acceptedFiles, formRef.current.setFieldValue);
-      }
+    onDrop: (acceptedFiles) => {
+      acceptedFiles.forEach((file) => {
+        if (file.size > 3145728) {
+          setError(
+            t("invalid_file_size", { file_name: file.name }) +
+            t("is_larger_than_size")
+          );
+        } else {
+          setError("");
+        }
+      });
+      setFiles(
+        acceptedFiles.map((file) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        )
+      );
+      formRef.current.setFieldValue("thumbnail", acceptedFiles[0]);
     },
   });
 
-  const handleImageChange = (event, setFieldValue) => {
-    if (event.length > 0) {
-      setSelectedImages(URL.createObjectURL(event[0]));
-      setFieldValue("file", event[0]);
-      const fileInput = document.getElementById("file-upload");
-      fileInput.value = "";
+  useEffect(() => {
+    if (props.modalShow == false) {
+      setErrorMessage(false)
+      setFiles([])
+      setError("")
     }
-  };
+  }, [props.modalShow]);
+
+  const images = files.map((file, key) => (
+    <div className="folder-image-preview">
+      <div className="preview-img">
+        <Image
+          className="premium-folder-preview"
+          key={file.name}
+          src={file.preview}
+          alt="image-preview"
+        />
+      </div>
+      <Button
+        className="folder-image-preview-button"
+        onClick={(event) => {
+          event.stopPropagation();
+          formRef.current.setFieldValue("file", "");
+          setFiles([]);
+          setError("");
+        }}
+      >
+        <i className="far fa-times-circle"></i>
+      </Button>
+    </div>
+  ));
+
+  useEffect(() => {
+    if (
+      !skipRender &&
+      !createPremiumFolder.loading &&
+      Object.keys(createPremiumFolder.data).length > 0
+    ) {
+      props.closeFolderModal();
+    }
+    setSkipRender(false)
+  }, [createPremiumFolder]);
 
   return (
     <Modal
-      show={props.show}
-      onHide={() => {
-        props.onHide();
-      }}
+      show={props.modalShow}
+      onHide={props.closeFolderModal}
       size="md"
       aria-labelledby="contained-modal-title-vcenter"
       centered
@@ -80,7 +143,7 @@ const CreateFolderModal = (props) => {
         <Formik
           initialValues={{
             name: "",
-            file: null,
+            thumbnail: "",
             amount: "",
             description: "",
           }}
@@ -91,7 +154,7 @@ const CreateFolderModal = (props) => {
           {({ errors, touched, setFieldValue, resetForm, setFieldError }) => (
             <FORM className="create-folder-form">
               <Form.Group controlId="formBasicEmail">
-                <Form.Label>{t("folder_name")}</Form.Label>
+                <Form.Label>{t("folder_name")} *</Form.Label>
                 <Field
                   className="form-control"
                   type="text"
@@ -107,49 +170,37 @@ const CreateFolderModal = (props) => {
               <Form.Group controlId="formBasicPassword">
                 <Form.Label>{t("upload_preview")}</Form.Label>
                 <div className="folder-upload-preview" {...getRootProps()}>
-                  {formRef.current?.values.file == null ? (
+                  {files.length <= 0 &&
                     <>
                       <label for="file-upload" class="file-label">
-                        {t("upload_preview")}
+                        {t("upload_preview")} *
                       </label>
                       <input
                         {...getInputProps()}
                         id="file-upload"
-                        className="d-none"
-                      />
+                        className="d-none" />
                     </>
-                  ) : (
-                    <div className="folder-image-preview">
-                      <div className="preview-img">
-                        <Image
-                          className="premium-folder-preview"
-                          src={selectedImages}
-                        />
-                      </div>
-                      <Button
-                        className="folder-image-preview-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFieldValue("file", null);
-                          setSelectedImages("");
-                        }}
-                      >
-                        <i className="far fa-times-circle"></i>
-                      </Button>
-                    </div>
-                  )}
+                  }
+                  <div>{images}</div>
                 </div>
               </Form.Group>
-              <ErrorMessage
-                component={"div"}
-                name="file"
-                className="error-msg text-danger text-right"
-              />
+              {!errorMessage || !error ? (
+                <ErrorMessage
+                  component={"div"}
+                  name="thumbnail"
+                  className="error-msg text-danger text-right"
+                />
+              ) : null}
+              {errorMessage || error ? (
+                <p className="error-msg selectfile">
+                  {errorMessage || error}
+                </p>
+              ) : null}
               <Form.Group controlId="formBasicPassword">
-                <Form.Label>{t("set_amount")}</Form.Label>
+                <Form.Label>{t("set_amount")} *</Form.Label>
                 <Field
                   name="amount"
-                  type="text"
+                  type="number"
                   placeholder="Set amount"
                   className="form-control"
                 />
@@ -159,9 +210,8 @@ const CreateFolderModal = (props) => {
                 name="amount"
                 className="error-msg text-danger text-right"
               />
-
               <Form.Group controlId="exampleForm.ControlTextarea1">
-                <Form.Label>{t("folder_description")}</Form.Label>
+                <Form.Label>{t("folder_description")} *</Form.Label>
                 <Field
                   name="description"
                   as="textarea"
@@ -191,4 +241,4 @@ const CreateFolderModal = (props) => {
   );
 };
 
-export default CreateFolderModal;
+export default translate(CreateFolderModal);

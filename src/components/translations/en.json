@@ -1060,5 +1060,21 @@
   "no_of_uses_per_customer":"Number of Uses per Customer",
   "enable":"Enable",
   "disable":"Disable",
-  "from_date_val_error": "Srart date Value Should not be Greater than Expiry Date"
+  "from_date_val_error": "Srart date Value Should not be Greater than Expiry Date",
+  "chat-message-payments":"Chat Message Payments",
+  "please_upload_only_one_file_at_a_time": "Please upload only one file at a time.",
+  "invalid_file_formats": "Invalid file format. Please upload a JPEG,JPG or PNG image.",
+  "premium_folder":"Premium Folder",
+  "delete_collection":"Are you sure to delete the collection?",
+  "collections": "Collections",
+  "premium_folder_file": "Premium Folder File",
+  "create_folder": "Create Folder",
+  "uploaded": "Uploaded",
+  "collection_payments": "Collection Payments",
+  "discount_on": "Discount On",
+  "delete_files": "Are you sure to delete the file?",
+  "no_files": "No Files",
+  "no_files_para": "There are currently no folders to display. Please create a",
+  "new_folder_to_get_started": "new folder to get started",
+  "the_list_goes_on": "The list goes on and on. Because we know that you're pressing questions standard dummy text ever since the 1500s standard dummy since"
 }

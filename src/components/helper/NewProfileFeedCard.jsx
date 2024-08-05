@@ -254,6 +254,21 @@ const NewProfileFeedCard = (props) => {
                           className="post-view-image"
                         />
                       </div>
+                    ) : file.file_type === "url" ? (
+                      <div className="single-post-audio-sec">
+                        {file.preview_file ? <Image className="single-post-img"
+                          src={file.preview_file}
+                        /> : null}
+                        <div className="profile-video-icon-sec">
+                          <Image
+                            className="profile-video-icon"
+                            src={
+                              window.location.origin +
+                              "/assets/images/new-home/icon/video-icon.png"
+                            }
+                          />
+                        </div>
+                      </div>
                     ) : null}
                   </>
                 ))}

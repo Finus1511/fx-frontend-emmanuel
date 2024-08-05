@@ -42,6 +42,7 @@ const TableDetails = (props) => {
                 <tr>
                   <th>{t("coupon_code")}</th>
                   <th>{t("amount")}</th>
+                  <th>{t("discount_on")}</th>
                   <th>{t("start_date")}</th>
                   <th>{t("end_date")}</th>
                   <th>{t("no_of_users_limit")}</th>
@@ -55,6 +56,7 @@ const TableDetails = (props) => {
                   <tr>
                     <td className="coupon-name">{coupon.promo_code}</td>
                     <td>{coupon.amount} {""} {coupon.amount_type == 0 ? "%" : t("tokens")}</td>
+                    <td className="coupon-platform">{coupon.platform}</td>
                     <td>{coupon.start_date}</td>
                     <td>{coupon.expiry_date ? coupon.expiry_date : "-"}</td>
                     <td><b>{coupon.no_of_users_limit}</b></td>

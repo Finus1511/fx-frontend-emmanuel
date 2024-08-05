@@ -186,6 +186,38 @@ const NewSinglePostSlider = (props) => {
                           </div>
                         }
                       </div>
+                      : postFile.file_type === "url" ?
+                        <div>
+                          {post.payment_info.is_user_needs_pay == 1 ?
+                            <div
+                              onClick={e =>
+                                post.payment_info.post_payment_type === "ppv" ?
+                                  setPaymentModal(true)
+                                  : post.payment_info.post_payment_type === "subscription" ?
+                                    redirectToProfile()
+                                    : e.preventDefault()
+                              }
+                            >
+                              <Image className="single-post-img"
+                                src={postFile.preview_file
+                                  ? postFile.preview_file
+                                  : postFile.post_file}
+                                data-fancybox />
+                              <div className="post-lock-icon-sec">
+                                <Image
+                                  className="profile-lock-icon"
+                                  src={
+                                    window.location.origin + "/assets/images/new-home/icon/lock-icon.png"
+                                  }
+                                />
+                              </div>
+                            </div>
+                            :
+                            <div className="single-post-audio-sec">
+                              <div dangerouslySetInnerHTML={{ __html: postFile.youtube_url }} />
+                            </div>
+                          }
+                        </div> 
                       : null
               )
               : null

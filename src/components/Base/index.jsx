@@ -155,6 +155,7 @@ import VitrualExperienceList from "../Accounts/Profile/VitrualExperienceList";
 import NewJoinVEIndex from "../VirtualExperience/NewJoinVEIndex";
 import HomeLoader from "../Loader/HomeLoader";
 import PageLoader from "../Loader/PageLoader";
+import PremiumFolderFileOthers from "../Phase4/PremiumFolderFileOthers";
 
 setTranslations({ en, es });
 
@@ -1022,7 +1023,7 @@ class App extends Component {
 
               <PrivateRoute
                 authentication={this.state.authentication}
-                path={"/creater-flow-product/"}
+                path={"/creater-flow-product"}
                 component={CreaterFlowProduct}
                 layout={MainLayout}
               />
@@ -1127,8 +1128,15 @@ class App extends Component {
 
               <PrivateRoute
                 authentication={this.state.authentication}
-                path={"/premium-folder-file"}
+                path={"/premium-folder-file/:unique_id"}
                 component={PremiumFolderFile}
+                layout={MainLayout}
+              />
+
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/collection-files/:unique_id"}
+                component={PremiumFolderFileOthers}
                 layout={MainLayout}
               />
 

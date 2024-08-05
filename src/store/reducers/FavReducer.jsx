@@ -2,6 +2,7 @@ import {
   FETCH_FAV_START,
   FETCH_FAV_SUCCESS,
   FETCH_FAV_FAILURE,
+  FETCH_MORE_FAV_START,
   SAVE_FAV_START,
   SAVE_FAV_SUCCESS,
   SAVE_FAV_FAILURE,
@@ -12,13 +13,9 @@ import {
 
 const initialState = {
   fav: {
-    data: {
-      favs: [],
-    },
-    loading: true,
+    data: {},
+    loading: false,
     error: false,
-    skip: 0,
-    length: 0,
   },
   saveFav: {
     data: {},
@@ -44,28 +41,18 @@ const FavReducer = (state = initialState, action) => {
       return {
         ...state,
         fav: {
-          inputData: action.data,
-          data: {
-            favs: [...state.fav.data.favs],
-          },
+          data: {},
           loading: true,
           error: false,
-          skip: state.fav.skip,
-          length: state.fav.length,
         },
       };
     case FETCH_FAV_SUCCESS:
       return {
         ...state,
         fav: {
-          data: {
-            favs: [...state.fav.data.favs, ...action.data.fav_users],
-          },
+          data: action.data,
           loading: false,
           error: false,
-          inputData: {},
-          skip: action.data.fav_users.length + state.fav.skip,
-          length: action.data.fav_users.length,
         },
       };
     case FETCH_FAV_FAILURE:
@@ -75,10 +62,10 @@ const FavReducer = (state = initialState, action) => {
           data: {},
           loading: true,
           error: action.error,
-          skip: state.fav.skip,
-          length: state.fav.length,
         },
       };
+    case FETCH_MORE_FAV_START:
+      return state;
     case SAVE_FAV_START:
       return {
         ...state,

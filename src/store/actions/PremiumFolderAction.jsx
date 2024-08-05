@@ -22,6 +22,7 @@ import {
   SINGLE_VIEW_COUPON_CODE_SUCCESS,
   SINGLE_VIEW_COUPON_CODE_FAILURE,
   PREMIUM_FOLDER_LIST_START,
+  FETCH_MORE_PREMIUM_FOLDER_LIST_START,
   PREMIUM_FOLDER_LIST_SUCCESS,
   PREMIUM_FOLDER_LIST_FAILURE,
   PREMIUM_FOLDER_PAYMENT_START,
@@ -36,6 +37,23 @@ import {
   PREMIUM_FOLDER_FILES_LIST_START,
   PREMIUM_FOLDER_FILES_LIST_SUCCESS,
   PREMIUM_FOLDER_FILES_LIST_FAILURE,
+  DELETE_FOLDER_FILE_START,
+  DELETE_FOLDER_FILE_SUCCESS,
+  DELETE_FOLDER_FILE_FAILURE,
+  FOLDER_FILE_VIEW_START,
+  FOLDER_FILE_VIEW_SUCCESS,
+  FOLDER_FILE_VIEW_FAILURE,
+  FOLDER_FILES_REMOVE_START,
+  FOLDER_FILES_REMOVE_SUCCESS,
+  FOLDER_FILES_REMOVE_FAILURE,
+  FOLDER_FILES_LIST_START,
+  FETCH_MORE_FOLDER_FILES_LIST_START,
+  FOLDER_FILES_LIST_SUCCESS,
+  FOLDER_FILES_LIST_FAILURE,
+  FOLDER_FILES_LIST_FOR_OTHERS_START,
+  FETCH_MORE_FOLDER_FILES_LIST_FOR_OTHERS_START,
+  FOLDER_FILES_LIST_FOR_OTHERS_SUCCESS,
+  FOLDER_FILES_LIST_FOR_OTHERS_FAILURE
 } from "./ActionConstant";
 
 export function createCouponCodeStart(data) {
@@ -153,6 +171,13 @@ export function deleteCouponCodeFailure(error) {
 export function premiumFolderListStart(data) {
   return {
     type: PREMIUM_FOLDER_LIST_START,
+    data,
+  };
+}
+
+export function fetchMorepremiumFolderListStart(data) {
+  return {
+    type: FETCH_MORE_PREMIUM_FOLDER_LIST_START,
     data,
   };
 }
@@ -297,5 +322,116 @@ export function singleViewCouponCodeFailure(error) {
   };
 }
 
+export function deleteFolderFileStart(data) {
+  return {
+    type: DELETE_FOLDER_FILE_START,
+    data,
+  };
+}
+export function deleteFolderFileSuccess(data) {
+  return {
+    type: DELETE_FOLDER_FILE_SUCCESS,
+    data,
+  };
+}
+export function deleteFolderFileFailure(error) {
+  return {
+    type: DELETE_FOLDER_FILE_FAILURE,
+    error,
+  };
+}
+export function folderFileViewStart(data) {
+  return {
+    type: FOLDER_FILE_VIEW_START,
+    data,
+  };
+}
+export function folderFileViewSuccess(data) {
+  return {
+    type: FOLDER_FILE_VIEW_SUCCESS,
+    data,
+  };
+}
+export function folderFileViewFailure(error) {
+  return {
+    type: FOLDER_FILE_VIEW_FAILURE,
+    error,
+  };
+}
 
+export function folderFilesRemoveStart(data) {
+  return {
+    type: FOLDER_FILES_REMOVE_START,
+    data,
+  };
+}
 
+export function folderFilesRemoveSuccess(data) {
+  return {
+    type: FOLDER_FILES_REMOVE_SUCCESS,
+    data,
+  };
+}
+
+export function folderFilesRemoveFailure(error) {
+  return {
+    type: FOLDER_FILES_REMOVE_FAILURE,
+    error,
+  };
+}
+
+export function folderFilesListStart(data) {
+  return {
+    type: FOLDER_FILES_LIST_START,
+    data,
+  };
+}
+
+export function fetchMorefolderFilesListStart(data) {
+  return {
+    type: FETCH_MORE_FOLDER_FILES_LIST_START,
+    data,
+  };
+}
+
+export function folderFilesListSuccess(data) {
+  return {
+    type: FOLDER_FILES_LIST_SUCCESS,
+    data,
+  };
+}
+
+export function folderFilesListFailure(error) {
+  return {
+    type: FOLDER_FILES_LIST_FAILURE,
+    error,
+  };
+}
+
+export function folderFilesListForOthersStart(data) {
+  return {
+    type: FOLDER_FILES_LIST_FOR_OTHERS_START,
+    data,
+  };
+}
+
+export function fetchMorefolderFilesListForOthersStart(data) {
+  return {
+    type: FETCH_MORE_FOLDER_FILES_LIST_FOR_OTHERS_START,
+    data,
+  };
+}
+
+export function folderFilesListForOthersSuccess(data) {
+  return {
+    type: FOLDER_FILES_LIST_FOR_OTHERS_SUCCESS,
+    data,
+  };
+}
+
+export function folderFilesListForOthersFailure(error) {
+  return {
+    type: FOLDER_FILES_LIST_FOR_OTHERS_FAILURE,
+    error,
+  };
+}
