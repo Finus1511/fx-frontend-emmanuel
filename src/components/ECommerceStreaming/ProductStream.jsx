@@ -147,11 +147,13 @@ const ProductStream = () => {
                         {t("scheduled_stream")}
                       </Nav.Link>
                     </Nav.Item>
-                    <Nav.Item>
-                      <Nav.Link eventKey="livestream">
-                        {t("my_live_stream")}
-                      </Nav.Link>
-                    </Nav.Item>
+                    {profile.data.is_content_creator === 2 && (
+                      <Nav.Item>
+                        <Nav.Link eventKey="livestream">
+                          {t("my_live_stream")}
+                        </Nav.Link>
+                      </Nav.Item>
+                    )}
                   </Nav>
                 </Col>
                 <Col sm={12} md={10} lg={10} xl={10}>

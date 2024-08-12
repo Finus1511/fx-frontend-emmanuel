@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Zuck from "zuck.js";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchStoriesStart,
-  fetchUserStoriesStart } from "../../store/actions/StoriesAction";
+import {
+  fetchStoriesStart,
+  fetchUserStoriesStart
+} from "../../store/actions/StoriesAction";
 import Skeleton from "react-loading-skeleton";
 import StoryUploadModal from "../Home/StoryUploadModal";
 
@@ -10,6 +12,7 @@ const UpdatedStory = () => {
   const dispatch = useDispatch();
   const [storyModal, setStoryModal] = useState(false);
   const userStories = useSelector((state) => state.userStories.stories);
+  const profile = useSelector((state) => state.users.profile);
   const storiesContainerRef = useRef(null);
 
   useEffect(() => {
@@ -66,29 +69,33 @@ const UpdatedStory = () => {
             ))}
           </div>
         ) : (
-          <div className="story-sec">
-            <div
-              className="create-story-card"
-              data-toggle="modal"
-              data-target="#addStoryModal"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="26"
-                height="25"
-                fill="none"
-                viewBox="0 0 29 29"
-              >
-                <rect width="29" height="29" fill="#9F4298" rx="14.5"></rect>
-                <path
-                  fill="#fff"
-                  d="M19.917 13.417h-4.334V9.083a1.083 1.083 0 10-2.166 0v4.334H9.083a1.083 1.083 0 100 2.166h4.334v4.334a1.083 1.083 0 102.166 0v-4.334h4.334a1.083 1.083 0 100-2.166z"
-                ></path>
-              </svg>
-              <h4>Create Story</h4>
-            </div>
-            <div id="stories" ref={storiesContainerRef}></div>
-          </div>
+          <>
+            {profile.data.is_content_creator === 2 && (
+              <div className="story-sec">
+                <div
+                  className="create-story-card"
+                  data-toggle="modal"
+                  data-target="#addStoryModal"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="26"
+                    height="25"
+                    fill="none"
+                    viewBox="0 0 29 29"
+                  >
+                    <rect width="29" height="29" fill="#9F4298" rx="14.5"></rect>
+                    <path
+                      fill="#fff"
+                      d="M19.917 13.417h-4.334V9.083a1.083 1.083 0 10-2.166 0v4.334H9.083a1.083 1.083 0 100 2.166h4.334v4.334a1.083 1.083 0 102.166 0v-4.334h4.334a1.083 1.083 0 100-2.166z"
+                    ></path>
+                  </svg>
+                  <h4>Create Story</h4>
+                </div>
+                <div id="stories" ref={storiesContainerRef}></div>
+              </div>
+            )}
+          </>
         )}
       </div>
       <StoryUploadModal />

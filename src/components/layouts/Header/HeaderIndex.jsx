@@ -7,7 +7,7 @@ import VerifiedBadgeNoShadow from "../../Handlers/VerifiedBadgeNoShadow";
 import io from "socket.io-client";
 import { updateNotificationCount } from "../../../store/actions/NotificationAction";
 import Alert from "react-bootstrap/Alert";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { translate, t } from "react-multi-lang";
 import CreateContentCreatorModal from "../../helper/CreateContentCreatorModal";
 import LoginModal from "../../Model/LoginModal";
@@ -17,6 +17,9 @@ import SignInModal from "../../NewLandingPage/Auth/SignInModal";
 let chatSocket;
 
 const HeaderIndex = (props) => {
+
+  const profile = useSelector((state) => state.users.profile);
+
   const [chatCount, setChatCount] = useState(0);
   const [bellCount, setBellCount] = useState(0);
 
@@ -132,7 +135,7 @@ const HeaderIndex = (props) => {
               </Link>
 
               {configuration.get("configData.is_one_to_many_call_enabled") ==
-              1 ? (
+                1 ? (
                 <Link
                   to={"/live-videos"}
                   className="main-header-menu icon-with-round-hover"
@@ -371,16 +374,18 @@ const HeaderIndex = (props) => {
                   </Link>
 
                   <ul className="list-inline">
-                    <Media as="li">
-                      <Link to={"/fans"} onClick={() => setIsVisible(false)}>
-                        <span className="fans-follow">
-                          {localStorage.getItem("total_followers")
-                            ? localStorage.getItem("total_followers")
-                            : 0}
-                        </span>{" "}
-                        {t("fans")}
-                      </Link>
-                    </Media>
+                    {profile.data.is_content_creator === 2 && (
+                      <Media as="li">
+                        <Link to={"/fans"} onClick={() => setIsVisible(false)}>
+                          <span className="fans-follow">
+                            {localStorage.getItem("total_followers")
+                              ? localStorage.getItem("total_followers")
+                              : 0}
+                          </span>{" "}
+                          {t("fans")}
+                        </Link>
+                      </Media>
+                    )}
                     <Media as="li">
                       <Link
                         to={"/following"}
@@ -483,24 +488,24 @@ const HeaderIndex = (props) => {
                   />
                   {t("ecommerce")}
                 </Link>
-
-                <Link
-                  to={"/stories"}
-                  className="sidebar-menus-item"
-                  data-name="Profile"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                  {/* <i class="fas fa-history"></i> */}
-                  <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/stories-icon.svg"
-                    }
-                    alt={configuration.get("configData.site_name")}
-                  />
-                  {t("stories")}
-                </Link>
-
+                {profile.data.is_content_creator === 2 && (
+                  <Link
+                    to={"/stories"}
+                    className="sidebar-menus-item"
+                    data-name="Profile"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    {/* <i class="fas fa-history"></i> */}
+                    <Image
+                      src={
+                        window.location.origin +
+                        "/assets/images/icons/new/stories-icon.svg"
+                      }
+                      alt={configuration.get("configData.site_name")}
+                    />
+                    {t("stories")}
+                  </Link>
+                )}
                 <Link
                   to={"/bookmarks"}
                   className="sidebar-menus-item"
@@ -531,36 +536,40 @@ const HeaderIndex = (props) => {
                   />{" "}
                   {t("favorite_list")}
                 </Link>
-                <Link
-                  to={"/create-coupon"}
-                  className="sidebar-menus-item"
-                  data-name="Profile"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                  <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/create-coupon.svg"
-                    }
-                    alt={configuration.get("configData.site_name")}
-                  />{" "}
-                  {t("create_coupon_code")}
-                </Link>
-                <Link
-                  to={"/coupon-details-table"}
-                  className="sidebar-menus-item"
-                  data-name="Profile"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/coupon-list.svg"
-                    }
-                    alt={configuration.get("configData.site_name")}
-                  />{" "}
-                  {t("coupon_lists")}
-                </Link>
+                {profile.data.is_content_creator === 2 && (
+                  <>
+                    <Link
+                      to={"/create-coupon"}
+                      className="sidebar-menus-item"
+                      data-name="Profile"
+                      onClick={() => setIsVisible(!isVisible)}
+                    >
+                      <Image
+                        src={
+                          window.location.origin +
+                          "/assets/images/icons/new/create-coupon.svg"
+                        }
+                        alt={configuration.get("configData.site_name")}
+                      />{" "}
+                      {t("create_coupon_code")}
+                    </Link>
+                    <Link
+                      to={"/coupon-details-table"}
+                      className="sidebar-menus-item"
+                      data-name="Profile"
+                      onClick={() => setIsVisible(!isVisible)}
+                    >
+                      <Image
+                        src={
+                          window.location.origin +
+                          "/assets/images/icons/new/coupon-list.svg"
+                        }
+                        alt={configuration.get("configData.site_name")}
+                      />{" "}
+                      {t("coupon_lists")}
+                    </Link>
+                  </>
+                )}
                 <Link
                   to={"/list"}
                   className="sidebar-menus-item"
@@ -593,22 +602,23 @@ const HeaderIndex = (props) => {
                   />{" "}
                   {t("settings")}
                 </Link>
-
-                <Link
-                  to={"/live-history-detail"}
-                  className="sidebar-menus-item"
-                  data-name="Profile"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                  <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/live-history.png"
-                    }
-                    alt="live-history-icon"
-                  />
-                  {t("live_stream_shopping_history")}
-                </Link>
+                {profile.data.is_content_creator === 2 && (
+                  <Link
+                    to={"/live-history-detail"}
+                    className="sidebar-menus-item"
+                    data-name="Profile"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    <Image
+                      src={
+                        window.location.origin +
+                        "/assets/images/icons/new/live-history.png"
+                      }
+                      alt="live-history-icon"
+                    />
+                    {t("live_stream_shopping_history")}
+                  </Link>
+                )}
                 <Link
                   to={"/live-videos"}
                   className="sidebar-menus-item"
@@ -625,7 +635,7 @@ const HeaderIndex = (props) => {
                   {t("live_videos")}
                 </Link>
                 {configuration.get("configData.is_one_to_one_call_enabled") ==
-                1 ? (
+                  1 ? (
                   <>
                     <Link
                       to={"/video-calls-history"}
@@ -661,21 +671,23 @@ const HeaderIndex = (props) => {
                 ) : (
                   ""
                 )}
-                <Link
-                  to={"/user-created-list"}
-                  className="sidebar-menus-item"
-                  data-name="Profile"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                  <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/virtual_experience_created.svg"
-                    }
-                    alt={configuration.get("configData.site_name")}
-                  />
-                  {t("virtual_experience_created")}
-                </Link>
+                {profile.data.is_content_creator === 2 && (
+                  <Link
+                    to={"/user-created-list"}
+                    className="sidebar-menus-item"
+                    data-name="Profile"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    <Image
+                      src={
+                        window.location.origin +
+                        "/assets/images/icons/new/virtual_experience_created.svg"
+                      }
+                      alt={configuration.get("configData.site_name")}
+                    />
+                    {t("virtual_experience_created")}
+                  </Link>
+                )}
                 <Link
                   to={"/creator-booking-list"}
                   className="sidebar-menus-item"
@@ -705,20 +717,22 @@ const HeaderIndex = (props) => {
                   />
                   {t("personalize_request_list")}
                 </Link>
-                <Link
-                  to={"/creater-flow-table"}
-                  className="sidebar-menus-item"
-                  data-name="Personalized Request List"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                  <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/personalize_recieved_list.svg"
-                    }
-                  />
-                  {t("personalize_received_list")}
-                </Link>
+                {profile.data.is_content_creator === 2 && (
+                  <Link
+                    to={"/creater-flow-table"}
+                    className="sidebar-menus-item"
+                    data-name="Personalized Request List"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    <Image
+                      src={
+                        window.location.origin +
+                        "/assets/images/icons/new/personalize_recieved_list.svg"
+                      }
+                    />
+                    {t("personalize_received_list")}
+                  </Link>
+                )}
                 <Link
                   to={"/order-placed-detail"}
                   className="sidebar-menus-item"
@@ -790,22 +804,23 @@ const HeaderIndex = (props) => {
                   {t("your_cards")}{" "}
                   <span className="desc">({t("to_subscribe")})</span>
                 </Link> */}
-
-                <Link
-                  to={"/add-bank"}
-                  className="sidebar-menus-item"
-                  data-name="Profile"
-                  onClick={() => setIsVisible(!isVisible)}
-                >
-                  <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/new/add-bank-icon.svg"
-                    }
-                    alt={configuration.get("configData.site_name")}
-                  />{" "}
-                  {t("add_bank")} <span className="desc">({t("to_earn")})</span>
-                </Link>
+                {profile.data.is_content_creator === 2 && (
+                  <Link
+                    to={"/add-bank"}
+                    className="sidebar-menus-item"
+                    data-name="Profile"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    <Image
+                      src={
+                        window.location.origin +
+                        "/assets/images/icons/new/add-bank-icon.svg"
+                      }
+                      alt={configuration.get("configData.site_name")}
+                    />{" "}
+                    {t("add_bank")} <span className="desc">({t("to_earn")})</span>
+                  </Link>
+                )}
                 <Link
                   to={"/wallet"}
                   className="sidebar-menus-item"

@@ -9,9 +9,9 @@ const NotificationTippedSec = (props) => {
   const { notifications } = props;
 
 
-  const {totalNotifications} = props;
+  const { totalNotifications } = props;
 
-  const {notificatoin} = props;
+  const { notificatoin } = props;
 
   return (
     <>
@@ -26,38 +26,38 @@ const NotificationTippedSec = (props) => {
       >
         <div className="notification-list">
           {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <InfiniteScroll
+            <InfiniteScroll
               dataLength={notifications.length}
               next={props.fetchMoreData}
               hasMore={
-               notifications.length <
-               totalNotifications &&
-               notificatoin.errorCount < 2
+                notifications.length <
+                totalNotifications &&
+                notificatoin.errorCount < 2
               }
               loader={<h4>{t("loading")}</h4>}
             >
-              <div className="notify-item">
-                <div className="post-header">
-                  <div className="alignleft">
-                    <a
-                      className="title-container"
-                      href={notification.action_url}
-                      target="_blank"
-                    >
-                      <Image
-                        src={notification.from_userpicture}
-                        className="user-image img-responsive notification-user-img"
-                      />
-                      <div className="user-name">
-                        <span className="post-user-name">
-                          {notification.from_displayname}{" "}
-                          {notification.from_user.is_verified_badge == 1 ? (
-                            <div className="pl-2">
-                              <VerifiedBadgeNoShadow />
-                            </div>
-                          ) : null}
-                          {/* <span className="user-id">
+              {notifications.map((notification) => (
+                <div className="notify-item">
+                  <div className="post-header">
+                    <div className="alignleft">
+                      <a
+                        className="title-container"
+                        href={notification.action_url}
+                        target="_blank"
+                      >
+                        <Image
+                          src={notification.from_userpicture}
+                          className="user-image img-responsive notification-user-img"
+                        />
+                        <div className="user-name">
+                          <span className="post-user-name">
+                            {notification.from_displayname}{" "}
+                            {notification.from_user.is_verified_badge == 1 ? (
+                              <div className="pl-2">
+                                <VerifiedBadgeNoShadow />
+                              </div>
+                            ) : null}
+                            {/* <span className="user-id">
                             <Link
                               target="_blank"
                               to={notification.from_username}
@@ -65,20 +65,20 @@ const NotificationTippedSec = (props) => {
                               @{notification.from_username}
                             </Link>
                           </span> */}
-                        </span>
-                        <span className="post-user-notify">
-                          {notification.message}
-                        </span>
-                        <span className="post-user-notify-date">
-                          {notification.updated_formatted}
-                        </span>
-                      </div>
-                    </a>
+                          </span>
+                          <span className="post-user-notify">
+                            {notification.message}
+                          </span>
+                          <span className="post-user-notify-date">
+                            {notification.updated_formatted}
+                          </span>
+                        </div>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-              </InfiniteScroll>
-            ))
+              ))}
+            </InfiniteScroll>
           ) : (
             <NoDataFound></NoDataFound>
           )}

@@ -3,53 +3,40 @@ import { Modal, Container, Row, Col, Button, Form, Image, Media, Nav, Tab, Input
 import "./NewExplore.css";
 import { Link } from "react-router-dom";
 import NewExploreCard from "./NewExploreCard";
-import NewCategoryCard from "./NewCategoryCard";
 import { connect } from "react-redux";
 import { translate, t } from "react-multi-lang";
-import Map, { GoogleApiWrapper, Marker } from "google-maps-react";
-import { apiConstants } from "../../Constant/constants";
+import { searchUserStart } from "../../../store/actions/HomeAction";
+import CommonCenterLoader from "../../Loader/CommonCenterLoader";
+import VerifiedBadgeNoShadow from "../../Handlers/VerifiedBadgeNoShadow";
 
 const NewExploreIndex = (props) => {
-  const [location, setLocation] = useState({});
 
-  let autocomplete;
-
-  const renderAutoComplete = () => {
-    const { google } = props;
-    if (!google) {
-      console.log("asdfsadfasdfno");
-      return;
-    }
-
-    autocomplete = new google.maps.places.Autocomplete(autocomplete, {
-      types: ["geocode"],
-    });
-
-    autocomplete.setFields(["address_component", "geometry", "name"]);
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      console.log("Place", place);
-      if (!place.geometry) return;
-      let full_address = "";
-      place.address_components.map(
-        (address) =>
-        (full_address =
-          full_address == ""
-            ? address.long_name
-            : full_address + "," + address.long_name)
-      );
-      setLocation({
-        latitude: place.geometry.location.lat(),
-        longitude: place.geometry.location.lng(),
-      });
-    });
-  };
+  const [search, setSearch] = useState({
+    content_creator_id: "",
+    name: ""
+  });
 
   const clearSearch = () => {
-    setLocation({});
-    autocomplete.value = "";
+    setSearch({
+      content_creator_id: "",
+      name: ""
+    });
   }
+
+  const [showCreators, setShowCreators] = useState(false);
+
+  const handleSearch = (event) => {
+    setSearch({
+      ...search, 
+      name: event.currentTarget.value
+    }); 
+    if (event.currentTarget.value === "") {
+      setShowCreators(false);
+    } else {
+      setShowCreators(true);
+      props.dispatch(searchUserStart({ key: event.currentTarget.value }));
+    }
+  };
 
   return (
     <>
@@ -83,42 +70,81 @@ const NewExploreIndex = (props) => {
                         <div className="new-explore-search-sec">
                           <div className="new-explore-search-card">
                             <InputGroup className="mb-0">
-                              <InputGroup.Text>
-                                <Image
-                                  className="new-explore-search-icon"
-                                  src={
-                                    window.location.origin + "/assets/images/new-settings/map-marker-icon.svg"
-                                  }
-                                />
-                              </InputGroup.Text>
-                              <FormControl placeholder={t("search_by_location")}
-                                onFocus={renderAutoComplete}
-                                ref={(ref) => (autocomplete = ref)} />
-                              {location.latitude &&
+                              <FormControl
+                                placeholder={t("search")}
+                                aria-describedby="basic-addon2"
+                                onChange={handleSearch}
+                                value={search.name}
+                              />
+                              {search.content_creator_id ?
                                 <InputGroup.Text className="padding-zero">
                                   <Button className="search-go-btn" onClick={() => clearSearch()}>
                                     <i className="fa fa-times align-self-center"></i>
                                   </Button>
                                 </InputGroup.Text>
-                              }
+                              :
+                              <InputGroup.Text id="basic-addon2">
+                                <Image
+                                  className="new-feeds-search-icon"
+                                  src={
+                                    window.location.origin +
+                                    "/assets/images/feed-story/search-icon.svg"
+                                  }
+                                />
+                              </InputGroup.Text>
+                            }
                             </InputGroup>
+                            {showCreators && (
+                              <div className="search-dropdown-sec">
+                                <ul className="list-unstyled search-dropdown-list-sec">
+                                  {props.searchUser.loading ? (
+                                    <CommonCenterLoader />
+                                  ) : props.searchUser.data.users.length > 0 ? (
+                                    props.searchUser.data.users.map((user) => (
+                                      <Media as="li" key={user.user_unique_id}>
+                                        {/* <Link to={`/${user.user_unique_id}`}> */}
+                                          <div 
+                                            className="search-body" 
+                                            onClick={() => { 
+                                              setSearch({content_creator_id: user.user_id, name: user.name}); 
+                                              setShowCreators(false)
+                                            }}
+                                          >
+                                            <div className="user-img-sec">
+                                              <Image
+                                                alt="#"
+                                                src={user.picture}
+                                                className="user-img"
+                                              />
+                                            </div>
+                                            <div className="search-content">
+                                              <h5>
+                                                {user.name}{" "}
+                                                {user.is_verified_badge == 1 ? (
+                                                  <div className="pl-2">
+                                                    <VerifiedBadgeNoShadow />
+                                                  </div>
+                                                ) : null}
+                                              </h5>
+                                              <p className="text-muted f-12">@{user.username}</p>
+                                            </div>
+                                          </div>
+                                        {/* </Link> */}
+                                      </Media>
+                                    ))
+                                  ) : (
+                                    t("no_user_found")
+                                  )}
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </Col>
                     <Col sm={12}>
-                      <NewExploreCard location={location} />
+                      <NewExploreCard contentCreator={search} />
                     </Col>
-                    {/* <Col sm={12}>
-                      <Tab.Content>
-                        <Tab.Pane eventKey="explore">
-                          <NewExploreCard location={location} />
-                        </Tab.Pane>
-                        <Tab.Pane eventKey="category">
-                          <NewCategoryCard />
-                        </Tab.Pane>
-                      </Tab.Content>
-                    </Col> */}
                   </Row>
                 </Tab.Container>
               </div>
@@ -130,16 +156,15 @@ const NewExploreIndex = (props) => {
   );
 };
 
+const mapStateToPros = (state) => ({
+  searchUser: state.home.searchUser,
+});
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-const connector = connect(
-  null,
+export default connect(
+  mapStateToPros,
   mapDispatchToProps
 )(translate(NewExploreIndex));
-
-export default GoogleApiWrapper({
-  apiKey: apiConstants.google_api_key,
-})(connector);

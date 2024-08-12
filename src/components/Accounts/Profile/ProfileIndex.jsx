@@ -129,7 +129,7 @@ const ProfileIndex = (props) => {
       case "folders":
         dispatch(
           fetchMorepremiumFolderListStart({
-            skip: premiumFolderList.data.mermaids.length,
+            skip: premiumFolderList.data.collections.length,
             take: 12,
           })
         );

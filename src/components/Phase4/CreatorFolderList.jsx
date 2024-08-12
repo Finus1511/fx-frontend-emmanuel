@@ -18,7 +18,7 @@ const CreatorFolderList = (props) => {
   const dispatch = useDispatch();
   const { premiumFolderList, fetchMorePost } = props;
   const [modalShow, setModalShow] = useState(false);
-  const [mermaidId, setMermaidId] = useState(null);
+  const [collectionId, setCollectionId] = useState(null);
   const [editFolderModal, setEditFolderModal] = useState(false);
 
   const closeFolderModal = () => {
@@ -31,7 +31,7 @@ const CreatorFolderList = (props) => {
 
   const editCollection = (unique_id, id) => {
     setEditFolderModal(true)
-    setMermaidId(id)
+    setCollectionId(id)
     dispatch(folderFileViewStart({
       collection_unique_id: unique_id
     }));
@@ -229,7 +229,7 @@ const CreatorFolderList = (props) => {
         <EditFolderModal
           editFolderModal={editFolderModal}
           closeEditFolderModal={closeEditFolderModal}
-          mermaidId={mermaidId}
+          collectionId={collectionId}
         />
       }
     </>

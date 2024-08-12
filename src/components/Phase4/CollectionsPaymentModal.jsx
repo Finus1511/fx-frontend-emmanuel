@@ -59,8 +59,8 @@ const CollectionsPaymentModal = (props) => {
   const handleValidation = (values) => {
     dispatch(couponCodeValidationStart({
       ...values,
-      mermaid_unique_id: collectionDetails.collectionId,
-      platform: "mermaid-payments",
+      collection_id: collectionDetails.collectionId,
+      platform: "collection-payments",
     }));
   };
   return (

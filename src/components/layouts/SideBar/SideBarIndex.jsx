@@ -1,8 +1,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { translate, t } from "react-multi-lang";
+import { useSelector } from "react-redux";
 
 const SideBarIndex = ({ toggleClass }) => {
+
+  const profile = useSelector((state) => state.users.profile);
+
   return (
     <div
       className={
@@ -15,20 +19,22 @@ const SideBarIndex = ({ toggleClass }) => {
         data-suppress-scroll-x="true"
       >
         <ul className="navigation-left">
-          <li className="nav-item">
-            <NavLink className="nav-item-hold" to={"/dashboard"}>
-              {/* <i className="nav-icon i-Bar-Chart"></i> */}
-              <img
-                src={
-                  window.location.origin +
-                  "/assets/images/sidebar/dashboard.svg"
-                }
-                className="nav-icon"
-              ></img>
-              <span className="nav-text">{t("dashboard")}</span>
-            </NavLink>
-            <div className="triangle"></div>
-          </li>
+          {profile.data.is_content_creator === 2 && (
+            <li className="nav-item">
+              <NavLink className="nav-item-hold" to={"/dashboard"}>
+                {/* <i className="nav-icon i-Bar-Chart"></i> */}
+                <img
+                  src={
+                    window.location.origin +
+                    "/assets/images/sidebar/dashboard.svg"
+                  }
+                  className="nav-icon"
+                ></img>
+                <span className="nav-text">{t("dashboard")}</span>
+              </NavLink>
+              <div className="triangle"></div>
+            </li>
+          )}
 
           <li className="nav-item">
             <NavLink className="nav-item-hold" to={"/meetings"}>

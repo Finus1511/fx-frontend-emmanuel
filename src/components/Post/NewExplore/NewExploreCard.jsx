@@ -21,16 +21,16 @@ const NewExploreCard = (props) => {
 
   useEffect(() => {
     props.dispatch(fetchExploreStart({
-      ...props.location,
+      ...props.contentCreator,
       skip: 0,
       take: take,
     }));
     setSkip(take);
-  }, [props.location]);
+  }, [props.contentCreator.content_creator_id]);
 
   const fetchMoreExplore = () => {
     props.dispatch(fetchExploreStart({
-      ...props.location,
+      ...props.contentCreator,
       skip: skip,
       take: take,
       append: true,

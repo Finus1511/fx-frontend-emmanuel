@@ -25,7 +25,7 @@ const EditFolderModal = (props) => {
   const handleSubmit = (values) => {
     dispatch(createPremiumFolderStart({
       ...values,
-      collection_id: props.mermaidId
+      collection_id: props.collectionId
     }
     ));
   }

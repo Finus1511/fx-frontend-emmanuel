@@ -2,8 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Image, Media } from "react-bootstrap";
 import { translate, t } from "react-multi-lang";
+import { useSelector } from "react-redux";
 
 const NotificationTabSec = (props) => {
+
+  const profile = useSelector((state) => state.users.profile);
+
   return (
     <div className="tabbable-line notify-sec">
       <ul className="nav nav-tabs" role="tablist">
@@ -67,45 +71,47 @@ const NotificationTabSec = (props) => {
             {t("liked")}
           </Link>
         </Media>
-        <Media
-          as="li"
-          role="presentation"
-          className={props.activeSec === "subscribed-sec" ? "active" : ""}
-        >
-          <Link
-            to="#Section4"
-            aria-controls="messages"
-            role="tab"
-            data-toggle="tab"
-            onClick={(event) => props.changeSection(event, "follow")}
+        {profile.data.is_content_creator === 2 && (<>
+          <Media
+            as="li"
+            role="presentation"
+            className={props.activeSec === "subscribed-sec" ? "active" : ""}
           >
-            <span>
-              <Image
-                src="assets/images/icons/unlock.svg"
-                className="svg-clone"
-              />
-            </span>
-            {t("subscribed")}
-          </Link>
-        </Media>
-        <Media
-          as="li"
-          role="presentation"
-          className={props.activeSec === "tips" ? "active" : ""}
-        >
-          <Link
-            to="#Section5"
-            aria-controls="messages"
-            role="tab"
-            data-toggle="tab"
-            onClick={(event) => props.changeSection(event, "tips")}
+            <Link
+              to="#Section4"
+              aria-controls="messages"
+              role="tab"
+              data-toggle="tab"
+              onClick={(event) => props.changeSection(event, "follow")}
+            >
+              <span>
+                <Image
+                  src="assets/images/icons/unlock.svg"
+                  className="svg-clone"
+                />
+              </span>
+              {t("subscribed")}
+            </Link>
+          </Media>
+          <Media
+            as="li"
+            role="presentation"
+            className={props.activeSec === "tips" ? "active" : ""}
           >
-            <span>
-              <Image src="assets/images/icons/tips-theme.svg" className="svg-clone" />
-            </span>
-            {t("tipped")}
-          </Link>
-        </Media>
+            <Link
+              to="#Section5"
+              aria-controls="messages"
+              role="tab"
+              data-toggle="tab"
+              onClick={(event) => props.changeSection(event, "tips")}
+            >
+              <span>
+                <Image src="assets/images/icons/tips-theme.svg" className="svg-clone" />
+              </span>
+              {t("tipped")}
+            </Link>
+          </Media>
+        </>)}
         <Media
           as="li"
           role="presentation"
