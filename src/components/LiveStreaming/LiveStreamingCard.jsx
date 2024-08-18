@@ -356,20 +356,87 @@ const LiveStreamingCard = (props) => {
             </>
           )
         ) : (
-          <div
-            className="live-streaming-send-tip-sec"
-            onClick={() => props.setTipModal(true)}
-          >
-            <Image
+          <>
+            <div className="live-icon">
+              <ul>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+                <li>
+                  <button>
+                    <Image
+                      src={window.location.origin + "/assets/images/smily.svg"}
+                    />
+                  </button>
+                  <p>10 Token</p>
+                </li>
+              </ul>
+
+              <div
+                className="send-coin "
+                onClick={() => props.setTipModal(true)}
+              >
+                {/* <Image
               className="live-streaming-send-tip-icon"
               src={
                 window.location.origin +
                 "/assets/images/live-streaming/send-tip.svg"
               }
-            />
-            <Button className="send-tip-btn hoverColor">{t("send_tips")}</Button>
-          </div>
+            /> */}
+                <button className="send-tip-btn hoverColor">
+                  {/* {t("send_tips")} */}
+                  Custom Tips
+                </button>
+              </div>
+            </div>
+          </>
         )}
+
         <div className="live-streaming-full-screen-sec">
           <Button className="close-btn" onClick={() => toggleFullScreen()}>
             <Image

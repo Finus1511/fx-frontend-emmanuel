@@ -162,16 +162,16 @@ const NewFeedDisplayCard = (props) => {
             >
               {post.postFiles &&
                 post.postFiles.map((file, i) => (
-                  <div key={i}>
+                  <div key={i} className="post-list-image">
                     {file.file_type === "image" ? (
-                      <div>
+                      <div className="post-image">
                         <Image
                           className="new-feed-post-img"
                           src={file.post_file}
                         />
                       </div>
                     ) : file.file_type === "video" ? (
-                      <div>
+                      <div className="post-image">
                         {file.video_preview_file ? (
                           <ReactPlayer url={file.video_preview_file} />
                         ) : (
@@ -196,32 +196,38 @@ const NewFeedDisplayCard = (props) => {
                       </div>
                     ) : file.file_type === "audio" ? (
                       <div className="single-post-audio-sec">
-                           {file.preview_file ? <Image className="single-post-img"
-                              src={file.preview_file}
-                            /> : null}
-                            <Image
-                              src={
-                                window.location.origin +
-                                "/assets/images/new-home/icon/audio-icon.png"
-                              }
-                              className="post-view-image"
-                            />
-                        </div>
+                        {file.preview_file ? (
+                          <Image
+                            className="single-post-img"
+                            src={file.preview_file}
+                          />
+                        ) : null}
+                        <Image
+                          src={
+                            window.location.origin +
+                            "/assets/images/new-home/icon/audio-icon.png"
+                          }
+                          className="post-view-image"
+                        />
+                      </div>
                     ) : file.file_type === "url" ? (
                       <div className="single-post-audio-sec">
-                           {file.preview_file ? <Image className="single-post-img"
-                              src={file.preview_file}
-                            /> : null}
-                            <div className="profile-video-icon-sec">
-                              <Image
-                                className="profile-video-icon"
-                                src={
-                                  window.location.origin +
-                                  "/assets/images/new-home/icon/video-icon.png"
-                                }
-                              />
-                            </div>
+                        {file.preview_file ? (
+                          <Image
+                            className="single-post-img"
+                            src={file.preview_file}
+                          />
+                        ) : null}
+                        <div className="profile-video-icon-sec">
+                          <Image
+                            className="profile-video-icon"
+                            src={
+                              window.location.origin +
+                              "/assets/images/new-home/icon/video-icon.png"
+                            }
+                          />
                         </div>
+                      </div>
                     ) : null}
                   </div>
                 ))}

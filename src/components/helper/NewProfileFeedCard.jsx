@@ -109,17 +109,18 @@ const NewProfileFeedCard = (props) => {
             </div>
           </div>
           <div className="new-feed-user-btn-sec">
-            {localStorage.getItem("userId") !=
-                  post.user_id ? <Button className="sent-tip-btn" onClick={() => setSendTip(true)}>
-              <Image
-                className="sent-tip-icon"
-                src={
-                  window.location.origin +
-                  "/assets/images/feed-story/sent-tip-1.svg"
-                }
-              />
-              <span>{t("tips")}</span>
-            </Button> : null}
+            {localStorage.getItem("userId") != post.user_id ? (
+              <Button className="sent-tip-btn" onClick={() => setSendTip(true)}>
+                <Image
+                  className="sent-tip-icon"
+                  src={
+                    window.location.origin +
+                    "/assets/images/feed-story/sent-tip-1.svg"
+                  }
+                />
+                <span>{t("tips")}</span>
+              </Button>
+            ) : null}
             <Dropdown className="feed-post-dropdown">
               <Dropdown.Toggle
                 variant="success"
@@ -144,55 +145,48 @@ const NewProfileFeedCard = (props) => {
                     </Link>
                   </Media>
                 </CopyToClipboard>
-                {localStorage.getItem("userId") ? <React.Fragment>
-                <Media as="li" className="divider"></Media>
-                {localStorage.getItem("userId") ==
-                  post.user_id ? (
-                    //Own post
-                    <Media as="li">
-                      <Link
-                        to="#"
-                        onClick={(event) =>
-                          handleDeletePost(
-                            event,
-                            post
-                          )
-                        }
-                        className="dropdown-a"
-                      >
-                        {t("delete_post")}
-                      </Link>
-                    </Media>
-                  ) : (
-                    <>
+                {localStorage.getItem("userId") ? (
+                  <React.Fragment>
+                    <Media as="li" className="divider"></Media>
+                    {localStorage.getItem("userId") == post.user_id ? (
+                      //Own post
                       <Media as="li">
                         <Link
                           to="#"
-                          // onClick={(event) => handleReportPost(event, post)}
-                          onClick={() => setReportMode(true)}
+                          onClick={(event) => handleDeletePost(event, post)}
                           className="dropdown-a"
                         >
-                          {t("report")}
+                          {t("delete_post")}
                         </Link>
                       </Media>
-                      <Media as="li">
-                        <Link
-                          to="#"
-                          onClick={(event) =>
-                            handleBlockUser(
-                              event,
-                              props.singlePost.data.post
-                            )
-                          }
-                          className="dropdown-a"
-                        >
-                          {" "}
-                          {t("add_to_blocklist_para")}
-                        </Link>
-                      </Media>
-                    </>
-                  )}
-                </React.Fragment> : null}
+                    ) : (
+                      <>
+                        <Media as="li">
+                          <Link
+                            to="#"
+                            // onClick={(event) => handleReportPost(event, post)}
+                            onClick={() => setReportMode(true)}
+                            className="dropdown-a"
+                          >
+                            {t("report")}
+                          </Link>
+                        </Media>
+                        <Media as="li">
+                          <Link
+                            to="#"
+                            onClick={(event) =>
+                              handleBlockUser(event, props.singlePost.data.post)
+                            }
+                            className="dropdown-a"
+                          >
+                            {" "}
+                            {t("add_to_blocklist_para")}
+                          </Link>
+                        </Media>
+                      </>
+                    )}
+                  </React.Fragment>
+                ) : null}
               </Dropdown.Menu>
             </Dropdown>
           </div>
@@ -209,16 +203,16 @@ const NewProfileFeedCard = (props) => {
             >
               {post.postFiles &&
                 post.postFiles.map((file, i) => (
-                  <>
+                  <div className="single-post-img">
                     {file.file_type === "image" ? (
-                      <div>
+                      <div className="post-list-image">
                         <Image
                           className="new-feed-post-img"
                           src={file.post_file}
                         />
                       </div>
                     ) : file.file_type === "video" ? (
-                      <div>
+                      <div className="post-list-image">
                         {file.video_preview_file ? (
                           <ReactPlayer url={file.video_preview_file} />
                         ) : (
@@ -243,9 +237,12 @@ const NewProfileFeedCard = (props) => {
                       </div>
                     ) : file.file_type === "audio" ? (
                       <div className="single-post-audio-sec">
-                        {file.preview_file ? <Image className="single-post-img"
-                          src={file.preview_file}
-                        /> : null}
+                        {file.preview_file ? (
+                          <Image
+                            className="single-post-img"
+                            src={file.preview_file}
+                          />
+                        ) : null}
                         <Image
                           src={
                             window.location.origin +
@@ -256,9 +253,12 @@ const NewProfileFeedCard = (props) => {
                       </div>
                     ) : file.file_type === "url" ? (
                       <div className="single-post-audio-sec">
-                        {file.preview_file ? <Image className="single-post-img"
-                          src={file.preview_file}
-                        /> : null}
+                        {file.preview_file ? (
+                          <Image
+                            className="single-post-img"
+                            src={file.preview_file}
+                          />
+                        ) : null}
                         <div className="profile-video-icon-sec">
                           <Image
                             className="profile-video-icon"
@@ -270,7 +270,7 @@ const NewProfileFeedCard = (props) => {
                         </div>
                       </div>
                     ) : null}
-                  </>
+                  </div>
                 ))}
             </AutoplaySlider>
           </div>

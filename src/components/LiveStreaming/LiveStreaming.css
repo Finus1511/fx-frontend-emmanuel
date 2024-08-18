@@ -1632,3 +1632,66 @@
   color: var(--secondary-color) !important;
   outline: none !important;
 }
+.live-icon{
+  position: absolute;
+  bottom: 2em;
+  right: 3em;
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  background: #00000094;
+    padding: 1em 3em;
+    border-radius: 1em;
+
+}
+.live-icon ul{
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 2em;
+    /* background: #00000087; */
+      /* padding: 1em;
+      border-radius: 1em; */
+
+}
+.live-icon ul li{
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  align-items: center;
+}
+.live-icon ul li button{
+  background-color: #a2449570 !important;
+  width: 3.2em;
+  height: 3.2em;
+  border: none !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.live-icon ul li p{
+  margin: 0;
+  color: #fff;
+  font-size: 1em;
+  font-weight: 500;
+}
+.live-icon ul li button img{
+  width: 2em;
+}
+.send-coin button{
+    background-color: #80aa806e !important;
+      height: 3em;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+      color: #49f900;
+      justify-content: center;
+      border-radius: 2em;
+      border: none;
+      font-size: 1.2em;
+      font-weight: 500;
+      min-width: 8em;
+}
