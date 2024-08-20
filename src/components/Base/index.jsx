@@ -156,6 +156,7 @@ import NewJoinVEIndex from "../VirtualExperience/NewJoinVEIndex";
 import HomeLoader from "../Loader/HomeLoader";
 import PageLoader from "../Loader/PageLoader";
 import PremiumFolderFileOthers from "../Phase4/PremiumFolderFileOthers";
+import ManageSubscription from "../Accounts/Profile/ManageSubscription";
 
 setTranslations({ en, es });
 
@@ -787,6 +788,12 @@ class App extends Component {
                 authentication={this.state.authentication}
                 path={"/change-password"}
                 component={ChangePassword}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/manage-subscription"}
+                component={ManageSubscription}
                 layout={MainLayout}
               />
 

@@ -1,16 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Modal, Container, Row, Col, Button, Image, Media, Form } from "react-bootstrap";
+import {
+  Modal,
+  Container,
+  Row,
+  Col,
+  Button,
+  Image,
+  Media,
+  Form,
+} from "react-bootstrap";
 import "./NewSettings.css";
 import { Link } from "react-router-dom";
 import SettingsSidebar from "./SettingsSidebar";
 import { connect } from "react-redux";
 import { changePasswordStart } from "../../../store/actions/UserAction";
 import { translate, t } from "react-multi-lang";
-import { Form as FORM, Formik, Field, ErrorMessage } from 'formik'
-import * as Yup from 'yup';
+import { Form as FORM, Formik, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const ChangePassword = (props) => {
-
   const [oldPasswordVisible, setOldPasswordVisible] = useState(false);
 
   const formikRef = useRef();
@@ -19,7 +27,7 @@ const ChangePassword = (props) => {
     if (formikRef.current) {
       formikRef.current.resetForm();
     }
-  }, [props.activeSec])
+  }, [props.activeSec]);
 
   const changePasswordSchema = Yup.object().shape({
     old_password: Yup.string()
@@ -28,13 +36,18 @@ const ChangePassword = (props) => {
     password: Yup.string()
       .min(6, t("password_required_note"))
       .required(t("new_password_is_required"))
-      .test('passwords-match', t('new_Password_should_not_be_old_password'), function (value) {
-        return this.parent.old_password !== value
+      .test(
+        "passwords-match",
+        t("new_Password_should_not_be_old_password"),
+        function (value) {
+          return this.parent.old_password !== value;
+        }
+      ),
+    password_confirmation: Yup.string()
+      .required(t("confirmPassword_is_required"))
+      .test("passwords-match", t("passwords_must_match"), function (value) {
+        return this.parent.password === value;
       }),
-    password_confirmation: Yup.string().required(t("confirmPassword_is_required"))
-      .test('passwords-match', t('passwords_must_match'), function (value) {
-        return this.parent.password === value
-      })
   });
 
   const validatePassword = (password) => {
@@ -42,7 +55,7 @@ const ChangePassword = (props) => {
     if (password !== password.trim())
       msg = t("white_space_is_not_allowed_in_the_begning_or_end_of_password");
     return msg;
-  }
+  };
 
   const handleSubmit = (values) => {
     props.dispatch(changePasswordStart(values));
@@ -61,15 +74,13 @@ const ChangePassword = (props) => {
                   <p>{t("change_password_note")}</p>
                 </div>
 
-
-
                 <div className="">
                   <Formik
                     innerRef={formikRef}
                     initialValues={{
-                      old_password: '',
-                      password: '',
-                      password_confirmation: '',
+                      old_password: "",
+                      password: "",
+                      password_confirmation: "",
                     }}
                     validationSchema={changePasswordSchema}
                     onSubmit={(values) => handleSubmit(values)}
@@ -82,20 +93,31 @@ const ChangePassword = (props) => {
                               <Form.Label>{t("old_password")}</Form.Label>
                               <div class="input-group">
                                 <Field
-                                  type={oldPasswordVisible ? "text" : "password"}
+                                  type={
+                                    oldPasswordVisible ? "text" : "password"
+                                  }
                                   name="old_password"
                                   placeholder={t("old_password_placeholder")}
-                                  className={`no-padding form-control ${touched.old_password && errors.old_password ? "is-invalid" : ""}`}
+                                  className={`no-padding form-control ${
+                                    touched.old_password && errors.old_password
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
                                   autoFocus={true}
                                 />
                                 <div class="input-group-append">
                                   <div
-                                    onClick={() => setOldPasswordVisible(!oldPasswordVisible)}
+                                    onClick={() =>
+                                      setOldPasswordVisible(!oldPasswordVisible)
+                                    }
                                     className="btn input-group-text"
-                                    type="button">
-                                    {oldPasswordVisible ?
+                                    type="button"
+                                  >
+                                    {oldPasswordVisible ? (
                                       <i className="fas fa-eye-slash align-self-center"></i>
-                                      : <i className="fas fa-eye align-self-center"></i>}
+                                    ) : (
+                                      <i className="fas fa-eye align-self-center"></i>
+                                    )}
                                   </div>
                                 </div>
                                 <ErrorMessage
@@ -113,7 +135,11 @@ const ChangePassword = (props) => {
                                 type="password"
                                 name="password"
                                 placeholder={t("new_password_placeholder")}
-                                className={`no-padding form-control ${touched.password && errors.password ? "is-invalid" : ""}`}
+                                className={`no-padding form-control ${
+                                  touched.password && errors.password
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
                                 validate={validatePassword}
                               />
                               <ErrorMessage
@@ -133,7 +159,12 @@ const ChangePassword = (props) => {
                                 type="password"
                                 name="password_confirmation"
                                 placeholder={t("confirm_password_placeholder")}
-                                className={`no-padding form-control ${touched.password_confirmation && errors.password_confirmation ? "is-invalid" : ""}`}
+                                className={`no-padding form-control ${
+                                  touched.password_confirmation &&
+                                  errors.password_confirmation
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
                               />
                               <ErrorMessage
                                 component="div"
@@ -149,8 +180,10 @@ const ChangePassword = (props) => {
                               <Button
                                 className="settings-submit-btn"
                                 type="submit"
-                                disabled={props.changePassword.buttonDisable}>
-                                {props.changePassword.loadingButtonContent != null
+                                disabled={props.changePassword.buttonDisable}
+                              >
+                                {props.changePassword.loadingButtonContent !=
+                                null
                                   ? props.changePassword.loadingButtonContent
                                   : t("change_password")}
                               </Button>
@@ -178,4 +211,7 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToPros, mapDispatchToProps)(translate(ChangePassword));
+export default connect(
+  mapStateToPros,
+  mapDispatchToProps
+)(translate(ChangePassword));

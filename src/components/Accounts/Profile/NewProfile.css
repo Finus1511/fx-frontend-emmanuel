@@ -1287,3 +1287,19 @@ border: 1px solid rgba(0, 0, 0, 0.10);
   gap: 2em;
   padding: 4em 0;
 }
+.custom-file__box label{
+        border: 1px dashed #ac009a;
+      width: 100%;
+      height: 6em;
+      border-radius: 0.8em;
+      position: relative;
+}
+.custom-file   input[type="file"] {
+    display: none;
+  }
+.custom-file__center{
+      display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+}

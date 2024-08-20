@@ -539,6 +539,8 @@ background-color: #ffffff9e;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
+  display: flex;
+  gap: 2em;
 }
 .subscribe__title{
   display: flex;
@@ -552,4 +554,14 @@ background-color: #ffffff9e;
 }
 .subscribe-card.active{
   border: 2px solid var(--primary-color);
+}
+.sub-add-btn{
+  display: flex;
+  justify-content: end;
+  margin: 2em 0;
+}
+.subscribe-btn .out-btn{
+  border: 0.1em solid #000 !important;
+  background-color: transparent !important;
+  color: #000 !important;
 }
