@@ -65,6 +65,9 @@ import {
   UPDATE_SINGLE_LIVE_VIDEOS_START,
   UPDATE_SINGLE_LIVE_VIDEOS_SUCCESS,
   UPDATE_SINGLE_LIVE_VIDEOS_FAILURE,
+  FETCH_CUSTOM_TIPS_START,
+  FETCH_CUSTOM_TIPS_SUCCESS,
+  FETCH_CUSTOM_TIPS_FAILURE,
 } from "./ActionConstant";
 
 export function videoCallBroadcastStart(data) {
@@ -529,4 +532,23 @@ export function updateSingleLiveVideoFailure(error) {
   };
 }
 
+export function fetchCustomTipsStart(data) {
+  return {
+    type: FETCH_CUSTOM_TIPS_START,
+    data,
+  };
+}
 
+export function fetchCustomTipsSuccess(data) {
+  return {
+    type: FETCH_CUSTOM_TIPS_SUCCESS,
+    data,
+  };
+}
+
+export function fetchCustomTipsFailure(error) {
+  return {
+    type: FETCH_CUSTOM_TIPS_FAILURE,
+    error,
+  };
+}

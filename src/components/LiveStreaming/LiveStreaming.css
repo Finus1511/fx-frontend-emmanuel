@@ -1672,6 +1672,15 @@
   align-items: center;
   justify-content: center;
 }
+.custom-tip-skeleton{
+  width: 3.2em;
+  height: 3.2em;
+  border: none !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .live-icon ul li p{
   margin: 0;
   color: #fff;

@@ -64,7 +64,10 @@ import {
   UPDATE_LIVE_AUDIENCE_EARNING,
   UPDATE_SINGLE_LIVE_VIDEOS_START,
   UPDATE_SINGLE_LIVE_VIDEOS_SUCCESS,
-  UPDATE_SINGLE_LIVE_VIDEOS_FAILURE
+  UPDATE_SINGLE_LIVE_VIDEOS_FAILURE,
+  FETCH_CUSTOM_TIPS_START,
+  FETCH_CUSTOM_TIPS_SUCCESS,
+  FETCH_CUSTOM_TIPS_FAILURE,
 } from "../actions/ActionConstant";
 
 const initialState = {
@@ -213,6 +216,13 @@ const initialState = {
     error: false,
   },
   liveChatMessageSave: {
+    data: {},
+    loading: false,
+    error: false,
+    loadingButtonContent: null,
+    buttonDisable: false,
+  },
+  customTips: {
     data: {},
     loading: false,
     error: false,
@@ -977,6 +987,34 @@ const LiveVideoReducer = (state = initialState, action) => {
           inputData: {},
           loadingButtonContent: null,
           buttonDisable: false,
+        },
+      };
+
+    case FETCH_CUSTOM_TIPS_START:
+      return {
+        ...state,
+        customTips: {
+          data: {},
+          loading: true,
+          error: false,
+        },
+      };
+    case FETCH_CUSTOM_TIPS_SUCCESS:
+      return {
+        ...state,
+        customTips: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+    case FETCH_CUSTOM_TIPS_FAILURE:
+      return {
+        ...state,
+        customTips: {
+          data: {},
+          loading: false,
+          error: action.error,
         },
       };
     

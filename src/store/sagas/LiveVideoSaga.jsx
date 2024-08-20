@@ -46,6 +46,8 @@ import {
   updateLiveAudianceList,
   updateSingleLiveVideoSuccess,
   updateSingleLiveVideoFailure,
+  fetchCustomTipsSuccess,
+  fetchCustomTipsFailure,
 } from "../actions/LiveVideoAction";
 import {
   VIDEO_CALL_BROADCAST_START,
@@ -72,6 +74,7 @@ import {
   SINGLE_LIVE_VIDEO_VIEW_START,
   FETCH_MORE_LIVE_VIDEOS_HISTORY_START,
   UPDATE_SINGLE_LIVE_VIDEOS_START,
+  FETCH_CUSTOM_TIPS_START,
 } from "../actions/ActionConstant";
 
 import { checkLogoutStatus } from "../actions/ErrorAction";
@@ -559,6 +562,26 @@ function* singleLiveVideoUpdateAPI(action) {
   }
 }
 
+function* fetchCustomTipsAPI(action) {
+  try {
+    const response = yield api.postMethod(
+      "custom_tips",
+      action.data
+    );
+    if (response.data.success) {
+      yield put(fetchCustomTipsSuccess(response.data.data));
+    } else {
+      yield put(fetchCustomTipsFailure(response.data.error));
+      const notificationMessage = getErrorNotificationMessage(
+        response.data.error
+      );
+      yield put(createNotification(notificationMessage));
+    }
+  } catch (error) {
+    yield put(fetchCustomTipsFailure(error));
+  }
+}
+
 export default function* pageSaga() {
   yield all([yield takeLatest(VIDEO_CALL_BROADCAST_START, liveVideoSaveAPI)]);
   yield all([yield takeLatest(FETCH_LIVE_VIDEOS_START, liveVideosAPI)]);
@@ -642,5 +665,8 @@ export default function* pageSaga() {
   ]);
   yield all([
     yield takeLatest(UPDATE_SINGLE_LIVE_VIDEOS_START, singleLiveVideoUpdateAPI),
+  ]);
+  yield all([
+    yield takeLatest(FETCH_CUSTOM_TIPS_START, fetchCustomTipsAPI),
   ]);
 }

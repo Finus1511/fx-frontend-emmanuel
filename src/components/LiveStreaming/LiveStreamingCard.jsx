@@ -11,17 +11,30 @@ import {
 } from "react-bootstrap";
 import "./LiveStreaming.css";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { translate, t } from "react-multi-lang";
 import AgoraRTC from "agora-rtc-sdk-ng";
-import { liveVideoEndStart } from "../../store/actions/LiveVideoAction";
+import { liveVideoEndStart, fetchCustomTipsStart } from "../../store/actions/LiveVideoAction";
 import configuration from "react-global-configuration";
 import useAgoraRTC from "../../hooks/useAgoraRTC";
 import AgoraMediaPlayer from "../helper/AgoraMediaPlayer";
+import Skeleton from "react-loading-skeleton";
+import { sendTipWalletStart } from "../../store/actions/SendTipAction";
+import AddWalletAmountModal from "../Model/PaymentModal/AddWalletAmountModal";
+import { fetchWalletDetailsStart } from "../../store/actions/WalletAction";
 
 const rtcclient = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
 
 const LiveStreamingCard = (props) => {
+
+  const customTips = useSelector((state) => state.liveVideo.customTips);
+
+  const [addWalletAmountModal, setAddWalletAmountModal] = useState(false);
+
+	const closeAddWalletAmountModal = () => {
+		setAddWalletAmountModal(false);
+	};
+
   const {
     localAudioTrack,
     localVideoTrack,
@@ -215,8 +228,33 @@ const LiveStreamingCard = (props) => {
     }
   }, [isStreamEnded]);
 
+  useEffect(() => {
+    if (!props.isOwner) {
+      props.dispatch(fetchWalletDetailsStart());
+      props.dispatch(
+        fetchCustomTipsStart({
+          type: "live-video-payments",
+        })
+      );
+    }
+  }, []);
+
   const leaveCall = async () => {
     await leaveRtcChannel(props.isOwner);
+  };
+
+  const sendTip = (tip) => {
+    if (tip.amount > props.wallet.data.user_wallet.remaining) {
+      setAddWalletAmountModal(true)
+    } else {
+      props.dispatch(
+        sendTipWalletStart({
+          amount: tip.amount,
+          user_id: props.liveVideoDetails.user_id,
+          tips_type: "live",
+        })
+      );
+    }
   };
 
   return (
@@ -358,64 +396,28 @@ const LiveStreamingCard = (props) => {
         ) : (
           <>
             <div className="live-icon">
-              <ul>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-                <li>
-                  <button>
-                    <Image
-                      src={window.location.origin + "/assets/images/smily.svg"}
-                    />
-                  </button>
-                  <p>10 Token</p>
-                </li>
-              </ul>
+              {props.wallet.loading || customTips.loading ? (
+                [...Array(6)].map((val, i) =>
+                  <ul>
+                    <li>
+                        <Skeleton className="custom-tip-skeleton" circle={true} />
+                    </li>
+                  </ul>
+                  )
+              ) : Object.keys(customTips.data).length > 0 && Object.keys(props.wallet.data).length > 0 ? (                
+                <ul>
+                  {customTips.data.custom_tips.map((tip) => (
+                    <li>
+                      <button onClick={() => sendTip(tip)}>
+                        <Image
+                          src={tip.picture}
+                        />
+                      </button>
+                      <p>{tip.amount_formatted}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}              
 
               <div
                 className="send-coin "
@@ -449,12 +451,21 @@ const LiveStreamingCard = (props) => {
           </Button>
         </div>
       </div>
+      {addWalletAmountModal ?
+				<AddWalletAmountModal
+					paymentsModal={addWalletAmountModal}
+					closepaymentsModal={closeAddWalletAmountModal}
+          payments={props.wallet}
+				/>
+				: null
+			}
     </>
   );
 };
 
 const mapStateToPros = (state) => ({
   liveVideo: state.liveVideo.singleLiveVideo,
+  wallet: state.wallet.walletData,
 });
 
 function mapDispatchToProps(dispatch) {
