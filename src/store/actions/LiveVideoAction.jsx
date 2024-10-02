@@ -68,6 +68,7 @@ import {
   FETCH_CUSTOM_TIPS_START,
   FETCH_CUSTOM_TIPS_SUCCESS,
   FETCH_CUSTOM_TIPS_FAILURE,
+  LIVE_VIDEO_ELEMENT
 } from "./ActionConstant";
 
 export function videoCallBroadcastStart(data) {
@@ -550,5 +551,12 @@ export function fetchCustomTipsFailure(error) {
   return {
     type: FETCH_CUSTOM_TIPS_FAILURE,
     error,
+  };
+}
+
+export function liveVideoElement(data) {
+  return {
+    type: LIVE_VIDEO_ELEMENT,
+    data,
   };
 }

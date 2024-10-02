@@ -3,9 +3,11 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import { createNotification } from "react-redux-notify";
 import { useDispatch } from "react-redux";
 import { getErrorNotificationMessage } from "../components/helper/NotificationMessage";
+import { useHistory } from "react-router-dom";
 
 const useAgoraRTC = (client) => {
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [localVideoTrack, setLocalVideoTrack] = useState(undefined);
   const [localAudioTrack, setLocalAudioTrack] = useState(undefined);
@@ -259,21 +261,46 @@ const useAgoraRTC = (client) => {
     }
   };
 
-  const toggleFullScreen = () => {
-    setMediaStatus((prevMediaStatus) => {
-      if (prevMediaStatus.video.fullScreen) {
-        document.body.style.overflow = "auto";
-      } else {
-        document.body.style.overflow = "hidden";
-      }
-      return {
-        ...prevMediaStatus,
-        video: {
-          ...prevMediaStatus.video,
-          fullScreen: !prevMediaStatus.video.fullScreen,
-        },
-      };
-    });
+  // const toggleFullScreen = () => {
+  //   setMediaStatus((prevMediaStatus) => {
+  //     if (prevMediaStatus.video.fullScreen) {
+  //       document.body.style.overflow = "auto";
+  //     } else {
+  //       document.body.style.overflow = "hidden";
+  //     }
+  //     return {
+  //       ...prevMediaStatus,
+  //       video: {
+  //         ...prevMediaStatus.video,
+  //         fullScreen: !prevMediaStatus.video.fullScreen,
+  //       },
+  //     };
+  //   });
+  // };
+
+  const toggleFullScreen = (maximize) => {
+    if (maximize) {
+      console.log('maximize', maximize)
+      history.push(
+        `/join-live/${localStorage.getItem("live_video_unique_id")}`
+      );
+    } else {
+      console.log('toggleFullScreen else')
+      setMediaStatus((prevMediaStatus) => {
+        if (prevMediaStatus.video.fullScreen) {
+          document.body.style.overflow = "auto";
+        } else {
+          document.body.style.overflow = "hidden";
+        }
+        return {
+          ...prevMediaStatus,
+          video: {
+            ...prevMediaStatus.video,
+            fullScreen: !prevMediaStatus.video.fullScreen,
+          },
+        };
+      });
+    }
   };
 
   useEffect(() => {

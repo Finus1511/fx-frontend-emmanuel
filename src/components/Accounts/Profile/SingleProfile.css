@@ -472,7 +472,7 @@
   color: #9896A1;
   font-weight: 400;
 }
-.subscribe-btn button{
+.subscribe-btn button, .subscribe-btn a{
 border: 1px solid var(--primary-color) !important;
   padding: 5px 30px;
   font-size: 1.4em;

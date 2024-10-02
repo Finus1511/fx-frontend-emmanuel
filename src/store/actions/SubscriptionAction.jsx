@@ -26,6 +26,12 @@ import {
   SUBSCRIPTION_PAYMENT_COINPAYMENT_START,
   SUBSCRIPTION_PAYMENT_COINPAYMENT_SUCCESS,
   SUBSCRIPTION_PAYMENT_COINPAYMENT_FAILURE,
+  SUBSCRIPTION_SAVE_START,
+  SUBSCRIPTION_SAVE_SUCCESS,
+  SUBSCRIPTION_SAVE_FAILURE,
+  SUBSCRIPTION_DELETE_START,
+  SUBSCRIPTION_DELETE_SUCCESS,
+  SUBSCRIPTION_DELETE_FAILURE,
 } from "./ActionConstant";
 
 // Get subscription actions.
@@ -93,6 +99,52 @@ export function fetchSingleSubscriptionSuccess(data) {
 export function fetchSingleSubscriptionFailure(error) {
   return {
     type: FETCH_SINGLE_SUBSCRIPTION_FAILURE,
+    error,
+  };
+}
+
+// Save single subscription actions.
+
+export function subscriptionSaveStart(data) {
+  return {
+    type: SUBSCRIPTION_SAVE_START,
+    data,
+  };
+}
+
+export function subscriptionSaveSuccess(data) {
+  return {
+    type: SUBSCRIPTION_SAVE_SUCCESS,
+    data,
+  };
+}
+
+export function subscriptionSaveFailure(error) {
+  return {
+    type: SUBSCRIPTION_SAVE_FAILURE,
+    error,
+  };
+}
+
+// Delete single subscription actions.
+
+export function subscriptionDeleteStart(data) {
+  return {
+    type: SUBSCRIPTION_DELETE_START,
+    data,
+  };
+}
+
+export function subscriptionDeleteSuccess(data) {
+  return {
+    type: SUBSCRIPTION_DELETE_SUCCESS,
+    data,
+  };
+}
+
+export function subscriptionDeleteFailure(error) {
+  return {
+    type: SUBSCRIPTION_DELETE_FAILURE,
     error,
   };
 }

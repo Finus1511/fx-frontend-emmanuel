@@ -78,6 +78,7 @@ const SubscriptionPaymentModal = (props) => {
           user_unique_id: props.user_unique_id,
           plan_type: props.subscriptionData.plan_type,
           is_free: props.subscriptionData.is_free,
+          subscription_id: props.subscriptionData.subscription_id,
           promo_code: couponDiscount.promo_code ? couponDiscount.promo_code : "",
         })
       );
@@ -374,8 +375,9 @@ const SubscriptionPaymentModal = (props) => {
                   }
                   <div className="pay-modal-token">
                     <h5>{t("total_token")}</h5>
+                    {console.log("couponDiscount", couponDiscount)}
                     <h4>{couponDiscount ?
-                      props.callDetails.amount - couponDiscount.coupon_applied_amount
+                      props.subscriptionData.amount - couponDiscount.coupon_applied_amount
                       :
                       props.subscriptionData.amount}</h4>
                   </div>

@@ -74,6 +74,7 @@ import {
   fetchMorepremiumFolderListStart,
   premiumFolderListStart,
 } from "../../../store/actions/PremiumFolderAction";
+import SubscribeModal from "./Subscription/SubscribeModal";
 
 const SingleProfile = (props) => {
   const [modalShow, setModalShow] = React.useState(false);
@@ -121,7 +122,7 @@ const SingleProfile = (props) => {
     subscription_id: 0,
   });
 
-  const toggleVisibility = () => {};
+  const toggleVisibility = () => { };
 
   useEffect(() => {
     props.dispatch(
@@ -369,7 +370,6 @@ const SingleProfile = (props) => {
 
   const handleClose = () => {
     setAnchorEl(null);
-    setShow(false);
   };
 
   const closeSendTipModal = () => {
@@ -407,9 +407,29 @@ const SingleProfile = (props) => {
     );
   };
 
-  const [show, setShow] = useState(false);
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
 
-  const handleShow = () => setShow(true);
+  const handleShowSubscribeModal = () => setShowSubscribeModal(true);
+
+  const handleCloseSubscribeModal = () => setShowSubscribeModal(false);
+
+  const handleSubscribe = (subscription) => {
+    if (localStorage.getItem("userId")) {
+      setSubscriptionData({
+        ...subscriptionData,
+        amount: subscription.amount,
+        amount_formatted: subscription.amount_formatted,
+        subscription_id: subscription.id,
+      });
+      handleCloseSubscribeModal();
+      setPaymentModal(true);
+    } else {
+      const notificationMessage = getErrorNotificationMessage(
+        t("login_to_continue")
+      );
+      props.dispatch(createNotification(notificationMessage));
+    }
+  }
 
   return (
     <>
@@ -862,15 +882,15 @@ const SingleProfile = (props) => {
                 </div>
               ) : null}
               {userDetails.data.youtube_link ||
-              userDetails.data.pinterest_link ||
-              userDetails.data.linkedin_link ||
-              userDetails.data.snapchat_link ||
-              userDetails.data.twitter_link ||
-              userDetails.data.instagram_link ||
-              userDetails.data.amazon_wishlist ||
-              userDetails.data.facebook_link ||
-              userDetails.data.twitch_link ||
-              userDetails.data.website ? (
+                userDetails.data.pinterest_link ||
+                userDetails.data.linkedin_link ||
+                userDetails.data.snapchat_link ||
+                userDetails.data.twitter_link ||
+                userDetails.data.instagram_link ||
+                userDetails.data.amazon_wishlist ||
+                userDetails.data.facebook_link ||
+                userDetails.data.twitch_link ||
+                userDetails.data.website ? (
                 <div className="sidebar-social-links">
                   <ul className="list-unstyled">
                     {userDetails.data.youtube_link && (
@@ -1227,50 +1247,16 @@ const SingleProfile = (props) => {
                   <div className="user-subscription-plans-details">
                     <h3>{t("subscription_plans")}</h3>
                     {userDetails.data.payment_info.is_user_needs_pay == 1 &&
-                    userDetails.data.payment_info.unsubscribe_btn_status ==
+                      userDetails.data.payment_info.unsubscribe_btn_status ==
                       0 ? (
                       userDetails.data.payment_info.is_free_account == 0 ? (
                         <div className="user-subscription-btn-sec">
                           <div
-                            className="subscription-outline-btn"
-                            onClick={(event) =>
-                              subscriptionPayment(
-                                event,
-                                "months",
-                                userDetails.data.payment_info.subscription_info
-                                  .monthly_amount,
-                                userDetails.data.payment_info.subscription_info
-                                  .monthly_amount_formatted,
-                                userDetails.data.payment_info.subscription_info
-                                  .user_subscription_id
-                              )
-                            }
-                          >
-                            {
-                              userDetails.data.payment_info.subscription_info
-                                .monthly_amount_formatted
-                            }{" "}
-                            /{t("month")}
-                          </div>
-                          <div
-                            className="subscription-btn"
-                            onClick={(event) =>
-                              subscriptionPayment(
-                                event,
-                                "years",
-                                userDetails.data.payment_info.subscription_info
-                                  .yearly_amount,
-                                userDetails.data.payment_info.subscription_info
-                                  .yearly_amount_formatted
-                              )
-                            }
-                          >
-                            {
-                              userDetails.data.payment_info.subscription_info
-                                .yearly_amount_formatted
-                            }{" "}
-                            /{t("year")}
-                          </div>
+                              className="subscription-btn"
+                              onClick={handleShowSubscribeModal}
+                            >
+                              Subscribe
+                            </div>
                         </div>
                       ) : (
                         <div className="user-subscription-btn-sec">
@@ -1305,68 +1291,59 @@ const SingleProfile = (props) => {
 
                     {userDetails.data.payment_info.unsubscribe_btn_status ==
                       1 && (
-                      <>
-                        <div className="user-subscription-btn-sec">
-                          <div
-                            className="subscription-btn"
-                            onClick={() => handleUnfollowModalShow()}
-                          >
-                            {t("unfollow")}
-                          </div>
-
-                          <div
-                            className="subscription-btn"
-                            onClick={handleShow}
-                          >
-                            Subscribe
-                          </div>
-                        </div>
-                        <Modal
-                          show={showUnfollow}
-                          onHide={handleUnfollowModalClose}
-                          backdrop="static"
-                          keyboard={false}
-                          centered
-                          className={`${
-                            localStorage.getItem("theme") !== "" &&
-                            localStorage.getItem("theme") !== null &&
-                            localStorage.getItem("theme") !== undefined &&
-                            localStorage.getItem("theme") === "dark"
-                              ? "dark-theme-modal"
-                              : ""
-                          }
-        `}
-                        >
-                          <Modal.Header closeButton>
-                            <Modal.Title>{t("unsubscribe")}</Modal.Title>
-                          </Modal.Header>
-                          <Modal.Body>
-                            {t("cancel_subscription_conformation")}
-                          </Modal.Body>
-                          <Modal.Footer>
-                            <Button
-                              variant="secondary"
-                              size="lg"
-                              onClick={handleUnfollowModalClose}
+                        <>
+                          <div className="user-subscription-btn-sec">
+                            <div
+                              className="subscription-btn"
+                              onClick={() => handleUnfollowModalShow()}
                             >
-                              {t("close")}
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="lg"
-                              onClick={(event) =>
-                                handleUnfollow(
-                                  event,
-                                  userDetails.data.user.user_id
-                                )
-                              }
-                            >
-                              {t("yes")}
-                            </Button>
-                          </Modal.Footer>
-                        </Modal>
-                      </>
-                    )}
+                              Cancel Subscription
+                            </div>
+                          </div>
+                          <Modal
+                            show={showUnfollow}
+                            onHide={handleUnfollowModalClose}
+                            backdrop="static"
+                            keyboard={false}
+                            centered
+                            className={`${localStorage.getItem("theme") !== "" &&
+                                localStorage.getItem("theme") !== null &&
+                                localStorage.getItem("theme") !== undefined &&
+                                localStorage.getItem("theme") === "dark"
+                                ? "dark-theme-modal"
+                                : ""
+                              }`}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>{t("unsubscribe")}</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                              {t("cancel_subscription_conformation")}
+                            </Modal.Body>
+                            <Modal.Footer>
+                              <Button
+                                variant="secondary"
+                                size="lg"
+                                onClick={handleUnfollowModalClose}
+                              >
+                                {t("close")}
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="lg"
+                                onClick={(event) =>
+                                  handleUnfollow(
+                                    event,
+                                    userDetails.data.user.user_id
+                                  )
+                                }
+                              >
+                                {t("yes")}
+                              </Button>
+                            </Modal.Footer>
+                          </Modal>
+                        </>
+                      )}
                   </div>
                 ) : (
                   <div className="user-subscription-plans-details">
@@ -1520,15 +1497,15 @@ const SingleProfile = (props) => {
                   </div>
                 ) : null}
                 {userDetails.data.youtube_link ||
-                userDetails.data.pinterest_link ||
-                userDetails.data.linkedin_link ||
-                userDetails.data.snapchat_link ||
-                userDetails.data.twitter_link ||
-                userDetails.data.instagram_link ||
-                userDetails.data.amazon_wishlist ||
-                userDetails.data.facebook_link ||
-                userDetails.data.twitch_link ||
-                userDetails.data.website ? (
+                  userDetails.data.pinterest_link ||
+                  userDetails.data.linkedin_link ||
+                  userDetails.data.snapchat_link ||
+                  userDetails.data.twitter_link ||
+                  userDetails.data.instagram_link ||
+                  userDetails.data.amazon_wishlist ||
+                  userDetails.data.facebook_link ||
+                  userDetails.data.twitch_link ||
+                  userDetails.data.website ? (
                   <div className="sidebar-social-links">
                     <ul className="list-unstyled">
                       {userDetails.data.youtube_link && (
@@ -2107,113 +2084,17 @@ const SingleProfile = (props) => {
               modelUser={modelUser}
             />
           )}
+          {showSubscribeModal && (
+            <SubscribeModal 
+              showSubscribeModal={showSubscribeModal}
+              handleCloseSubscribeModal={handleCloseSubscribeModal}
+              userDetails={userDetails.data.user}
+              handleSubscribe={handleSubscribe}
+            />
+          )}
         </>
       ) : null}
 
-      <Modal
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-        dialogClassName="custom-modal"
-        centered
-        className={`${
-          localStorage.getItem("theme") !== "" &&
-          localStorage.getItem("theme") !== null &&
-          localStorage.getItem("theme") !== undefined &&
-          localStorage.getItem("theme") === "dark"
-            ? "dark-theme-modal"
-            : ""
-        }
-        `}
-      >
-        <Modal.Body>
-          <div className="subscribe">
-            <div className="subscribe__title">
-              <h4>Subscribe</h4>
-              <button onClick={handleClose}>
-                <Image
-                  src={
-                    window.location.origin + "/assets/images/icons/close.svg"
-                  }
-                />
-              </button>
-            </div>
-            <div className="subscribe-grid">
-              <div className="subscribe-card">
-                <div className="subscribe-img">
-                  <Image
-                    src={
-                      window.location.origin + "/assets/images/subscribe.jpg"
-                    }
-                  />
-                </div>
-                <div className="subscribe__flex">
-                  <div className="subscribe-content">
-                    <h4>Official Patron</h4>
-                    <div className="subscribe-value">
-                      <h5>$5</h5>
-                      <p>/ Month</p>
-                      <span>(plus VAT)</span>
-                    </div>
-                    <div className="subscribe-para">
-                      <h5>Decription</h5>
-                      <p>
-                        Lorem ipsum, dolor sit amet consectetur adipisicing
-                        elit. Incidunt vitae quia laboriosam,
-                      </p>
-                    </div>
-                    <div className="subscribe-para">
-                      <h5>Discount</h5>
-                      <ul>
-                        <li>Tees: 20% pff promocode</li>
-                        <li>Dojo: 20% off annual</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="subscribe-btn">
-                    <button>Join</button>
-                  </div>
-                </div>
-              </div>
-              <div className="subscribe-card active">
-                <div className="subscribe-img">
-                  <Image
-                    src={window.location.origin + "/assets/images/sub-1.png"}
-                  />
-                </div>
-                <div className="subscribe__flex">
-                  <div className="subscribe-content">
-                    <h4>Official Patron</h4>
-                    <div className="subscribe-value">
-                      <h5>$5</h5>
-                      <p>/ Month</p>
-                      <span>(plus VAT)</span>
-                    </div>
-                    <div className="subscribe-para">
-                      <h5>Decription</h5>
-                      <p>
-                        Lorem ipsum, dolor sit amet consectetur adipisicing
-                        elit. Incidunt vitae quia laboriosam,
-                      </p>
-                    </div>
-                    <div className="subscribe-para">
-                      <h5>Discount</h5>
-                      <ul>
-                        <li>Tees: 20% pff promocode</li>
-                        <li>Dojo: 20% off annual</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="subscribe-btn">
-                    <button>Join</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
     </>
   );
 };

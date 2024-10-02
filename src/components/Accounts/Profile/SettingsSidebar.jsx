@@ -396,18 +396,20 @@ const SettingsSidebar = (props) => {
                     {t("edit_profile")}
                   </Link>
                 </Media>
-                <Media as="li">
-                  <Link to="/manage-subscription">
-                    <Image
-                      className="new-setting-list-icon"
-                      src={
-                        window.location.origin +
-                        "/assets/images/new-settings/session-management.svg"
-                      }
-                    />
-                    Manage Subscription
-                  </Link>
-                </Media>
+                {props.profile.data.is_content_creator == 2 && (
+                  <Media as="li">
+                    <Link to="/manage-subscription">
+                      <Image
+                        className="new-setting-list-icon"
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-settings/session-management.svg"
+                        }
+                      />
+                      Manage Subscription
+                    </Link>
+                  </Media>
+                )}
               </div>
               <Media as="li">
                 <Link to="/change-password">

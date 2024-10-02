@@ -722,7 +722,7 @@ const ProfileIndex = (props) => {
                   )}
                 </div>
               </div>
-              <div className="user-right-content-sec">
+              <div className="user-right-content">
                 <div className="user-right-info">
                   <div className="user-info-desc">
                     <p>
@@ -840,21 +840,21 @@ const ProfileIndex = (props) => {
                   </div>
                 </div>
 
-                <div className="user-subscription-plans-details subscribe-frame">
+                {/* <div className="user-subscription-plans-details subscribe-frame">
                   <h3>{t("my_plans")}</h3>
                   {props.profile.data.payment_info?.is_free_account == "0" ? (
                     <div className="user-subscription-btn-sec">
                       <div className="profile-subscription-btn">
                         {
-                          props.profile.data.payment_info.subscription_info
-                            .monthly_amount_formatted
+                          props.profile.data.payment_info?.subscription_info
+                            ?.monthly_amount_formatted
                         }{" "}
                         /Month
                       </div>
                       <div className="profile-subscription-btn">
                         {
-                          props.profile.data.payment_info.subscription_info
-                            .yearly_amount_formatted
+                          props.profile.data.payment_info?.subscription_info
+                            ?.yearly_amount_formatted
                         }{" "}
                         /Year
                       </div>
@@ -866,7 +866,7 @@ const ProfileIndex = (props) => {
                       </div>
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
               <div className="mobile-display">
                 {props.profile.data.is_content_creator == 2 ? (

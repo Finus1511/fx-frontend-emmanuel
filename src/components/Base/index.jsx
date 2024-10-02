@@ -156,7 +156,8 @@ import NewJoinVEIndex from "../VirtualExperience/NewJoinVEIndex";
 import HomeLoader from "../Loader/HomeLoader";
 import PageLoader from "../Loader/PageLoader";
 import PremiumFolderFileOthers from "../Phase4/PremiumFolderFileOthers";
-import ManageSubscription from "../Accounts/Profile/ManageSubscription";
+import ManageSubscription from "../Accounts/Profile/Subscription/ManageSubscription";
+import EditSubscription from "../Accounts/Profile/Subscription/EditSubscription";
 
 setTranslations({ en, es });
 
@@ -796,7 +797,12 @@ class App extends Component {
                 component={ManageSubscription}
                 layout={MainLayout}
               />
-
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/edit-subscription/:subscription_id"}
+                component={EditSubscription}
+                layout={MainLayout}
+              />
               <PrivateRoute
                 authentication={this.state.authentication}
                 path={"/delete-account"}

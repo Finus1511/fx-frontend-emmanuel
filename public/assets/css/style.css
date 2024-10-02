@@ -12865,3 +12865,12 @@ td.coupon-platform {
   color: var(--secondary-color) !important;
   text-decoration: none !important;
 }
+
+.minimize-video {
+  width: 600px;
+  right: 0px;
+  position: fixed;
+  bottom: 165px;
+  height: 600px;
+  z-index: 9;
+}

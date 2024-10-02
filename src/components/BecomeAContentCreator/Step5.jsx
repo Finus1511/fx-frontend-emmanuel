@@ -20,9 +20,13 @@ import configuration from "react-global-configuration";
 import { createNotification } from "react-redux-notify";
 import { getErrorNotificationMessage } from "../helper/NotificationMessage";
 import { translate, t } from "react-multi-lang";
+import CreateSubscription from "../Accounts/Profile/Subscription/CreateSubscription";
 
 const Step5 = (props) => {
+
   const [profileInputData, setProfileInputData] = useState({});
+
+  const [show, setShow] = useState('list');
 
   useEffect(() => {
     if (props.user.data.content_creator_step === 0) {
@@ -83,7 +87,8 @@ const Step5 = (props) => {
         <div className="step-4-subscription-fee-sec">
           <div className="step-4-subscription-flex-data">
             <div className="step-4-subscription-content-sec">
-              <h5>{t("monthly_subscription_fee")}</h5>
+              <CreateSubscription setShow={setShow} show={show} />
+              {/* <h5>{t("monthly_subscription_fee")}</h5>
               <p>{t("payments_are_made_monthly_by_the_subscriber")}</p>
               <InputGroup>
                 <InputGroup.Prepend>
@@ -126,10 +131,10 @@ const Step5 = (props) => {
                 <InputGroup.Append>
                   <InputGroup.Text>Monthly</InputGroup.Text>
                 </InputGroup.Append>
-              </InputGroup>
+              </InputGroup> */}
             </div>
           </div>
-          <div className="step-4-subscription-flex-data">
+          {/* <div className="step-4-subscription-flex-data">
             <div className="step-4-subscription-content-sec">
               <h5>{t("yearly_subscription_fee")}</h5>
               <p>{t("payments_are_made_yearly_by_the_subscriber")}</p>
@@ -185,7 +190,7 @@ const Step5 = (props) => {
                 ? props.profileInputData.loadingButtonContent
                 : t("submit")}
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

@@ -26,6 +26,12 @@ import {
   SUBSCRIPTION_PAYMENT_COINPAYMENT_START,
   SUBSCRIPTION_PAYMENT_COINPAYMENT_SUCCESS,
   SUBSCRIPTION_PAYMENT_COINPAYMENT_FAILURE,
+  SUBSCRIPTION_SAVE_START,
+  SUBSCRIPTION_SAVE_SUCCESS,
+  SUBSCRIPTION_SAVE_FAILURE,
+  SUBSCRIPTION_DELETE_START,
+  SUBSCRIPTION_DELETE_SUCCESS,
+  SUBSCRIPTION_DELETE_FAILURE,
 } from "../actions/ActionConstant";
 
 const initialState = {
@@ -42,6 +48,16 @@ const initialState = {
   singleSubscription: {
     data: {},
     loading: true,
+    error: false,
+  },
+  subscriptionSave: {
+    data: {},
+    loading: false,
+    error: false,
+  },
+  subscriptionDelete: {
+    data: {},
+    loading: false,
     error: false,
   },
   subPayStripe: {
@@ -149,10 +165,7 @@ const SubscriptionReducer = (state = initialState, action) => {
           data: {},
           loading: true,
           error: false,
-        },
-        singleSubInputData: {
-          data: action.data,
-        },
+        }
       };
     case FETCH_SINGLE_SUBSCRIPTION_SUCCESS:
       return {
@@ -168,7 +181,61 @@ const SubscriptionReducer = (state = initialState, action) => {
         ...state,
         singleSubscription: {
           data: {},
+          loading: false,
+          error: action.error,
+        },
+      };
+    case SUBSCRIPTION_SAVE_START:
+      return {
+        ...state,
+        subscriptionSave: {
+          data: {},
           loading: true,
+          error: false,
+        }
+      };
+    case SUBSCRIPTION_SAVE_SUCCESS:
+      return {
+        ...state,
+        subscriptionSave: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+    case SUBSCRIPTION_SAVE_FAILURE:
+      return {
+        ...state,
+        subscriptionSave: {
+          data: {},
+          loading: false,
+          error: action.error,
+        },
+      };
+    case SUBSCRIPTION_DELETE_START:
+      return {
+        ...state,
+        subscriptionDelete: {
+          data: action.data,
+          loading: true,
+          error: false,
+        }
+      };
+    case SUBSCRIPTION_DELETE_SUCCESS:
+      return {
+        ...state,
+        subscriptionDelete: {
+          data: action.data,
+          loading: false,
+          error: false,
+        },
+      };
+    case SUBSCRIPTION_DELETE_FAILURE:
+      return {
+        ...state,
+        subscriptionDelete: {
+          data: {},
+          loading: false,
           error: action.error,
         },
       };

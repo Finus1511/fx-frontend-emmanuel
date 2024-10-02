@@ -68,6 +68,7 @@ import {
   FETCH_CUSTOM_TIPS_START,
   FETCH_CUSTOM_TIPS_SUCCESS,
   FETCH_CUSTOM_TIPS_FAILURE,
+  LIVE_VIDEO_ELEMENT,
 } from "../actions/ActionConstant";
 
 const initialState = {
@@ -228,6 +229,9 @@ const initialState = {
     error: false,
     loadingButtonContent: null,
     buttonDisable: false,
+  },
+  videoElement: {
+    data: {},
   },
 };
 
@@ -1017,8 +1021,16 @@ const LiveVideoReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
+
+    case LIVE_VIDEO_ELEMENT:
+      return {
+        ...state,
+        videoElement: {
+          data: action.data,
+        },
+      };
     
-      default:
+    default:
       return state;
   }
 };

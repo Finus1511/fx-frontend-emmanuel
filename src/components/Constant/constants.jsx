@@ -11,7 +11,7 @@ export const apiConstants = {
 
   google_api_key: "AIzaSyBwMhGADzGH8vWuzlxkTzL0JrvxVPAHtiY",
 
-  settingsUrl: "https://cms-emmanuel.onlyally.com/api/user/get_settings_json",
+  settingsUrl: "http://localhost:8000/api/user/get_settings_json",
 
   firebase_api_key: "AIzaSyBoHjrDF2ZYTIOoyuVyV4YgIgpx5W46PiM",
 
