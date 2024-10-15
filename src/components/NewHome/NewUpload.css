@@ -1,0 +1,80 @@
+.upload-flex{
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+.upload{
+    padding: 0 0 2em;
+            border-bottom: 0.1em solid #9896A1;
+            margin: 0 0 2em;
+}
+.upload-profile{
+    width: 4em;
+    height: 4em;
+    border-radius: 50%;
+}
+.upload-profile img{
+    width: 100%;
+    height: 100%;
+
+}
+.upload-modal{
+    width: 100%;
+}
+.upload-modal button{ 
+    
+        background-color: transparent !important;
+            color: #9896A1 !important;
+            font-size: 1.4em;
+            font-weight: 500;
+            border-radius: 3em;
+            border: 0.1em solid #9896A1 !important;
+            padding: 0.8em;
+            border-color: #9896A1 !important;
+            width: 100%;
+            text-align: left;
+    
+}
+.upload-modal button:hover{
+            border-color: #9896A1 !important;
+}
+.upload-btn{
+    margin: 2em 0 0;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.upload-btn button{
+    background-color: transparent !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+
+}
+.upload-btn button p{
+    color: #9896A1 !important;
+    font-size: 1.4em;
+    font-weight: 500;
+    margin: 0;
+}
+.upload-btn button img {
+    width: 2.5em;
+    height: 2.5em;
+}
+.new-upload .create-post-box{
+    box-shadow: none;
+    border: none;
+    min-height: unset;
+    padding: 0;
+    
+}
+.new-upload .create-post{
+    margin: 0  !important;
+    padding: 0 !important;
+}
+.new-upload .post-create-header{
+    display: none;
+}

@@ -9,7 +9,7 @@ import {
   Image,
   InputGroup,
   FormControl,
-  Media
+  Media,
 } from "react-bootstrap";
 import "./NewHome.css";
 import { Link } from "react-router-dom";
@@ -40,22 +40,26 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import NewFeedSuggestionCard from "./NewFeedSuggestionCard";
 import NewFeedTrendingCard from "./NewFeedTrendingCard";
 import UpdatedStory from "./UpdatedStory";
-
+import NewUpload from "./NewUpload";
 
 const NewHomeIndex = (props) => {
   useEffect(() => {
-    props.dispatch(fetchHomePostsStart({
-      skip: 0,
-      take: 12,
-    }));
+    props.dispatch(
+      fetchHomePostsStart({
+        skip: 0,
+        take: 12,
+      })
+    );
   }, []);
 
   const fetchMoreData = () => {
-    props.dispatch(fetchMoreHomePostsStart({
-      skip: props.posts.data.posts.length,
-      take: 12,
-    }))
-  }
+    props.dispatch(
+      fetchMoreHomePostsStart({
+        skip: props.posts.data.posts.length,
+        take: 12,
+      })
+    );
+  };
 
   // const fetchHomeData = () => {
   //   setTimeout(() => {
@@ -147,28 +151,36 @@ const NewHomeIndex = (props) => {
                     </div>
                   </div> */}
                   <NewHomeSearch />
-                  <UpdatedStory/>
+                  <NewUpload />
+                  <UpdatedStory />
                   {/* <NewFeatureStoryIndex /> */}
                   {/* <NewFeedIndex /> */}
 
-                  {props.posts.loading ?
+                  {props.posts.loading ? (
                     <HomeLoader />
-                    : props.posts.data.posts.length > 0 ?
-                      <InfiniteScroll
-                        dataLength={props.posts.data.posts}
-                        next={fetchMoreData}
-                        hasMore={props.posts.data.posts.length < props.posts.data.total}
-                        loader={<HomeLoader />}
-                        style={{ height: 'auto', overflow: 'hidden' }}
-                      >
-                        <div className="new-feed-sec">
-                          {props.posts.data.posts.map((post, index) =>
-                            <NewFeedDisplayCard post={post} key={index} index={index} />
-                          )}
-                        </div>
-                      </InfiniteScroll>
-                      : <NoDataFound />
-                  }
+                  ) : props.posts.data.posts.length > 0 ? (
+                    <InfiniteScroll
+                      dataLength={props.posts.data.posts}
+                      next={fetchMoreData}
+                      hasMore={
+                        props.posts.data.posts.length < props.posts.data.total
+                      }
+                      loader={<HomeLoader />}
+                      style={{ height: "auto", overflow: "hidden" }}
+                    >
+                      <div className="new-feed-sec">
+                        {props.posts.data.posts.map((post, index) => (
+                          <NewFeedDisplayCard
+                            post={post}
+                            key={index}
+                            index={index}
+                          />
+                        ))}
+                      </div>
+                    </InfiniteScroll>
+                  ) : (
+                    <NoDataFound />
+                  )}
                 </div>
                 <div className="new-home-page-right">
                   <div className="new-feed-right-sec">
