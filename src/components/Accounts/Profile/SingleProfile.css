@@ -471,6 +471,7 @@
   font-size: 1.2em;
   color: #9896A1;
   font-weight: 400;
+  word-break: break-all;
 }
 .subscribe-btn button, .subscribe-btn a{
 border: 1px solid var(--primary-color) !important;
@@ -508,6 +509,11 @@ border: 1px solid var(--primary-color) !important;
 .subscribe-para{
   margin: 1em 0 0;
 }
+.subscribe-para.mb-6 {
+  margin: 1em 0 4em;
+
+}
+
 .custom-modal .modal-content{
 background-color: #ffffff9e;
   margin: 0 2em;
@@ -564,4 +570,18 @@ background-color: #ffffff9e;
   border: 0.1em solid #000 !important;
   background-color: transparent !important;
   color: #000 !important;
+}
+@media (min-width:320px) and (max-width:767px){
+  .subscribe-grid{
+    grid-template-columns: repeat(1,1fr);
+    padding: 0 2em;
+  }
+}
+
+
+@media (min-width:768px) and (max-width:991px) {
+  .subscribe-grid {
+    grid-template-columns: repeat(1, 1fr);
+    padding: 0 2em;
+  }
 }

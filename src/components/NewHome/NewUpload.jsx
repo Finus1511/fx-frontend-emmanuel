@@ -46,9 +46,10 @@ const NewUpload = () => {
         show={show}
         backdrop="static"
         keyboard={false}
+        size="lg"
         centered
         onHide={handleClose}
-        className="new-upload"
+        className="pay-amount-modal new-upload"
       >
         <Modal.Header closeButton>
           <Modal.Title>New Post</Modal.Title>
@@ -58,15 +59,7 @@ const NewUpload = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            className="btn-danger"
-            variant="secondary"
-            onClick={handleClose}
-          >
-            Close
-          </Button>
-          <Button
-            className="btn-success"
-            variant="primary"
+            className="btn gradient-btn postBtn gradientcolor text-uppercase w-unset"
             onClick={handleClose}
           >
             Post

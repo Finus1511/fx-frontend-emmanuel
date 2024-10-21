@@ -4,9 +4,10 @@
     gap: 1em;
 }
 .upload{
-    padding: 0 0 2em;
-            border-bottom: 0.1em solid #9896A1;
             margin: 0 0 2em;
+            background: var(--secondary-color);
+                box-shadow: 0px 0px 7.20117px rgb(0 0 0 / 10%);
+                padding: 1.6em;
 }
 .upload-profile{
     width: 4em;
@@ -43,7 +44,7 @@
     display: flex;
     align-items: center;
     gap: 1em;
-    justify-content: space-between;
+    justify-content: space-around;
     flex-wrap: wrap;
 }
 .upload-btn button{
@@ -77,4 +78,7 @@
 }
 .new-upload .post-create-header{
     display: none;
+}
+.w-unset{
+    width: unset !important;
 }
