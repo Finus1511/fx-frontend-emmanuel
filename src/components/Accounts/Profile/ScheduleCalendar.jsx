@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Row,
-  Col,
-  Button,
-  Form,
-  Image,
-  Media,
-} from "react-bootstrap";
+import { Row, Col, Button, Form, Image, Media, Modal } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import "./NewProfile.css";
 import { fetchPostsStart } from "../../../store/actions/PostAction";
@@ -114,17 +107,17 @@ const ScheduleCalendar = (props) => {
     if (today) {
       setStartTime(
         today.getFullYear() +
-        "-" +
-        formatNumber(parseInt(today.getMonth() + 1)) +
-        "-" +
-        formatNumber(today.getDate())
+          "-" +
+          formatNumber(parseInt(today.getMonth() + 1)) +
+          "-" +
+          formatNumber(today.getDate())
       );
       setStartTimeFormatted(
         parseInt(today.getMonth() + 1) +
-        "/" +
-        today.getDate() +
-        "/" +
-        today.getFullYear()
+          "/" +
+          today.getDate() +
+          "/" +
+          today.getFullYear()
       );
       setSkipRender(false);
     }
@@ -143,6 +136,7 @@ const ScheduleCalendar = (props) => {
 
   const handleClose = () => {
     setAnchorEl(null);
+    setShow(false);
   };
 
   const handleFileDelete = (index) => {
@@ -168,17 +162,20 @@ const ScheduleCalendar = (props) => {
     },
     onDrop: (acceptedFiles, rejectedFiles) => {
       let validFiles = acceptedFiles.filter((file) => {
-        const ext = file.name.slice(file.name.lastIndexOf('.'));
-        return ['.png', '.jpg', '.gif'].includes(ext);
+        const ext = file.name.slice(file.name.lastIndexOf("."));
+        return [".png", ".jpg", ".gif"].includes(ext);
       });
 
-      rejectedFiles.length > 0 && props.dispatch(createNotification({
-        message: "Invalid file type",
-        type: "error",
-      }));
+      rejectedFiles.length > 0 &&
+        props.dispatch(
+          createNotification({
+            message: "Invalid file type",
+            type: "error",
+          })
+        );
 
       acceptedFiles.forEach((file, key) => {
-        uploadedFiles.push(file)
+        uploadedFiles.push(file);
       });
       let data_array = [];
       uploadedFiles.forEach((file, key) => {
@@ -251,6 +248,9 @@ const ScheduleCalendar = (props) => {
 
   const open = Boolean(anchorEl);
   const popoverId = open ? "simple-popover" : undefined;
+  const [show, setShow] = useState(false);
+
+  const handleShow = () => setShow(true);
 
   return (
     <>
@@ -539,15 +539,15 @@ const ScheduleCalendar = (props) => {
                 </ul>
               </div>
               {props.profile.data.youtube_link ||
-                props.profile.data.pinterest_link ||
-                props.profile.data.linkedin_link ||
-                props.profile.data.snapchat_link ||
-                props.profile.data.twitter_link ||
-                props.profile.data.instagram_link ||
-                props.profile.data.amazon_wishlist ||
-                props.profile.data.facebook_link ||
-                props.profile.data.twitch_link ||
-                props.profile.data.website ? (
+              props.profile.data.pinterest_link ||
+              props.profile.data.linkedin_link ||
+              props.profile.data.snapchat_link ||
+              props.profile.data.twitter_link ||
+              props.profile.data.instagram_link ||
+              props.profile.data.amazon_wishlist ||
+              props.profile.data.facebook_link ||
+              props.profile.data.twitch_link ||
+              props.profile.data.website ? (
                 <div className="sidebar-social-links">
                   <ul className="list-unstyled">
                     {props.profile.data.youtube_link && (
@@ -726,7 +726,13 @@ const ScheduleCalendar = (props) => {
                 innerRef={formRef}
                 onSubmit={handleSubmit}
               >
-                {({ values, setFieldValue, setFieldTouched, errors, setFieldError }) => (
+                {({
+                  values,
+                  setFieldValue,
+                  setFieldTouched,
+                  errors,
+                  setFieldError,
+                }) => (
                   <FORM>
                     <div className="virtual-experienc-schedule-date-wrapped">
                       <div className="virtal-file-header">
@@ -743,38 +749,43 @@ const ScheduleCalendar = (props) => {
                         <div className="schedule-grid-layout">
                           {props.slotAvailable.loading
                             ? [...Array(12)].map((i, key) => (
-                              <Skeleton
-                                key={key}
-                                height={40}
-                                width={300}
-                                borderRadius={30}
-                              />
-                            ))
+                                <Skeleton
+                                  key={key}
+                                  height={40}
+                                  width={300}
+                                  borderRadius={30}
+                                />
+                              ))
                             : Object.keys(props.slotAvailable.data).length >
-                              0 &&
+                                0 &&
                               Object.keys(props.slotAvailable.data.slots)
                                 .length > 0
-                              ? props.slotAvailable.data.slots.map((slot, i) => (
+                            ? props.slotAvailable.data.slots.map((slot, i) => (
                                 <Button
                                   key={i}
-                                  className={`date-card ${activeButton === slot.start_time
+                                  className={`date-card ${
+                                    activeButton === slot.start_time
                                       ? "active"
                                       : ""
-                                    }`}
-                                  onClick={() => handleButtonClick(slot, setFieldError)}
+                                  }`}
+                                  onClick={() =>
+                                    handleButtonClick(slot, setFieldError)
+                                  }
                                   disabled={!slot.is_available}
                                 >
                                   {slot.start_time} - {slot.end_time}
                                 </Button>
                               ))
-                              : null}
+                            : null}
                         </div>
                       </div>
-                      {!values.scheduled_start && <ErrorMessage
-                        component={"div"}
-                        name="scheduled_start"
-                        className="errorMsg w-100"
-                      />}
+                      {!values.scheduled_start && (
+                        <ErrorMessage
+                          component={"div"}
+                          name="scheduled_start"
+                          className="errorMsg w-100"
+                        />
+                      )}
                     </div>
                     <div className="virtual-experienc-file-wrapped">
                       <div className="virtal-file-header">
@@ -988,13 +999,57 @@ const ScheduleCalendar = (props) => {
                               >
                                 {!props.creatorVirtualExperienceFileSave
                                   .buttonDisable ||
-                                  props.creatorVirtualExperienceSave.buttonDisable
+                                props.creatorVirtualExperienceSave.buttonDisable
                                   ? "Create"
                                   : "Loading"}
                               </Button>
                             </div>
                           </Col>
                         </Row>
+                      </div>
+                    </div>
+                    <div className="question-box">
+                      <div className="question-head">
+                        <h4>Add Question</h4>
+                        <Button
+                          className="settings-submit-btn"
+                          onClick={handleShow}
+                        >
+                          Preview
+                        </Button>
+                      </div>
+                      <div className="add-question">
+                        <Form.Group>
+                          <Form.Label>Enter your question</Form.Label>
+                          <Field
+                            type="text"
+                            name="title"
+                            placeholder="Enter here"
+                            className="form-control"
+                          />
+                        </Form.Group>
+
+                        <Form.Group>
+                          <Form.Label>Select answer type</Form.Label>
+                          <Field
+                            as="select"
+                            name="plan_type"
+                            className="form-control mr-sm-2"
+                          >
+                            <option value="Text">Text</option>
+                            <option value="Number">Number</option>
+                          </Field>
+                        </Form.Group>
+                        <div className="question-submit-btn">
+                          <Button className="settings-submit-btn">
+                            Submit
+                          </Button>
+                        </div>
+                        <div className="question-add-btn">
+                          <Button className="settings-submit-btn">
+                            + Add new question
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </FORM>
@@ -1004,6 +1059,125 @@ const ScheduleCalendar = (props) => {
           </div>
         )}
       </div>
+
+      <Modal
+        show={show}
+        backdrop="static"
+        keyboard={false}
+        size="md"
+        centered
+        onHide={handleClose}
+        className="pay-amount-modal new-upload"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Question</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="question-list">
+            <ul>
+              <li>
+                <div className="question-list-flex">
+                  <h4>Question 1</h4>
+                  <div className="question-btn-flex">
+                    <Button>
+                      <img
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-icons/edit.svg"
+                        }
+                        alt=""
+                      />
+                    </Button>
+                    <Button>
+                      <img
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-icons/trash.svg"
+                        }
+                        alt=""
+                      />
+                    </Button>
+                  </div>
+                </div>
+                <h3>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
+                  corrupti ducimus?
+                </h3>
+              </li>
+              <li>
+                <div className="question-list-flex">
+                  <h4>Question 2</h4>
+                  <div className="question-btn-flex">
+                    <Button>
+                      <img
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-icons/edit.svg"
+                        }
+                        alt=""
+                      />
+                    </Button>
+                    <Button>
+                      <img
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-icons/trash.svg"
+                        }
+                        alt=""
+                      />
+                    </Button>
+                  </div>
+                </div>
+                <h3>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
+                  corrupti ducimus?
+                </h3>
+              </li>
+              <li>
+                <div className="question-list-flex">
+                  <h4>Question 3</h4>
+                  <div className="question-btn-flex">
+                    <Button>
+                      <img
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-icons/edit.svg"
+                        }
+                        alt=""
+                      />
+                    </Button>
+                    <Button>
+                      <img
+                        src={
+                          window.location.origin +
+                          "/assets/images/new-icons/trash.svg"
+                        }
+                        alt=""
+                      />
+                    </Button>
+                  </div>
+                </div>
+                <h3>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
+                  corrupti ducimus?
+                </h3>
+              </li>
+            </ul>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          {/* <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button> */}
+          <Button
+            variant="primary"
+            className="btn gradient-btn postBtn gradientcolor text-uppercase w-unset"
+            onClick={handleClose}
+          >
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
