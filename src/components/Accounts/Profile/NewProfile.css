@@ -1398,6 +1398,8 @@ textarea.form-control{
 }
 .question-list label.form-check-label{
   margin: 0 !important;
+  font-size: 1.4em;
+    font-weight: 400;
 }
 .add-question-list{
   border-radius: 0.6em;
