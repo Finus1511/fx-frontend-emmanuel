@@ -1028,7 +1028,6 @@ const ScheduleCalendar = (props) => {
                             className="form-control"
                           />
                         </Form.Group>
-
                         <Form.Group>
                           <Form.Label>Select answer type</Form.Label>
                           <Field
@@ -1074,95 +1073,93 @@ const ScheduleCalendar = (props) => {
         </Modal.Header>
         <Modal.Body>
           <div className="question-list">
-            <ul>
-              <li>
-                <div className="question-list-flex">
-                  <h4>Question 1</h4>
-                  <div className="question-btn-flex">
-                    <Button>
-                      <img
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-icons/edit.svg"
-                        }
-                        alt=""
-                      />
-                    </Button>
-                    <Button>
-                      <img
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-icons/trash.svg"
-                        }
-                        alt=""
-                      />
-                    </Button>
-                  </div>
-                </div>
-                <h3>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
-                  corrupti ducimus?
-                </h3>
-              </li>
-              <li>
-                <div className="question-list-flex">
-                  <h4>Question 2</h4>
-                  <div className="question-btn-flex">
-                    <Button>
-                      <img
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-icons/edit.svg"
-                        }
-                        alt=""
-                      />
-                    </Button>
-                    <Button>
-                      <img
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-icons/trash.svg"
-                        }
-                        alt=""
-                      />
-                    </Button>
-                  </div>
-                </div>
-                <h3>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
-                  corrupti ducimus?
-                </h3>
-              </li>
-              <li>
-                <div className="question-list-flex">
-                  <h4>Question 3</h4>
-                  <div className="question-btn-flex">
-                    <Button>
-                      <img
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-icons/edit.svg"
-                        }
-                        alt=""
-                      />
-                    </Button>
-                    <Button>
-                      <img
-                        src={
-                          window.location.origin +
-                          "/assets/images/new-icons/trash.svg"
-                        }
-                        alt=""
-                      />
-                    </Button>
-                  </div>
-                </div>
-                <h3>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
-                  corrupti ducimus?
-                </h3>
-              </li>
-            </ul>
+            <Formik
+              initialValues={{
+                title: "",
+                description: "",
+                price_per: "",
+                total_capacity: "1",
+                scheduled_start: "",
+                scheduled_end: "",
+                file_ids: null,
+              }}
+              validationSchema={validationSchema}
+              innerRef={formRef}
+              onSubmit={handleSubmit}
+            >
+              <Form>
+                <ul>
+                  <li>
+                    <div className="question-list-flex">
+                      <h4>What's Your name?</h4>
+                    </div>
+                    <div className="">
+                      <Form.Group>
+                        <Field
+                          type="text"
+                          name="title"
+                          placeholder="Enter here"
+                          className="form-control"
+                        />
+                      </Form.Group>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="question-list-flex">
+                      <h4>What's your lucky number</h4>
+                    </div>
+                    <div className="">
+                      <Form.Group>
+                        <Field
+                          type="number"
+                          name="title"
+                          placeholder="Enter here"
+                          className="form-control"
+                        />
+                      </Form.Group>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="question-list-flex">
+                      <h4>Tell about yourself?</h4>
+                    </div>
+                    <div className="">
+                      <Form.Group>
+                        <Field
+                          as="textarea"
+                          name="message"
+                          placeholder="Enter here"
+                          className="form-control"
+                        />
+                      </Form.Group>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="question-list-flex">
+                      <h4>Your gender?</h4>
+                    </div>
+                    <div className="">
+                      <Form.Group>
+                        <Form.Check
+                          inline
+                          label="Male"
+                          name="group1"
+                          type="radio"
+                          id="inline-radio-1"
+                        />
+                        <Form.Check
+                          inline
+                          label="Female"
+                          name="group1"
+                          type="radio"
+                          id="inline-radio-2"
+                        />
+                      </Form.Group>
+                    </div>
+                  </li>
+                </ul>
+              </Form>
+            </Formik>
           </div>
         </Modal.Body>
         <Modal.Footer>
