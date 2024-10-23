@@ -5309,7 +5309,7 @@ span.new-user-name:after {
   margin-top: 20px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(138, 150, 163, 0.2);
+  /* border-bottom: 1px solid rgba(138, 150, 163, 0.2); */
   flex-wrap: wrap;
 }
 
@@ -9289,6 +9289,10 @@ input.authentication-input {
   font-size: 1.3em;
   color: #f32013;
   z-index: 999;
+}
+
+.youtube-preview iframe {
+  width: 300px;
 }
 
 .md-mrg-btm {

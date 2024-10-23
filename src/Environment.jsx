@@ -14,7 +14,7 @@ import {
 
 // const apiUrl = "https://cms-emmanuel.onlyally.com/api/user/"; // Production Mode
 
-const apiUrl = "http://localhost:8000/api/user/"; // Local Mode
+const apiUrl = "https://admin.sqwiller.com/api/user/"; // Local Mode
 
 const Environment = {
   postMethod: async (action, object) => {

@@ -159,19 +159,12 @@ const HeaderIndex = (props) => {
                 ""
               )}
 
-              {localStorage.getItem("is_content_creator") == 2 ? (
+              {/* {localStorage.getItem("is_content_creator") == 2 ? (
                 <Link
                   to={"/add-post"}
                   className="main-header-menu icon-with-round-hover"
                   onClick={() => setIsVisible(false)}
                 >
-                  {/* <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/create-post.svg"
-                    }
-                  /> */}
-                  {/* <i className='bx bx-plus-circle bx-lg'></i> */}
                   <Image
                     src={
                       window.location.origin +
@@ -185,12 +178,6 @@ const HeaderIndex = (props) => {
                   className="main-header-menu icon-with-round-hover"
                   onClick={() => setCreateContentCreatorModal(true)}
                 >
-                  {/* <Image
-                    src={
-                      window.location.origin +
-                      "/assets/images/icons/create-post.svg"
-                    }
-                  /> */}
                   <Image
                     src={
                       window.location.origin +
@@ -198,7 +185,7 @@ const HeaderIndex = (props) => {
                     }
                   />
                 </Link>
-              )}
+              )} */}
 
               <Link
                 to={"/inbox"}
