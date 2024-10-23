@@ -252,6 +252,22 @@ const ScheduleCalendar = (props) => {
 
   const handleShow = () => setShow(true);
 
+  const [questions, setQuestions] = useState([
+    { title: "", plan_type: "Text" },
+  ]);
+
+  // Handler to add a new question
+  const addNewQuestion = () => {
+    setQuestions([...questions, { title: "", plan_type: "Text" }]);
+  };
+
+  // Handler to update question values
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index][field] = value;
+    setQuestions(updatedQuestions);
+  };
+
   return (
     <>
       <div className="new-home-sec">
@@ -1019,33 +1035,60 @@ const ScheduleCalendar = (props) => {
                         </Button>
                       </div>
                       <div className="add-question">
-                        <Form.Group>
-                          <Form.Label>Enter your question</Form.Label>
-                          <Field
-                            type="text"
-                            name="title"
-                            placeholder="Enter here"
-                            className="form-control"
-                          />
-                        </Form.Group>
-                        <Form.Group>
-                          <Form.Label>Select answer type</Form.Label>
-                          <Field
-                            as="select"
-                            name="plan_type"
-                            className="form-control mr-sm-2"
-                          >
-                            <option value="Text">Text</option>
-                            <option value="Number">Number</option>
-                          </Field>
-                        </Form.Group>
+                        {questions.map((question, index) => (
+                          <div key={index} className="add-question-list">
+                            <Form.Group>
+                              <Form.Label>Enter your question</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="Enter here"
+                                value={question.title}
+                                onChange={(e) =>
+                                  handleQuestionChange(
+                                    index,
+                                    "title",
+                                    e.target.value
+                                  )
+                                }
+                                className="form-control"
+                              />
+                            </Form.Group>
+                            <Form.Group>
+                              <Form.Label>Select answer type</Form.Label>
+                              <Form.Control
+                                as="select"
+                                value={question.plan_type}
+                                onChange={(e) =>
+                                  handleQuestionChange(
+                                    index,
+                                    "plan_type",
+                                    e.target.value
+                                  )
+                                }
+                                className="form-control mr-sm-2"
+                              >
+                                <option value="Text">Text</option>
+                                <option value="Number">Number</option>
+                              </Form.Control>
+                            </Form.Group>
+                            <div className="remove-btn">
+                              <Button className="settings-submit-btn">
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                         <div className="question-submit-btn">
-                          <Button className="settings-submit-btn">
+                          <Button type="submit" className="settings-submit-btn">
                             Submit
                           </Button>
                         </div>
                         <div className="question-add-btn">
-                          <Button className="settings-submit-btn">
+                          <Button
+                            type="button"
+                            onClick={addNewQuestion}
+                            className="settings-submit-btn"
+                          >
                             + Add new question
                           </Button>
                         </div>
