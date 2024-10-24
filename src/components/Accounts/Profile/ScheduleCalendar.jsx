@@ -1037,6 +1037,8 @@ const ScheduleCalendar = (props) => {
                       <div className="add-question">
                         {questions.map((question, index) => (
                           <div key={index} className="add-question-list">
+                            <Row>
+                            <Col lg={8} md={8}>
                             <Form.Group>
                               <Form.Label>Enter your question</Form.Label>
                               <Form.Control
@@ -1053,6 +1055,8 @@ const ScheduleCalendar = (props) => {
                                 className="form-control"
                               />
                             </Form.Group>
+                            </Col>
+                            <Col lg={2} md={2}>
                             <Form.Group>
                               <Form.Label>Select answer type</Form.Label>
                               <Form.Control
@@ -1071,11 +1075,15 @@ const ScheduleCalendar = (props) => {
                                 <option value="Number">Number</option>
                               </Form.Control>
                             </Form.Group>
+                            </Col>
+                            <Col lg={2} md={2}>
                             <div className="remove-btn">
                               <Button className="settings-submit-btn">
                                 Remove
                               </Button>
                             </div>
+                            </Col>
+                            </Row>
                           </div>
                         ))}
                         <div className="question-submit-btn">
