@@ -23,7 +23,7 @@ const NewUpload = () => {
         <div className="upload">
           <div className="upload-flex">
             <div className="upload-profile">
-              <Link to="">
+              <Link to="/profile">
                 <img src={profile.data.picture} alt="" />
               </Link>
             </div>

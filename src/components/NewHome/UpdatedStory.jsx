@@ -48,7 +48,7 @@ const UpdatedStory = () => {
             src: item.file,
             link: "",
             linkText: "",
-            time: item.updated_at,
+            time: item.updated_string,
           })),
         })),
       });
@@ -70,8 +70,8 @@ const UpdatedStory = () => {
           </div>
         ) : (
           <>
-            {profile.data.is_content_creator === 2 && (
-              <div className="story-sec">
+            <div className="story-sec">
+              {profile.data.is_content_creator === 2 && (
                 <div
                   className="create-story-card"
                   data-toggle="modal"
@@ -92,9 +92,9 @@ const UpdatedStory = () => {
                   </svg>
                   <h4>Create Story</h4>
                 </div>
-                <div id="stories" ref={storiesContainerRef}></div>
-              </div>
-            )}
+              )}
+              <div id="stories" ref={storiesContainerRef}></div>
+            </div>
           </>
         )}
       </div>
