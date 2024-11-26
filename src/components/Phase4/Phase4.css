@@ -776,9 +776,9 @@
 }
 
 .story-sec .stories.carousel .story {
-  background: url(/static/media/story.ddb9e459.png);
+  /* background: url(/static/media/story.ddb9e459.png); */
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: cover !important;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;

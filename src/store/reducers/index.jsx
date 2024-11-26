@@ -37,7 +37,9 @@ import ProductsReducer from "./ProductsReducer";
 import VodVideosReducer from "./VodVideosReducer";
 import SessionReducer from "./SessionReducer";
 import UserVirualReducer from "./UserVirtualReducer";
+import UserOneOnOneVEReducer from "./UserOneOnOneVEReducer";
 import CreatorVirualReducer from "./CreatorVirtualReducer";
+import CreatorOneOnOneVEReducer from "./CreatorOneOnOneVEReducer";
 import PersonalizeReducer from "./PersonalizeReducer";
 import ProductLiveStreamReducer from "./ProductLiveStreamReducer";
 import PremiumFolderReducer from "./PremiumFolderReducer";
@@ -83,7 +85,9 @@ export default combineReducers({
   vodVideos: VodVideosReducer,
   sessions: SessionReducer,
   userVirtual: UserVirualReducer,
+  userOneOnOneVirtual: UserOneOnOneVEReducer,
   creatorVirtual: CreatorVirualReducer,
+  creatorOneOnOneVE: CreatorOneOnOneVEReducer,
   personalize: PersonalizeReducer,
   productLiveStream: ProductLiveStreamReducer,
   folder: PremiumFolderReducer,

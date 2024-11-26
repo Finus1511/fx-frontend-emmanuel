@@ -18,8 +18,8 @@ import {
     USER_VIRTUAL_VH_LIST_SUCCESS,
     USER_VIRTUAL_VH_LIST_FAILURE,
     USER_VIRTUAL_VH_VIEW_START,
-    USER_VIRTUAL_VH_VIEW__SUCCESS,
-    USER_VIRTUAL_VH_VIEW__FAILURE,
+    USER_VIRTUAL_VH_VIEW_SUCCESS,
+    USER_VIRTUAL_VH_VIEW_FAILURE,
     USER_VIRTUAL_VH_BOOKING_START,
     USER_VIRTUAL_VH_BOOKING_SUCCESS,
     USER_VIRTUAL_VH_BOOKING_FAILURE,
@@ -162,14 +162,14 @@ export function userVirtualVhViewStart(data) {
 
 export function userVirtualVhViewSuccess(data) {
     return {
-        type: USER_VIRTUAL_VH_VIEW__SUCCESS,
+        type: USER_VIRTUAL_VH_VIEW_SUCCESS,
         data,
     };
 }
 
 export function userVirtualVhViewFailure(error) {
     return {
-        type: USER_VIRTUAL_VH_VIEW__FAILURE,
+        type: USER_VIRTUAL_VH_VIEW_FAILURE,
         error,
     };
 }

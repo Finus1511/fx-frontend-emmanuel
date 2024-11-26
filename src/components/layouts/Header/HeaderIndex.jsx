@@ -659,6 +659,7 @@ const HeaderIndex = (props) => {
                   ""
                 )}
                 {profile.data.is_content_creator === 2 && (
+                  <>
                   <Link
                     to={"/user-created-list"}
                     className="sidebar-menus-item"
@@ -674,6 +675,22 @@ const HeaderIndex = (props) => {
                     />
                     {t("virtual_experience_created")}
                   </Link>
+                  <Link
+                    to={"/user-ve-one-on-one-created-list"}
+                    className="sidebar-menus-item"
+                    data-name="Profile"
+                    onClick={() => setIsVisible(!isVisible)}
+                  >
+                    <Image
+                      src={
+                        window.location.origin +
+                        "/assets/images/icons/new/virtual_experience_created.svg"
+                      }
+                      alt={configuration.get("configData.site_name")}
+                    />
+                    {t("virtual_experience_one_on_one_created")}
+                  </Link>
+                  </>
                 )}
                 <Link
                   to={"/creator-booking-list"}
@@ -689,6 +706,21 @@ const HeaderIndex = (props) => {
                     alt={configuration.get("configData.site_name")}
                   />
                   {t("virtual_experience_booked")}
+                </Link>
+                <Link
+                  to={"/creator-ve-one-on-one-booking-list"}
+                  className="sidebar-menus-item"
+                  data-name="Profile"
+                  onClick={() => setIsVisible(!isVisible)}
+                >
+                  <Image
+                    src={
+                      window.location.origin +
+                      "/assets/images/icons/new/virtual_experience_booked.svg"
+                    }
+                    alt={configuration.get("configData.site_name")}
+                  />
+                  {t("virtual_experience_one_on_one_booked")}
                 </Link>
                 <Link
                   to={"/personal-request-table"}

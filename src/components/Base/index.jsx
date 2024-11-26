@@ -158,6 +158,9 @@ import PageLoader from "../Loader/PageLoader";
 import PremiumFolderFileOthers from "../Phase4/PremiumFolderFileOthers";
 import ManageSubscription from "../Accounts/Profile/Subscription/ManageSubscription";
 import EditSubscription from "../Accounts/Profile/Subscription/EditSubscription";
+import ScheduleCalendarOneOnOne from "../Accounts/Profile/ScheduleCalendarOneOnOne";
+import OneOnOneVEList from "../OneOneVE/OneOnOneVEList";
+import UserOneOnOneVirtualDetails from "../OneOneVE/UserOneOnOneVirtualDetails";
 
 setTranslations({ en, es });
 
@@ -744,6 +747,30 @@ class App extends Component {
                 authentication={this.state.authentication}
                 path={"/schedule-calendar"}
                 component={ScheduleCalendar}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/schedule-calendar-one-on-one"}
+                component={ScheduleCalendarOneOnOne}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/user-ve-one-on-one-created-list"}
+                component={OneOnOneVEList}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/creator-ve-one-on-one-booking-list"}
+                component={OneOnOneVEList}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/user-one-on-one-virtual-details/:unique_id"}
+                component={UserOneOnOneVirtualDetails}
                 layout={MainLayout}
               />
               <PrivateRoute

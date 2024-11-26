@@ -17,8 +17,8 @@ import {
   USER_VIRTUAL_VH_LIST_START,
   USER_VIRTUAL_VH_LIST_SUCCESS,
   USER_VIRTUAL_VH_LIST_FAILURE,
-  USER_VIRTUAL_VH_VIEW__SUCCESS,
-  USER_VIRTUAL_VH_VIEW__FAILURE,
+  USER_VIRTUAL_VH_VIEW_SUCCESS,
+  USER_VIRTUAL_VH_VIEW_FAILURE,
   USER_VIRTUAL_VH_BOOKING_SUCCESS,
   USER_VIRTUAL_VH_BOOKING_FAILURE,
 } from "../actions/ActionConstant";
@@ -246,7 +246,7 @@ const UserVirualReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
-    case USER_VIRTUAL_VH_VIEW__SUCCESS:
+    case USER_VIRTUAL_VH_VIEW_SUCCESS:
       return {
         ...state,
         userVirtualVhView: {
@@ -255,7 +255,7 @@ const UserVirualReducer = (state = initialState, action) => {
           error: action.error,
         },
       };
-    case USER_VIRTUAL_VH_VIEW__FAILURE:
+    case USER_VIRTUAL_VH_VIEW_FAILURE:
       return {
         ...state,
         userVirtualVhView: {

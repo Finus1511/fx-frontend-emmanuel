@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Zuck from "zuck.js";
+import 'zuck.js/dist/zuck.css';
+import 'zuck.js/dist/skins/snapgram.css';
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchStoriesStart,
@@ -19,13 +21,57 @@ const UpdatedStory = () => {
     dispatch(fetchStoriesStart());
   }, []);
 
+  // useEffect(() => {
+  //   if (
+  //     storiesContainerRef.current &&
+  //     !userStories.loading &&
+  //     Object.keys(userStories.data).length > 0
+  //   ) {
+  //     const stories = new Zuck(storiesContainerRef.current.id, {
+  //       backNative: true,
+  //       previousTap: true,
+  //       autoFullScreen: false,
+  //       skin: "snapgram",
+  //       avatars: true,
+  //       list: false,
+  //       cubeEffect: true,
+  //       localStorage: true,
+
+  //       stories: userStories.data.stories.map((story) => ({
+  //         id: story.id,
+  //         photo: story.storyFiles[0].preview_file,
+  //         name: story.username,
+  //         link: "",
+  //         lastUpdated: story.updated,
+  //         items: story.storyFiles.map((item) => ({
+  //           id: "",
+  //           type: item.file_type == "image" ? "photo" : "video",
+  //           length: 8,
+  //           src: item.file,
+  //           link: "",
+  //           linkText: "",
+  //           time: item.updated_string,
+  //         })),
+  //       })),
+  //     });
+
+  //     // return () => {
+  //     //   stories.destroy();
+  //     // };
+  //   }
+  // }, [userStories]);
+
+  const timestamp = () => Math.floor(Date.now() / 1000);
+  const storiesElement = useRef(null);
+
   useEffect(() => {
     if (
-      storiesContainerRef.current &&
+      storiesElement.current &&
       !userStories.loading &&
       Object.keys(userStories.data).length > 0
     ) {
-      const stories = new Zuck(storiesContainerRef.current.id, {
+      // Initialize Zuck.js with options
+      Zuck(storiesElement.current, {
         backNative: true,
         previousTap: true,
         autoFullScreen: false,
@@ -34,28 +80,19 @@ const UpdatedStory = () => {
         list: false,
         cubeEffect: true,
         localStorage: true,
-
         stories: userStories.data.stories.map((story) => ({
-          id: story.id,
-          photo: story.storyFiles[0].preview_file,
-          name: story.username,
-          link: "",
-          lastUpdated: story.updated,
+          id: story.user_unique_id,
+          photo: story.picture,
+          name: story.name,
           items: story.storyFiles.map((item) => ({
-            id: "",
+            id: item.story_file_unique_id,
             type: item.file_type == "image" ? "photo" : "video",
-            length: 8,
+            length: 30,
             src: item.file,
-            link: "",
-            linkText: "",
             time: item.updated_string,
           })),
         })),
       });
-
-      // return () => {
-      //   stories.destroy();
-      // };
     }
   }, [userStories]);
 
@@ -93,7 +130,32 @@ const UpdatedStory = () => {
                   <h4>Create Story</h4>
                 </div>
               )}
-              <div id="stories" ref={storiesContainerRef}></div>
+              {/* <div id="stories" ref={storiesContainerRef}></div> */}
+              <div ref={storiesElement} id="stories" className="storiesWrapper stories user-icon carousel snapgram">
+                {Object.keys(userStories.data).length > 0 && userStories.data.stories.map((story, key) => (
+                  <div
+                    className={story.seen ? 'story seen' : 'story'}
+                    style={{background: `url(${ story.storyFiles[0].file_type == "image" ? story.storyFiles[0].file : story.storyFiles[0].preview_file})`}}
+                    key={story.user_unique_id}
+                    data-id={story.user_unique_id}
+                    data-last-updated={story.lastUpdated}
+                    data-photo={story.storyFiles[0].preview_file}
+                  >
+                    <a className="item-link" href={story.link}>
+                      <span className="item-preview">
+                        <img src={story.picture} alt={`${story.name}'s story`} />
+                      </span>
+                      <span className="info">
+                        <strong className="name">{story.name}</strong>
+                        <span className="time">{new Date(timestamp() * 1000).toLocaleString()}</span>
+                      </span>
+                    </a>
+                    <ul className="items">
+
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}

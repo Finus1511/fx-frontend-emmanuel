@@ -75,6 +75,8 @@ import {
   premiumFolderListStart,
 } from "../../../store/actions/PremiumFolderAction";
 import SubscribeModal from "./Subscription/SubscribeModal";
+import UserList from "../../VirtualExperience/UserList";
+import VeUserList from "../../OneOneVE/VeUserList";
 
 const SingleProfile = (props) => {
   const [modalShow, setModalShow] = React.useState(false);
@@ -109,6 +111,7 @@ const SingleProfile = (props) => {
   const [skip, setSkip] = useState(0);
   const [take, setTake] = useState(12);
   const [type, setType] = useState("image");
+  const [veType, setVeType] = useState("virtual_experience");
 
   const closeChatPaymentModal = () => {
     setMakePaymentModel(false);
@@ -194,13 +197,13 @@ const SingleProfile = (props) => {
 
         break;
       case "virtual":
-        props.dispatch(
-          userVirtualVhListStart({
-            skip: 0,
-            take: 12,
-            user_unique_id: props.match.params.username,
-          })
-        );
+        // props.dispatch(
+        //   userVirtualVhListStart({
+        //     skip: 0,
+        //     take: 12,
+        //     user_unique_id: props.match.params.username,
+        //   })
+        // );
         setSkip(take);
         break;
       case "media":
@@ -1908,52 +1911,25 @@ const SingleProfile = (props) => {
                           />
                         </Col>
                       ) : activeSec == "virtual" ? (
-                        userVirtualVhList.loading ? (
                           <Col md={12}>
-                            <div className="profile-all-post-box">
-                              {[...Array(8)].map(() => (
-                                <Skeleton className="profile-post-card-loader" />
-                              ))}
-                            </div>
+                            <div
+                            className="select-lang-drop-down"
+                            style={{ width: "10em" }}
+                          >
+                            <select
+                              className="form-control mw-200 mb-3"
+                              name="lang"
+                              onChange={(e) => setVeType(e.target.value)}
+                              value={veType}
+                            >
+                              <option value="virtual_experience">Virtual Experience</option>
+                              <option value="one_one_one">One On One</option>
+                            </select>
+                          </div>
+                          {veType == "virtual_experience" ? (
+                            <UserList />
+                          ) : <VeUserList /> }
                           </Col>
-                        ) : (
-                          <Col md={12}>
-                            {userVirtualVhList.data?.virtual_experiences
-                              ?.length > 0 ? (
-                              <InfiniteScroll
-                                dataLength={
-                                  userVirtualVhList.data.virtual_experiences
-                                    .length
-                                }
-                                next={fetchMoreVE}
-                                hasMore={
-                                  userVirtualVhList.data.virtual_experiences
-                                    .length < userVirtualVhList.data.total
-                                }
-                                loader={
-                                  <div className="profile-all-post-box">
-                                    {[...Array(8)].map(() => (
-                                      <Skeleton className="profile-post-card-loader" />
-                                    ))}
-                                  </div>
-                                }
-                                style={{ height: "auto", overflow: "hidden" }}
-                              >
-                                <div className="virtual-card-wrapped">
-                                  {userVirtualVhList.data.virtual_experiences.map(
-                                    (post) => (
-                                      <UserVirtualExperiencsProduct
-                                        post={post}
-                                      />
-                                    )
-                                  )}
-                                </div>
-                              </InfiniteScroll>
-                            ) : (
-                              <NoDataFound />
-                            )}
-                          </Col>
-                        )
                       ) : activeSec == "all" ? (
                         props.userPosts.loading ? (
                           <Col md={12}>
