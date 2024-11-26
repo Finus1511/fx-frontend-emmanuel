@@ -1846,8 +1846,8 @@ const SingleProfile = (props) => {
                       ) : activeSec == "media" ? (
                         <Col md={12}>
                           <div
-                            className="select-lang-drop-down"
-                            style={{ width: "10em" }}
+                            className="select-lang-drop-down new-dropdown"
+                            // style={{ width: "10em" }}
                           >
                             <select
                               className="form-control mw-200 mb-3"
@@ -1913,8 +1913,8 @@ const SingleProfile = (props) => {
                       ) : activeSec == "virtual" ? (
                           <Col md={12}>
                             <div
-                            className="select-lang-drop-down"
-                            style={{ width: "10em" }}
+                            className="select-lang-drop-down new-dropdown"
+                            // style={{ width: "10em" }}
                           >
                             <select
                               className="form-control mw-200 mb-3"

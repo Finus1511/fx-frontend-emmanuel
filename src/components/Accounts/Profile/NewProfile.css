@@ -1411,3 +1411,15 @@ textarea.form-control{
 .remove-btn{
   margin: 3em 0 2em;
 }
+.custom-map{
+  height: 410px;
+}
+.new-dropdown .form-control{
+  width: unset;
+}
+.new-dropdown{
+  margin: 1em 0 0;
+}
+.custom-location{
+  height: 210px;
+}

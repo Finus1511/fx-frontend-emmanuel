@@ -588,7 +588,7 @@ const ScheduleCalendar = (props) => {
                         {questions.map((question, index) => (
                           <div key={index} className="add-question-list">
                             <Row>
-                            <Col lg={8} md={8}>
+                            <Col lg={6} md={6}>
                             <Form.Group>
                               <Form.Label>Enter your question</Form.Label>
                               <Form.Control
@@ -606,7 +606,7 @@ const ScheduleCalendar = (props) => {
                               />
                             </Form.Group>
                             </Col>
-                            <Col lg={2} md={2}>
+                            <Col lg={4} md={4}>
                             <Form.Group>
                               <Form.Label>Select answer type</Form.Label>
                               <Form.Control

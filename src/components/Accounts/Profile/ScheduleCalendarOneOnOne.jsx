@@ -301,6 +301,7 @@ const ScheduleCalendarOneOnOne = (props) => {
                                 name="location"
                                 className="errorMsg w-100"
                               />
+                              <div className="custom-map">
                               <Map
                                 google={google}
                                 center={position}
@@ -312,6 +313,7 @@ const ScheduleCalendarOneOnOne = (props) => {
                                   <Marker position={position} />
                                 )}
                               </Map>
+                              </div>
                             </Form.Group>
                           </Col>
                           <Col lg={6} md={6}>

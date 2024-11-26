@@ -150,6 +150,7 @@ const UserOneOnOneVirtualDetails = (props) => {
                           {props.userVirtualDetails.data.virtual_experience.location}
                         </h4>
                       </div>
+                      <div className="custom-location">
                       <Map
                         google={google}
                         center={{ lat: props.userVirtualDetails.data.virtual_experience.latitude, lng: props.userVirtualDetails.data.virtual_experience.longitude }}
@@ -159,6 +160,7 @@ const UserOneOnOneVirtualDetails = (props) => {
                         {/* Marker for the selected location */}
                         <Marker position={{ lat: props.userVirtualDetails.data.virtual_experience.latitude, lng: props.userVirtualDetails.data.virtual_experience.longitude }} />
                       </Map>
+                      </div>
                     </div>
                   </div>
                   <div className="user-full-card">
