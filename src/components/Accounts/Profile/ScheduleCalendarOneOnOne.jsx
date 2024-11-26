@@ -122,7 +122,7 @@ const ScheduleCalendarOneOnOne = (props) => {
       !props.creatorVirtualExperienceSave.loading &&
       Object.keys(props.creatorVirtualExperienceSave.data).length > 0
     ) {
-      history.push("/user-created-list");
+      history.push("/user-ve-one-on-one-created-list");
     }
     setSkipRender(false);
   }, [props.creatorVirtualExperienceSave]);
