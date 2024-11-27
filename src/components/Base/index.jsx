@@ -161,6 +161,7 @@ import EditSubscription from "../Accounts/Profile/Subscription/EditSubscription"
 import ScheduleCalendarOneOnOne from "../Accounts/Profile/ScheduleCalendarOneOnOne";
 import OneOnOneVEList from "../OneOneVE/OneOnOneVEList";
 import UserOneOnOneVirtualDetails from "../OneOneVE/UserOneOnOneVirtualDetails";
+import ScheduleCalendarVip from "../VipVE/ScheduleCalendarVip";
 
 setTranslations({ en, es });
 
@@ -753,6 +754,12 @@ class App extends Component {
                 authentication={this.state.authentication}
                 path={"/schedule-calendar-one-on-one"}
                 component={ScheduleCalendarOneOnOne}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/schedule-calendar-vip"}
+                component={ScheduleCalendarVip}
                 layout={MainLayout}
               />
               <PrivateRoute
