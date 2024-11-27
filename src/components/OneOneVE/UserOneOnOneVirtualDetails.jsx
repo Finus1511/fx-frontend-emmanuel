@@ -139,30 +139,6 @@ const UserOneOnOneVirtualDetails = (props) => {
                   </div>
                 </Col>
                 <Col md={6} lg={6}>
-                  <div className="user-full-card mt-3">
-                    <div className="user-full-header">
-                      <h4>Location</h4>
-                    </div>
-                    <div className="user-full-body">
-                      <div className="user-schedule-info-frame" style={{ gap: "1em!important" }}>
-                        <h4>Location:</h4>
-                        <h4 style={{ color: "var(--primary-color)" }}>
-                          {props.userVirtualDetails.data.virtual_experience.location}
-                        </h4>
-                      </div>
-                      <div className="custom-location">
-                      <Map
-                        google={google}
-                        center={{ lat: props.userVirtualDetails.data.virtual_experience.latitude, lng: props.userVirtualDetails.data.virtual_experience.longitude }}
-                        zoom={0}
-                        style={{ width: "300px", height: "200px" }}
-                      >
-                        {/* Marker for the selected location */}
-                        <Marker position={{ lat: props.userVirtualDetails.data.virtual_experience.latitude, lng: props.userVirtualDetails.data.virtual_experience.longitude }} />
-                      </Map>
-                      </div>
-                    </div>
-                  </div>
                   <div className="user-full-card">
                     <div className="user-full-header">
                       <h4>Virtual Experience</h4>
@@ -196,6 +172,30 @@ const UserOneOnOneVirtualDetails = (props) => {
                               </Button>
                             </div>
                           </div>) : null}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="user-full-card mt-3">
+                    <div className="user-full-header">
+                      <h4>Location</h4>
+                    </div>
+                    <div className="user-full-body">
+                      <div className="user-schedule-info-frame" style={{ gap: "1em!important" }}>
+                        <h4>Location:</h4>
+                        <h4 style={{ color: "var(--primary-color)" }}>
+                          {props.userVirtualDetails.data.virtual_experience.location}
+                        </h4>
+                      </div>
+                      <div className="custom-location">
+                      <Map
+                        google={google}
+                        center={{ lat: props.userVirtualDetails.data.virtual_experience.latitude, lng: props.userVirtualDetails.data.virtual_experience.longitude }}
+                        zoom={0}
+                        style={{ width: "300px", height: "200px" }}
+                      >
+                        {/* Marker for the selected location */}
+                        <Marker position={{ lat: props.userVirtualDetails.data.virtual_experience.latitude, lng: props.userVirtualDetails.data.virtual_experience.longitude }} />
+                      </Map>
                       </div>
                     </div>
                   </div>
