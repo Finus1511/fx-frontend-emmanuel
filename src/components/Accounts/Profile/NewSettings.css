@@ -384,6 +384,10 @@
     border: 1px solid var(--primary-color)!important;
 }
 
+.add-que-btn {
+    margin-right: 1em;
+}
+
 .settings-btn-sec{
     display: flex;
     align-items: center;

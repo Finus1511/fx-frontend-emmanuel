@@ -15,8 +15,8 @@ import { translate, t } from "react-multi-lang";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import {
-	creatorOneOnOneVEFileSaveStart,
-} from "../../store/actions/CreatorOneOnOneVEAction";
+	creatorVipVEFileSaveStart,
+} from "../../store/actions/CreatorVipVEAction";
 import ScheduleLoader from "../Loader/ScheduleLoader";
 import { apiConstants } from "../Constant/constants";
 import Map, { GoogleApiWrapper, Marker } from "google-maps-react";
@@ -27,7 +27,7 @@ var utc = require("dayjs/plugin/utc");
 var timezone = require("dayjs/plugin/timezone");
 dayjs.extend(utc);
 dayjs.extend(timezone);
-const ScheduleCalendarOneOnOne = (props) => {
+const ScheduleCalendarVip = (props) => {
 
 	const dispatch = useDispatch();
 	const history = useHistory();
@@ -41,8 +41,9 @@ const ScheduleCalendarOneOnOne = (props) => {
 	const [position, setPosition] = useState({ lat: 0, lng: 0 });
 	const [show, setShow] = useState(false);
 	const [questions, setQuestions] = useState([
-    { question: "", type: "Text" },
-  ]);
+		{ question: "", type: "Text" },
+	]);
+	const [questionError, setQuestionError] = useState("");
 
 	useEffect(() => {
 		setSkip(take);
@@ -125,14 +126,22 @@ const ScheduleCalendarOneOnOne = (props) => {
 			!props.creatorVirtualExperienceSave.loading &&
 			Object.keys(props.creatorVirtualExperienceSave.data).length > 0
 		) {
-			history.push("/user-ve-one-on-one-created-list");
+			history.push("/user-ve-vip-created-list");
 		}
 		setSkipRender(false);
 	}, [props.creatorVirtualExperienceSave]);
 
 	const handleSubmit = (values) => {
-		console.log("Values", values);
-		dispatch(creatorOneOnOneVEFileSaveStart(values));
+		setQuestionError("");
+		const hasEmptyQuestion = questions.some(item => item.question.trim() === "");
+		if (hasEmptyQuestion) {
+			console.log("There is at least one object with an empty question value.");
+			setQuestionError('Question field is required.')
+		} else {
+			dispatch(creatorVipVEFileSaveStart({ ...values, questions: JSON.stringify(questions) }));
+		}
+
+
 	};
 
 	const validationSchema = Yup.object().shape({
@@ -186,30 +195,28 @@ const ScheduleCalendarOneOnOne = (props) => {
 
 	const handleShow = () => setShow(true);
 
-  // Handler to add a new question
-  const addNewQuestion = () => {
-    setQuestions([...questions, { question: "", type: "Text" }]);
-  };
+	// Handler to add a new question
+	const addNewQuestion = () => {
+		setQuestions([...questions, { question: "", type: "Text" }]);
+	};
 
-  // Handler to update question values
-  const handleQuestionChange = (index, field, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index][field] = value;
-    setQuestions(updatedQuestions);
-  };
+	// Handler to update question values
+	const handleQuestionChange = (index, field, value) => {
+		const updatedQuestions = [...questions];
+		updatedQuestions[index][field] = value;
+		setQuestions(updatedQuestions);
+	};
 
 	const handleClose = () => {
-    setShow(false);
-  };
+		setShow(false);
+	};
 
 	const removeQuestion = (indexToRemove) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.filter((_, index) => index !== indexToRemove)
-    );
-  };
-
-	console.log("questions", questions)
-
+		setQuestions((prevQuestions) =>
+			prevQuestions.filter((_, index) => index !== indexToRemove)
+		);
+	};
+	
 	return (
 		<>
 			<div className="new-home-sec">
@@ -424,6 +431,87 @@ const ScheduleCalendarOneOnOne = (props) => {
 															</div>
 														</Form.Group>
 													</Col>
+												</Row>
+											</div>
+										</div>
+										<div className="question-box">
+											<div className="question-head">
+												<h4>Add Question</h4>
+												<div>
+													<Button
+														type="button"
+														onClick={() => addNewQuestion()}
+														className="settings-submit-btn add-que-btn"
+													>
+														+ Add new question
+													</Button>
+													<Button
+														className="settings-submit-btn"
+														onClick={handleShow}
+													>
+														Preview
+													</Button>
+												</div>
+											</div>
+											<div className="add-question">
+												{questions.map((question, index) => (
+													<div key={index} className="add-question-list">
+														<Row>
+															<Col lg={6} md={6}>
+																<Form.Group>
+																	<Form.Label>Enter your question</Form.Label>
+																	<Form.Control
+																		type="text"
+																		placeholder="Enter here"
+																		value={question.question}
+																		onChange={(e) =>
+																			handleQuestionChange(
+																				index,
+																				"question",
+																				e.target.value
+																			)
+																		}
+																		className="form-control"
+																	/>
+																</Form.Group>
+															</Col>
+															<Col lg={4} md={4}>
+																<Form.Group>
+																	<Form.Label>Select answer type</Form.Label>
+																	<Form.Control
+																		as="select"
+																		value={question.type}
+																		onChange={(e) =>
+																			handleQuestionChange(
+																				index,
+																				"type",
+																				e.target.value
+																			)
+																		}
+																		className="form-control mr-sm-2"
+																	>
+																		<option value="text">Text</option>
+																		<option value="number">Number</option>
+																		<option value="textarea">Textarea</option>
+																	</Form.Control>
+																</Form.Group>
+															</Col>
+															<Col lg={2} md={2}>
+																{questions.length > 1 && (
+																	<div className="remove-btn">
+																		<Button className="settings-submit-btn" onClick={() => removeQuestion(index)}>
+																			Remove
+																		</Button>
+																	</div>
+																)}
+															</Col>
+														</Row>
+													</div>
+												))}
+												{questionError && (
+													<div class="errorMsg w-100">{questionError}</div>
+												)}
+												<Row>
 													<Col md={12}>
 														<div className="file-schedule-card-btn">
 															<Button
@@ -455,87 +543,6 @@ const ScheduleCalendarOneOnOne = (props) => {
 												</Row>
 											</div>
 										</div>
-										<div className="question-box">
-                      <div className="question-head">
-                        <h4>Add Question</h4>
-                        <Button
-                          className="settings-submit-btn"
-                          onClick={handleShow}
-                        >
-                          Preview
-                        </Button>
-                      </div>
-                      <div className="add-question">
-                        {questions.map((question, index) => (
-                          <div key={index} className="add-question-list">
-                            <Row>
-                            <Col lg={6} md={6}>
-                            <Form.Group>
-                              <Form.Label>Enter your question</Form.Label>
-                              <Form.Control
-                                type="text"
-                                placeholder="Enter here"
-                                value={question.question}
-                                onChange={(e) =>
-                                  handleQuestionChange(
-                                    index,
-                                    "question",
-                                    e.target.value
-                                  )
-                                }
-                                className="form-control"
-                              />
-                            </Form.Group>
-                            </Col>
-                            <Col lg={4} md={4}>
-                            <Form.Group>
-                              <Form.Label>Select answer type</Form.Label>
-                              <Form.Control
-                                as="select"
-                                value={question.type}
-                                onChange={(e) =>
-                                  handleQuestionChange(
-                                    index,
-                                    "type",
-                                    e.target.value
-                                  )
-                                }
-                                className="form-control mr-sm-2"
-                              >
-                                <option value="text">Text</option>
-                                <option value="number">Number</option>
-                                <option value="textarea">Textarea</option>
-                              </Form.Control>
-                            </Form.Group>
-                            </Col>
-                            <Col lg={2} md={2}>
-														{questions.length > 1 && (
-															<div className="remove-btn">
-																<Button className="settings-submit-btn" onClick={() => removeQuestion(index)}>
-																	Remove
-																</Button>
-															</div>
-														)}
-                            </Col>
-                            </Row>
-                          </div>
-                        ))}
-                        <div className="question-submit-btn">
-                          <Button type="submit" className="settings-submit-btn">
-                            Submit
-                          </Button>
-                        </div>
-                        <div className="question-add-btn">
-                          <Button
-                            type="button"
-                            onClick={() => addNewQuestion()}
-                            className="settings-submit-btn"
-                          >
-                            + Add new question
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
 									</FORM>
 								)}
 							</Formik>
@@ -551,8 +558,8 @@ const ScheduleCalendarOneOnOne = (props) => {
 const mapStateToPros = (state) => ({
 	profile: state.users.profile,
 	posts: state.post.posts,
-	creatorVirtualExperienceFileSave: state.creatorOneOnOneVE.creatorVirtualExperienceFileSave,
-	creatorVirtualExperienceSave: state.creatorOneOnOneVE.creatorVirtualExperienceSave,
+	creatorVirtualExperienceFileSave: state.creatorVipVE.creatorVirtualExperienceFileSave,
+	creatorVirtualExperienceSave: state.creatorVipVE.creatorVirtualExperienceSave,
 });
 
 function mapDispatchToProps(dispatch) {
@@ -562,7 +569,7 @@ function mapDispatchToProps(dispatch) {
 const connector = connect(
 	mapStateToPros,
 	mapDispatchToProps
-)(translate(ScheduleCalendarOneOnOne));
+)(translate(ScheduleCalendarVip));
 
 export default GoogleApiWrapper({
 	apiKey: apiConstants.google_api_key,

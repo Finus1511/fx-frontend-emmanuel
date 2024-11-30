@@ -162,6 +162,9 @@ import ScheduleCalendarOneOnOne from "../Accounts/Profile/ScheduleCalendarOneOnO
 import OneOnOneVEList from "../OneOneVE/OneOnOneVEList";
 import UserOneOnOneVirtualDetails from "../OneOneVE/UserOneOnOneVirtualDetails";
 import ScheduleCalendarVip from "../VipVE/ScheduleCalendarVip";
+import VipVEList from "../VipVE/VipVEList";
+import UserVipVirtualDetails from "../VipVE/UserVipVirtualDetails";
+import ReceivedBooking from "../OneOneVE/ReceivedBooking";
 
 setTranslations({ en, es });
 
@@ -778,6 +781,30 @@ class App extends Component {
                 authentication={this.state.authentication}
                 path={"/user-one-on-one-virtual-details/:unique_id"}
                 component={UserOneOnOneVirtualDetails}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/user-ve-vip-created-list"}
+                component={VipVEList}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/creator-ve-vip-booking-list"}
+                component={VipVEList}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/ve-vip-booking-received"}
+                component={ReceivedBooking}
+                layout={MainLayout}
+              />
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/user-vip-virtual-details/:unique_id"}
+                component={UserVipVirtualDetails}
                 layout={MainLayout}
               />
               <PrivateRoute

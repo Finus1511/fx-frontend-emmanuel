@@ -77,6 +77,7 @@ import {
 import SubscribeModal from "./Subscription/SubscribeModal";
 import UserList from "../../VirtualExperience/UserList";
 import VeUserList from "../../OneOneVE/VeUserList";
+import VeVipUserList from "../../VipVE/VeVipUserList";
 
 const SingleProfile = (props) => {
   const [modalShow, setModalShow] = React.useState(false);
@@ -1255,11 +1256,11 @@ const SingleProfile = (props) => {
                       userDetails.data.payment_info.is_free_account == 0 ? (
                         <div className="user-subscription-btn-sec">
                           <div
-                              className="subscription-btn"
-                              onClick={handleShowSubscribeModal}
-                            >
-                              Subscribe
-                            </div>
+                            className="subscription-btn"
+                            onClick={handleShowSubscribeModal}
+                          >
+                            Subscribe
+                          </div>
                         </div>
                       ) : (
                         <div className="user-subscription-btn-sec">
@@ -1310,11 +1311,11 @@ const SingleProfile = (props) => {
                             keyboard={false}
                             centered
                             className={`${localStorage.getItem("theme") !== "" &&
-                                localStorage.getItem("theme") !== null &&
-                                localStorage.getItem("theme") !== undefined &&
-                                localStorage.getItem("theme") === "dark"
-                                ? "dark-theme-modal"
-                                : ""
+                              localStorage.getItem("theme") !== null &&
+                              localStorage.getItem("theme") !== undefined &&
+                              localStorage.getItem("theme") === "dark"
+                              ? "dark-theme-modal"
+                              : ""
                               }`}
                           >
                             <Modal.Header closeButton>
@@ -1847,7 +1848,7 @@ const SingleProfile = (props) => {
                         <Col md={12}>
                           <div
                             className="select-lang-drop-down new-dropdown"
-                            // style={{ width: "10em" }}
+                          // style={{ width: "10em" }}
                           >
                             <select
                               className="form-control mw-200 mb-3"
@@ -1911,10 +1912,10 @@ const SingleProfile = (props) => {
                           />
                         </Col>
                       ) : activeSec == "virtual" ? (
-                          <Col md={12}>
-                            <div
+                        <Col md={12}>
+                          <div
                             className="select-lang-drop-down new-dropdown"
-                            // style={{ width: "10em" }}
+                          // style={{ width: "10em" }}
                           >
                             <select
                               className="form-control mw-200 mb-3"
@@ -1924,12 +1925,15 @@ const SingleProfile = (props) => {
                             >
                               <option value="virtual_experience">Virtual Experience</option>
                               <option value="one_one_one">One On One</option>
+                              <option value="vip">Vip Virtual Experience</option>
                             </select>
                           </div>
                           {veType == "virtual_experience" ? (
                             <UserList />
-                          ) : <VeUserList /> }
-                          </Col>
+                          ) : veType == "one_one_one" ? (
+                            <VeUserList />
+                          ) : <VeVipUserList />}
+                        </Col>
                       ) : activeSec == "all" ? (
                         props.userPosts.loading ? (
                           <Col md={12}>
@@ -2061,7 +2065,7 @@ const SingleProfile = (props) => {
             />
           )}
           {showSubscribeModal && (
-            <SubscribeModal 
+            <SubscribeModal
               showSubscribeModal={showSubscribeModal}
               handleCloseSubscribeModal={handleCloseSubscribeModal}
               userDetails={userDetails.data.user}

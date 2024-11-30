@@ -40,6 +40,8 @@ import UserVirualReducer from "./UserVirtualReducer";
 import UserOneOnOneVEReducer from "./UserOneOnOneVEReducer";
 import CreatorVirualReducer from "./CreatorVirtualReducer";
 import CreatorOneOnOneVEReducer from "./CreatorOneOnOneVEReducer";
+import UserVipVEReducer from "./UserVipVEReducer";
+import CreatorVipVEReducer from "./CreatorVipVEReducer";
 import PersonalizeReducer from "./PersonalizeReducer";
 import ProductLiveStreamReducer from "./ProductLiveStreamReducer";
 import PremiumFolderReducer from "./PremiumFolderReducer";
@@ -88,6 +90,8 @@ export default combineReducers({
   userOneOnOneVirtual: UserOneOnOneVEReducer,
   creatorVirtual: CreatorVirualReducer,
   creatorOneOnOneVE: CreatorOneOnOneVEReducer,
+  userVipVirtual: UserVipVEReducer,
+  creatorVipVE: CreatorVipVEReducer,
   personalize: PersonalizeReducer,
   productLiveStream: ProductLiveStreamReducer,
   folder: PremiumFolderReducer,

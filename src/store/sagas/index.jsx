@@ -39,6 +39,8 @@ import CreatorVirtualSaga from "./CreatorVirtualSaga";
 import CreatorOneOnOneVESaga from "./CreatorOneOnOneVESaga";
 import UserVirtualSaga from "./UserVirtualSaga";
 import UserOneOnOneVESaga from "./UserOneOnOneVESaga";
+import UserVipVESaga from "./UserVipVESaga";
+import CreatorVipVESaga from "./CreatorVipVESaga";
 import PersonalizeSaga from "./PersonalizeSaga";
 import ProductLiveStreamSaga from "./ProductLiveStreamSaga";
 import PremiumFolderSaga from "./PremiumFolderSaga";
@@ -86,6 +88,8 @@ export default function* rootSaga() {
   yield all([fork(CreatorOneOnOneVESaga)]);
   yield all([fork(UserVirtualSaga)]);
   yield all([fork(UserOneOnOneVESaga)]);
+  yield all([fork(UserVipVESaga)]);
+  yield all([fork(CreatorVipVESaga)]);
   yield all([fork(PersonalizeSaga)]);
   yield all([fork(ProductLiveStreamSaga)]);
   yield all([fork(PremiumFolderSaga)]);

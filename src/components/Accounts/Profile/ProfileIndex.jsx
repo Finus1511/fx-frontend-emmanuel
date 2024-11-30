@@ -410,7 +410,7 @@ const ProfileIndex = (props) => {
                         </Button>
                       </div>
                     </Link>
-                    {/* <Link
+                    <Link
                       to="/schedule-calendar-vip"
                       className="custome-today-call-card-wrapped profile-sidebar-broadcast-wrapped"
                     >
@@ -429,7 +429,7 @@ const ProfileIndex = (props) => {
                           </svg>
                         </Button>
                       </div>
-                    </Link> */}
+                    </Link>
                   </>
                 ) : null}
 
