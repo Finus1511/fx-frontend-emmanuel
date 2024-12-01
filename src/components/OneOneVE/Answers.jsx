@@ -49,7 +49,7 @@ const Answers = (props) => {
 												<div className="question-list-flex">
 													<h4>{data.question.question}</h4>
 												</div>
-												<div className="">
+												<div className="question-answer">
 													<p>{data.answer}</p>
 												</div>
 											</li>
