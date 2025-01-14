@@ -183,9 +183,10 @@ const ReceivedBooking = () => {
 														<td>{creator.virtual_experience_info.scheduled_date}</td>
 														<td>{creator.status_formatted}</td>
 														<td>
+															<div className="btn-grid">
 															<Button
-																className="start-video-call-btn"
-																style={{ width: "50%!important" }}
+																className="default-btn-grid"
+																
 																onClick={() =>
 																	setShowAnswer(creator)
 																}
@@ -194,20 +195,20 @@ const ReceivedBooking = () => {
 															</Button>
 															{creator.status == 1 ? (<>
 															<Button
-																className="start-video-call-btn"
-																style={{ width: "50%!important", marginLeft: "1em" }}
+																className="default-btn-grid"
 																onClick={() => { handleAccept(creator.unique_id)}}
 															>
 																Accept
 															</Button>
 															<Button
-																className="start-video-call-btn"
-																style={{ width: "50%!important", marginLeft: "1em" }}
+																className="default-outline-grid"
 																onClick={() => { handleReject(creator.unique_id)}}
 															>
 																Cancel
 															</Button>
 															</>) : null}
+															</div>
+															
 														</td>
 													</tr>
 												))}

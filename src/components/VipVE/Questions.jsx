@@ -89,6 +89,7 @@ const Questions = (props) => {
 									</li>
 								))}
 							</ul>
+							<div className="btn-left">
 							<Button
 								variant="primary"
 								className="btn gradient-btn postBtn gradientcolor text-uppercase w-unset"
@@ -97,6 +98,7 @@ const Questions = (props) => {
 							>
 								{updateAnswer.buttonDisable ? "Loading" : "Submit"}
 							</Button>
+							</div>
 						</FORM>
 					</Formik>
 				</div>
