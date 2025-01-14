@@ -29,7 +29,9 @@ const VitrualExperienceList = () => {
   const userVirtualExperienceCreatedList = useSelector(state => state.creatorVirtual.userVirtualExperienceCreatedList);
   const [listData, setListData] = useState(currentRoute == "/user-created-list" ? userVirtualExperienceCreatedList : creatorBooking);
   const [search, setSearch] = useState({
-    search_key: ""
+    search_key: "",
+    skip: 0,
+    take: 12
   })
   const [paymentModal, setPaymentModal] = useState(false);
   const [VirtualData, setVirtualData] = useState(false);

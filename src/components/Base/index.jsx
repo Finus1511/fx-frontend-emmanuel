@@ -165,6 +165,7 @@ import ScheduleCalendarVip from "../VipVE/ScheduleCalendarVip";
 import VipVEList from "../VipVE/VipVEList";
 import UserVipVirtualDetails from "../VipVE/UserVipVirtualDetails";
 import ReceivedBooking from "../OneOneVE/ReceivedBooking";
+import ChatIndex from "../CommunityChat/ChatIndex";
 
 setTranslations({ en, es });
 
@@ -1007,6 +1008,14 @@ class App extends Component {
                 authentication={this.state.authentication}
                 path={"/inbox"}
                 component={NewChatIndex}
+                layout={MainLayout}
+                showFooter={false}
+              />
+
+              <PrivateRoute
+                authentication={this.state.authentication}
+                path={"/community"}
+                component={ChatIndex}
                 layout={MainLayout}
                 showFooter={false}
               />

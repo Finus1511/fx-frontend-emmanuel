@@ -50,6 +50,11 @@
     bottom: 20px;
   }
 
+.community-pic-edit {
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
   .image-upload label{
       width: 100%;
       position: relative;

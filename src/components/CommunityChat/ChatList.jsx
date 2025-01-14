@@ -1,49 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Image, InputGroup } from "react-bootstrap";
-import "./NewChat.css";
+import { Form, Image, InputGroup } from "react-bootstrap";
+import "../Chat/NewChat.css";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { translate, t } from "react-multi-lang";
-import { chatUser, fetchChatUsersStart, fetchMoreChatUsersStart, forceChatUsersSuccess } from "../../store/actions/ChatAction";
-import CommonCenterLoader from "../Loader/CommonCenterLoader";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Skeleton from "react-loading-skeleton";
-import BroadCastModal from "./BroadCastModal";
 import CustomLazyLoad from "../helper/CustomLazyLoad";
+import { communityUser, fetchCommunityUsersStart, fetchMoreCommunityMessagesStart, forceCommunityMessagesSuccess } from "../../store/actions/CommunityAction";
 
-const NewChatList = (props) => {
+const ChatList = (props) => {
 
   const [skipRender, setSkipRender] = useState(true);
   const [search, setSearch] = useState("");
-  const [broadCast, setBroadCast] = useState(false);
-
-  const closeBroadCastModal = () => {
-    setBroadCast(false);
-  };
 
   useEffect(() => {
-    props.dispatch(fetchChatUsersStart({
+    props.dispatch(fetchCommunityUsersStart({
       search_key: search,
     }));
   }, [search]);
 
   useEffect(() => {
     if (!skipRender && !props.chatMessages.loading && Object.keys(props.chatMessages.data).length > 0) {
-      if (props.chatMessages.data.messages.length > 0) {
+      if (props.chatMessages.data.total > 0) {
+        console.log('chatMessages', props.chatMessages)
         const latestMsg = props.chatMessages.data.messages[0];
-        const updatedUsers = {
-          ...props.chatUsers.data,
-          users: props.chatUsers.data.users.map((user) =>
-            user.from_user_id === props.chatUser.user_id || user.to_user_id === props.chatUser.user_id
-              ? {
-                ...user,
-                message: latestMsg.message ? latestMsg.message : latestMsg?.file_type?.toUpperCase(),
-                time_formatted: latestMsg.time_formatted,
-              }
-              : user
-          )
-        };
-        props.dispatch(forceChatUsersSuccess(updatedUsers));
+        if (Object.keys(latestMsg).length > 0) {
+          const updatedUsers = {
+            ...props.chatUsers.data,
+            communities: props.chatUsers.data.communities.map((user) =>
+              user.community_id === latestMsg.community_id
+                ? {
+                  ...user,
+                  message: latestMsg.message ? latestMsg.message : latestMsg?.file_type?.toUpperCase(),
+                  time_formatted: latestMsg.time_formatted,
+                }
+                : user
+            )
+          };
+          props.dispatch(forceCommunityMessagesSuccess(updatedUsers));
+        }
       }
     }
   }, [props.chatMessages]);
@@ -58,8 +54,8 @@ const NewChatList = (props) => {
   }, [props.chatUsers]);
 
   const fetchMoreUsers = () => {
-    props.dispatch(fetchMoreChatUsersStart({
-      skip: props.chatUsers.data.users.length,
+    props.dispatch(fetchMoreCommunityMessagesStart({
+      skip: props.chatUsers.data.communities.length,
       take: 12,
       search_key: search,
     }));
@@ -69,17 +65,8 @@ const NewChatList = (props) => {
     <>
       <div className="new-chat-list-sec">
         <div className="new-chat-title-sec" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2>{t("chats")}</h2>
-          {props.profile.data.is_content_creator == 2 ? <Button className="default-btn" type="submit" onClick={() => setBroadCast(true)}>
-            Broadcast
-            <Image
-              className="broadcast-icon"
-              src={
-                window.location.origin + "/assets/images/new-chat/broadcast-icon.svg"
-              }
-            />
-          </Button> : null}
-          <Link to='/community' className="default-btn community-btn">Community</Link>
+          <h2>{t("community")}</h2>
+          <Link to='/inbox' className="default-btn community-btn">Chat</Link>
         </div>
         <div className="new-chat-search-sec">
           <Form onSubmit={e => e.preventDefault()}>
@@ -123,8 +110,8 @@ const NewChatList = (props) => {
               )}
             </div>
 
-            : props.chatUsers.data.users &&
-              props.chatUsers.data.users.length > 0 ?
+            : props.chatUsers.data.communities &&
+              props.chatUsers.data.communities.length > 0 ?
               <>
                 <div style={{
                   maxHeight: 'calc(100vh - 190px)',
@@ -133,9 +120,9 @@ const NewChatList = (props) => {
                   marginTop: '2em'
                 }} id="usersDiv">
                   <InfiniteScroll
-                    dataLength={props.chatUsers.data.users.length}
+                    dataLength={props.chatUsers.data.communities.length}
                     next={fetchMoreUsers}
-                    hasMore={props.chatUsers.data.users.length < props.chatUsers.data.total}
+                    hasMore={props.chatUsers.data.communities.length < props.chatUsers.data.total}
                     loader={<div className="new-chat-list-box">
                       {[...Array(6)].map((val, i) =>
                         <div className="new-chat-list-card" key={i} >
@@ -154,29 +141,28 @@ const NewChatList = (props) => {
                     scrollableTarget="usersDiv"
                   >
                     <div className="new-chat-list-box">
-                      {props.chatUsers.data.users.map((user, i) =>
+                      {props.chatUsers.data.communities.map((community, i) =>
                         <div className={`new-chat-list-card 
-                        ${(!user.admin_id ? (user.to_user.user_id === props.chatUser?.user_id) : (user.admin.id == props.chatUser?.id))
-                            ? "active" : ""
-                          }
+                        ${(community.community_id === props.chatUser?.community_id) ? "active" : ""}
                         `}
                           key={i}
-                          onClick={() => props.dispatch(chatUser(user.admin_id ? { ...user.admin, is_admin: 1, } : { ...user.to_user, is_admin: 0, is_user_needs_pay: user.is_user_needs_pay }))}>
+                          onClick={() => props.dispatch(communityUser(community))}
+                        >
                           <div className="new-chat-list-user-msg-sec">
                             <div className="new-chat-list-user-img-sec">
                               <CustomLazyLoad
                                 className="new-chat-list-user-img"
-                                src={user.admin_id ? user.admin.picture : user.to_userpicture}
+                                src={community.picture}
                               />
                             </div>
                             <div className="new-chat-list-user-msg">
-                              <h4>{!user.admin_id ? user.to_displayname : "Admin*"}</h4>
-                              <p>{user.message}</p>
+                              <h4>{community.name}</h4>
+                              <p>{community.message}</p>
                             </div>
                           </div>
                           <div className="new-chat-list-notify-sec">
                             <div className="new-chat-list-time-sec">
-                              <p>{user.time_formatted}</p>
+                              <p>{community.time_formatted}</p>
                             </div>
                             {/* <div className="new-chat-list-new-msg-notify-sec">
                           5
@@ -207,21 +193,14 @@ const NewChatList = (props) => {
           }
         </div>
       </div>
-      {broadCast ?
-        <BroadCastModal
-          broadCast={broadCast}
-          closeBroadCastModal={closeBroadCastModal}
-          setBroadCast={setBroadCast}
-        />
-        : null}
     </>
   );
 };
 
 const mapStateToPros = (state) => ({
-  chatUsers: state.chat.chatUsers,
-  chatUser: state.chat.chatUser,
-  chatMessages: state.chat.chatMessages,
+  chatUsers: state.community.communityUsers,
+  chatUser: state.community.communityUser,
+  chatMessages: state.community.communityMessages,
   profile: state.users.profile,
 });
 
@@ -232,4 +211,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToPros,
   mapDispatchToProps
-)(translate(NewChatList));
+)(translate(ChatList));

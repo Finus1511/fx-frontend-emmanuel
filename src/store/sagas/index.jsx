@@ -22,6 +22,7 @@ import HomeSaga from "./HomeSaga";
 import OtherUserSaga from "./OtherUserSaga";
 import PostLikesSaga from "./PostLikesSaga";
 import ChatSaga from "./ChatSaga";
+import CommunitySaga from "./CommunitySaga";
 import NotificationSaga from "./NotificationSaga";
 import VideoCallSaga from "./VideoCallSaga";
 import LiveVideoSaga from "./LiveVideoSaga";
@@ -71,6 +72,7 @@ export default function* rootSaga() {
   yield all([fork(OtherUserSaga)]);
   yield all([fork(PostLikesSaga)]);
   yield all([fork(ChatSaga)]);
+  yield all([fork(CommunitySaga)]);
   yield all([fork(NotificationSaga)]);
   yield all([fork(VideoCallSaga)]);
   yield all([fork(LiveVideoSaga)]);

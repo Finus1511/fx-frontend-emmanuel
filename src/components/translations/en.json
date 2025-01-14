@@ -1089,5 +1089,7 @@
   "publish_type": "Publish Type",
   "followers_and_favourites": "Followers & Favourites",
   "followers_only": "Followers Only",
-  "favourites_only": "Favourites Only"
+  "favourites_only": "Favourites Only",
+  "community": "Community",
+  "name_placeholder": "Enter Name"
 }

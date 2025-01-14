@@ -24,6 +24,7 @@ import HomeReducer from "./HomeReducer";
 import OtherUserReducer from "./OtherUserReducer";
 import PostLikesReducer from "./PostLikesReducer";
 import ChatReducer from "./ChatReducer";
+import CommunityReducer from "./CommunityReducer";
 import NotificationReducer from "./NotificationReducer";
 import VideoCallReducer from "./VideoCallReducer";
 import LiveVideoReducer from "./LiveVideoReducer";
@@ -74,6 +75,7 @@ export default combineReducers({
   otherUser: OtherUserReducer,
   postLike: PostLikesReducer,
   chat: ChatReducer,
+  community: CommunityReducer,
   notification: NotificationReducer,
   videocall: VideoCallReducer,
   liveVideo: LiveVideoReducer,

@@ -120,7 +120,7 @@ const ManageSubscription = () => {
                 ) : Object.keys(subscriptions.data).length > 0 ? (
                   <div className="">
                     <div className="sub-add-btn">
-                      {subscriptions.data.total_subscriptions < 2 ? (
+                      {subscriptions.data.total_subscriptions < 10 ? (
                         <button
                           className="settings-submit-btn"
                           onClick={() => setShow("create")}

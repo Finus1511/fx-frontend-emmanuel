@@ -419,6 +419,19 @@
   gap: 4em;
   padding: 0 5em;
 }
+
+.subscribe-flex{
+  display: flex;
+  grid-template-columns: repeat(2,1fr);
+  gap: 4em;
+  padding: 0 5em 2em;
+  overflow-x: scroll;
+}
+
+.subscribe-card-model {
+  min-width: 30em !important;
+}
+
 .subscribe-card{
   min-width: 20em;
   min-height: 42em;

@@ -111,9 +111,9 @@ const SubscribeModal = (props) => {
               renderSkeletonLoader()
             ) : Object.keys(subscriptions.data).length > 0 &&
               subscriptions.data.total_subscriptions > 0 ? (
-              <div className="subscribe-grid">
+              <div className="subscribe-flex">
                 {subscriptions.data.subscriptions.map((subscription) => (
-                  <div className="subscribe-card">
+                  <div className="subscribe-card subscribe-card-model">
                     <div className="subscribe-img">
                       <Image src={subscription.picture} />
                     </div>
